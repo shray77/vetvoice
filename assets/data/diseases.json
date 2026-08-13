@@ -1,0 +1,1860 @@
+{
+  "version": "2026.2",
+  "source": "Приказ Минсельхоза РФ",
+  "description": "Перечень заразных, в том числе особо опасных, и незаразных болезней животных",
+  "categories": {
+    "particularly_dangerous": "Особо опасные болезни",
+    "infectious": "Инфекционные болезни",
+    "invasive": "Инвазионные болезни",
+    "fish_diseases": "Болезни рыб",
+    "bee_diseases": "Болезни пчел",
+    "non_contagious": "Незаразные болезни"
+  },
+  "diseases": [
+    {
+      "id": 1,
+      "name": "Ящур",
+      "code": "FMD",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 2,
+      "name": "Чума крупного рогатого скота",
+      "code": "RP",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 3,
+      "name": "Контагиозная плевропневмония крупного рогатого скота",
+      "code": "CBPP",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 4,
+      "name": "Блютанг",
+      "code": "BT",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 5,
+      "name": "Эмфизематозный карбункул (эмкар)",
+      "code": "EMC",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 6,
+      "name": "Сибирская язва",
+      "code": "AN",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади",
+        "Свиньи"
+      ],
+      "mu": [
+        {
+          "code": "МУ",
+          "description": "Лабораторная диагностика сибирской язвы у животных и людей (методические указания)",
+          "note": ""
+        },
+        {
+          "code": "МУ",
+          "description": "МУ по обнаружению возбудителя сибирской язвы в сырье и объектах внешней среды",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Бешенство",
+      "code": "RAB",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади",
+        "Свиньи",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 8,
+      "name": "Туберкулез",
+      "code": "TB",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 9,
+      "name": "Бруцеллез (включая инфекционный эпидидимит баранов)",
+      "code": "BRU",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 10,
+      "name": "Лептоспироз",
+      "code": "LEP",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 11,
+      "name": "Оспа овец и коз",
+      "code": "SP",
+      "category": "particularly_dangerous",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 12,
+      "name": "Скрепи овец и коз",
+      "code": "SC",
+      "category": "particularly_dangerous",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 13,
+      "name": "Африканская чума лошадей",
+      "code": "AHS",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 14,
+      "name": "Африканская чума свиней",
+      "code": "ASF",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 15,
+      "name": "Классическая чума свиней",
+      "code": "CSF",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 16,
+      "name": "Сап",
+      "code": "GL",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": [
+        {
+          "code": "Наставление",
+          "description": "Наставление по диагностике сапа",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Случная болезнь лошадей (трипаносомоз)",
+      "code": "Dourine",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 18,
+      "name": "Высокопатогенный грипп птиц",
+      "code": "HPAI",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 19,
+      "name": "Болезнь Ньюкасла",
+      "code": "ND",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 20,
+      "name": "Некробактериоз северных оленей",
+      "code": "NB",
+      "category": "infectious",
+      "animals": [
+        "Олени"
+      ],
+      "mu": []
+    },
+    {
+      "id": 21,
+      "name": "Алеутская болезнь норок",
+      "code": "AD",
+      "category": "infectious",
+      "animals": [
+        "Пушные"
+      ],
+      "mu": []
+    },
+    {
+      "id": 22,
+      "name": "Инфекционная анемия лошадей (ИНАН)",
+      "code": "EIA",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 23,
+      "name": "Болезнь Ауески",
+      "code": "AD",
+      "category": "infectious",
+      "animals": [
+        "Свиньи",
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 24,
+      "name": "Листериоз",
+      "code": "LIS",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": [
+        {
+          "code": "Инструкция",
+          "description": "Лабораторная диагностика листериоза животных и людей",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Вирусная геморрагическая септицемия лососевых рыб",
+      "code": "VHS",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 26,
+      "name": "Инфекционный некроз гемопоэтической ткани лососевых рыб",
+      "code": "IHN",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 27,
+      "name": "Инфекционный некроз поджелудочной железы лососевых рыб",
+      "code": "IPN",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 28,
+      "name": "Весенняя виремия карпов",
+      "code": "SVC",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 29,
+      "name": "Инфекционная анемия лососевых рыб",
+      "code": "ISA",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 30,
+      "name": "Бактериальная почечная болезнь лососевых рыб",
+      "code": "BKD",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 31,
+      "name": "Аэромонозы лососевых и карповых рыб",
+      "code": "AER",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 32,
+      "name": "Миксобактериозы лососевых и осетровых рыб",
+      "code": "MXB",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 33,
+      "name": "Бранхиомикоз карповых, лососевых и сиговых рыб",
+      "code": "BG",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 34,
+      "name": "Филометроидоз карповых рыб",
+      "code": "PHI",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 35,
+      "name": "Ботриоцефалез карповых рыб",
+      "code": "BOT",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 36,
+      "name": "Гиродактилез лососевых, карповых рыб",
+      "code": "GYR",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 37,
+      "name": "Воспаление плавательного пузыря карповых рыб",
+      "code": "SBI",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 38,
+      "name": "Инфекционные болезни всех видов животных, ранее не регистрировавшиеся на территории РФ",
+      "code": "NEW",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Все"
+      ],
+      "mu": []
+    },
+    {
+      "id": 39,
+      "name": "Везикулярный стоматит",
+      "code": "VS",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС",
+        "Свиньи",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 40,
+      "name": "Заразный узелковый дерматит крупного рогатого скота",
+      "code": "LSD",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 41,
+      "name": "Губкообразная энцефалопатия крупного рогатого скота",
+      "code": "BSE",
+      "category": "particularly_dangerous",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 42,
+      "name": "Везикулярная болезнь свиней",
+      "code": "SVD",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 43,
+      "name": "Энцефаломиелиты лошадей",
+      "code": "EE",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 44,
+      "name": "Везикулярная экзантема свиней",
+      "code": "VES",
+      "category": "particularly_dangerous",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 45,
+      "name": "Инфекционный гидроперикардит (риккетсиозной этиологии)",
+      "code": "HPS",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 46,
+      "name": "Энтеровирусный энцефаломиелит свиней (болезнь Тешена)",
+      "code": "Talfan",
+      "category": "infectious",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 47,
+      "name": "Акарапидоз пчел",
+      "code": "AC",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 48,
+      "name": "Американский гнилец пчел",
+      "code": "AFB",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 49,
+      "name": "Лейкоз крупного рогатого скота",
+      "code": "EBL",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 50,
+      "name": "Лихорадка Ку",
+      "code": "QF",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 51,
+      "name": "Паратуберкулез",
+      "code": "PTB",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 52,
+      "name": "Пастереллез разных видов",
+      "code": "PAST",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 53,
+      "name": "Туляремия",
+      "code": "TUL",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": [
+        {
+          "code": "МУ",
+          "description": "МУ по лабораторным методам диагностики туляремии",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "name": "Иерсиниозы",
+      "code": "YER",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 55,
+      "name": "Злокачественная катаральная горячка крупного рогатого скота",
+      "code": "MCF",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 56,
+      "name": "Сальмонеллезы",
+      "code": "SAL",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 57,
+      "name": "Энтеротоксемия",
+      "code": "ENT",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 58,
+      "name": "Брадзот",
+      "code": "BRAD",
+      "category": "infectious",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 59,
+      "name": "Вирусная диарея",
+      "code": "BVD",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 60,
+      "name": "Инфекционный ринотрахеит (ИРТ)",
+      "code": "IBR",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 61,
+      "name": "Парагрипп-3",
+      "code": "PI3",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 62,
+      "name": "Кампилобактериоз",
+      "code": "CAM",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 63,
+      "name": "Пироплазмозы",
+      "code": "PIR",
+      "category": "invasive",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 64,
+      "name": "Грипп птиц (за исключением высокопатогенного)",
+      "code": "AI",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 65,
+      "name": "Трихомоноз",
+      "code": "TRI",
+      "category": "invasive",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 66,
+      "name": "Некробактериоз (за исключением северных оленей)",
+      "code": "NB",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 67,
+      "name": "Инфекционный кератоконъюнктивит крупного рогатого скота",
+      "code": "IBK",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 68,
+      "name": "Артрит/энцефалит коз",
+      "code": "CAE",
+      "category": "infectious",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 69,
+      "name": "Инфекционная агалактия",
+      "code": "IA",
+      "category": "infectious",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 70,
+      "name": "Хламидиоз (энзоотический аборт овец)",
+      "code": "CHL",
+      "category": "infectious",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 71,
+      "name": "Вирусный артериит лошадей",
+      "code": "EVA",
+      "category": "infectious",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 72,
+      "name": "Грипп лошадей",
+      "code": "EI",
+      "category": "infectious",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 73,
+      "name": "Инфекционный метрит лошадей",
+      "code": "CEM",
+      "category": "infectious",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 74,
+      "name": "Ринопневмония лошадей",
+      "code": "EHV",
+      "category": "infectious",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 75,
+      "name": "Мыт",
+      "code": "Strangles",
+      "category": "infectious",
+      "animals": [
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 76,
+      "name": "Репродуктивно-респираторный синдром свиней (РРСС)",
+      "code": "PRRS",
+      "category": "infectious",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 77,
+      "name": "Рожа свиней",
+      "code": "Erysipelas",
+      "category": "infectious",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": [
+        {
+          "code": "МУ",
+          "description": "МУ по лабораторной диагностике рожи (эризипелоида) свиней",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "name": "Трансмиссивный гастроэнтерит свиней",
+      "code": "TGE",
+      "category": "infectious",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 79,
+      "name": "Токсоплазмоз",
+      "code": "TOX",
+      "category": "invasive",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Птица"
+      ],
+      "mu": [
+        {
+          "code": "МУК 4.2.2944-11",
+          "description": "Методы лабораторной диагностики токсоплазмоза",
+          "note": "МУК по контролю"
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "name": "Трихинеллез",
+      "code": "TRICH",
+      "category": "invasive",
+      "animals": [
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 81,
+      "name": "Эхинококкоз",
+      "code": "ECH",
+      "category": "invasive",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 82,
+      "name": "Цистицеркозы",
+      "code": "CYST",
+      "category": "invasive",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "mu": []
+    },
+    {
+      "id": 83,
+      "name": "Анаплазмоз",
+      "code": "ANAP",
+      "category": "invasive",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 84,
+      "name": "Тейлериоз",
+      "code": "THEI",
+      "category": "invasive",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 85,
+      "name": "Болезнь Марека",
+      "code": "MD",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 86,
+      "name": "Вирусный гепатит уток",
+      "code": "DHV",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 87,
+      "name": "Вирусный энтерит гусей",
+      "code": "DVE",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 88,
+      "name": "Инфекционный бурсит (болезнь Гамборо)",
+      "code": "IBD",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 89,
+      "name": "Инфекционный ларинготрахеит кур",
+      "code": "ILT",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 90,
+      "name": "Инфекционный бронхит кур",
+      "code": "IB",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 91,
+      "name": "Синдром снижения яйценоскости (ССЯ-76)",
+      "code": "EDS",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 92,
+      "name": "Тиф-пуллороз птиц",
+      "code": "FP",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 93,
+      "name": "Микоплазмозы",
+      "code": "MYC",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 94,
+      "name": "Спирохетоз птиц",
+      "code": "AVS",
+      "category": "infectious",
+      "animals": [
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 95,
+      "name": "Хламидиозы",
+      "code": "CHL",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 96,
+      "name": "Гиподерматоз крупного рогатого скота",
+      "code": "HYPO",
+      "category": "invasive",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 97,
+      "name": "Вирусная геморрагическая болезнь кроликов",
+      "code": "RHD",
+      "category": "infectious",
+      "animals": [
+        "Кролики"
+      ],
+      "mu": []
+    },
+    {
+      "id": 98,
+      "name": "Миксоматоз",
+      "code": "MX",
+      "category": "infectious",
+      "animals": [
+        "Кролики"
+      ],
+      "mu": []
+    },
+    {
+      "id": 99,
+      "name": "Вирусный энтерит норок",
+      "code": "MVE",
+      "category": "infectious",
+      "animals": [
+        "Пушные"
+      ],
+      "mu": []
+    },
+    {
+      "id": 100,
+      "name": "Псевдомоноз",
+      "code": "PS",
+      "category": "infectious",
+      "animals": [
+        "Пушные",
+        "Птица"
+      ],
+      "mu": [
+        {
+          "code": "МУ",
+          "description": "МУ по лабораторным исследованиям на псевдомоноз животных и птиц",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "name": "Чума плотоядных",
+      "code": "CD",
+      "category": "infectious",
+      "animals": [
+        "Пушные"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2597",
+          "description": "Диагностика чумы собак и пушных зверей",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "name": "Европейский гнилец пчел",
+      "code": "EFB",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 103,
+      "name": "Варроатоз",
+      "code": "VAR",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 104,
+      "name": "Нозематоз",
+      "code": "NOZ",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 105,
+      "name": "Вирусный паралич пчел",
+      "code": "ABPV",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 106,
+      "name": "Мешотчатый расплод",
+      "code": "SB",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": []
+    },
+    {
+      "id": 106.1,
+      "name": "Чума мелких жвачных животных",
+      "code": "PPR",
+      "category": "particularly_dangerous",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 108,
+      "name": "Контагиозный пустулезный дерматит (эктима)",
+      "code": "CPD",
+      "category": "infectious",
+      "animals": [
+        "МРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 109,
+      "name": "Чума верблюдов",
+      "code": "CD",
+      "category": "infectious",
+      "animals": [
+        "Верблюды"
+      ],
+      "mu": []
+    },
+    {
+      "id": 201,
+      "name": "Кетоз",
+      "code": "KET",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 202,
+      "name": "Гипокальциемия (Молочная лихорадка)",
+      "code": "MFEVER",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 203,
+      "name": "Остеомаляция",
+      "code": "OSTML",
+      "category": "non_contagious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 204,
+      "name": "Рахит",
+      "code": "RICK",
+      "category": "non_contagious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Лошади",
+        "Собаки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 205,
+      "name": "Бронхопневмония телят",
+      "code": "BRPN",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 206,
+      "name": "Диспепсия телят",
+      "code": "DYSP",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 207,
+      "name": "Тимпания рубца",
+      "code": "TYMP",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 208,
+      "name": "Атония рубца",
+      "code": "ATON",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 209,
+      "name": "Мастит",
+      "code": "MAST",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 210,
+      "name": "Эндометрит",
+      "code": "ENDM",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 211,
+      "name": "Ламинит",
+      "code": "LAMN",
+      "category": "non_contagious",
+      "animals": [
+        "КРС",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 212,
+      "name": "Болезнь Мортелларо (Межпальцевой дерматит)",
+      "code": "MORT",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 213,
+      "name": "Язва Рустерхольца",
+      "code": "RUST",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 214,
+      "name": "Межпальцевая флегмона",
+      "code": "IPHL",
+      "category": "non_contagious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 215,
+      "name": "Эпилепсия",
+      "code": "EPI",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 216,
+      "name": "Цистит",
+      "code": "CYST",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 217,
+      "name": "Гастрит",
+      "code": "GAST",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 218,
+      "name": "Энтерит",
+      "code": "ENTR",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 219,
+      "name": "Дерматит",
+      "code": "DERM",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 220,
+      "name": "Аллергия",
+      "code": "ALRG",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 221,
+      "name": "Отит",
+      "code": "OTIT",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 222,
+      "name": "Конъюнктивит",
+      "code": "CONJ",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки",
+        "КРС",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 223,
+      "name": "Жировая дистрофия печени (Липидоз)",
+      "code": "LIPD",
+      "category": "non_contagious",
+      "animals": [
+        "Кошки",
+        "Собаки",
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 224,
+      "name": "Анемия (железодефицитная)",
+      "code": "ANEM",
+      "category": "non_contagious",
+      "animals": [
+        "Свиньи",
+        "КРС",
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 225,
+      "name": "Авитаминоз",
+      "code": "AVIT",
+      "category": "non_contagious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Собаки",
+        "Кошки",
+        "Птица"
+      ],
+      "mu": []
+    },
+    {
+      "id": 226,
+      "name": "Отравления (токсикозы)",
+      "code": "TOX",
+      "category": "non_contagious",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Собаки",
+        "Кошки",
+        "Лошади"
+      ],
+      "mu": []
+    },
+    {
+      "id": 227,
+      "name": "Раны и травмы",
+      "code": "WOUND",
+      "category": "non_contagious",
+      "animals": [
+        "Все"
+      ],
+      "mu": []
+    },
+    {
+      "id": 228,
+      "name": "Пиелонефрит",
+      "code": "PYEL",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки",
+        "КРС"
+      ],
+      "mu": []
+    },
+    {
+      "id": 229,
+      "name": "Гингивит / Стоматит",
+      "code": "GING",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 230,
+      "name": "Синдром Кушинга (Гиперадренокортицизм)",
+      "code": "CUSH",
+      "category": "non_contagious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": []
+    },
+    {
+      "id": 231,
+      "name": "Лайм-боррелиоз",
+      "code": "LYME",
+      "category": "infectious",
+      "animals": [
+        "Собаки",
+        "Лошади",
+        "КРС"
+      ],
+      "mu": [
+        {
+          "code": "МУК 4.2.2943-11",
+          "description": "Методы диагностики боррелиоза у животных",
+          "note": "Клещевая инфекция"
+        }
+      ]
+    },
+    {
+      "id": 232,
+      "name": "Парвовирусный энтерит собак",
+      "code": "CPV",
+      "category": "infectious",
+      "animals": [
+        "Собаки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2596",
+          "description": "Диагностика парвовирусной инфекции плотоядных",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 233,
+      "name": "Аденовирусная инфекция собак",
+      "code": "CAV",
+      "category": "infectious",
+      "animals": [
+        "Собаки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2598",
+          "description": "Диагностика аденовирусного гепатита (Рубарта)",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "name": "Парвовирусная инфекция кошек",
+      "code": "FPV",
+      "category": "infectious",
+      "animals": [
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2599",
+          "description": "Диагностика панлейкопении кошек",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 235,
+      "name": "Коронавирусная инфекция кошек",
+      "code": "FCoV",
+      "category": "infectious",
+      "animals": [
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2600",
+          "description": "Диагностика коронавирусного энтерита кошек",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "name": "ВИК (FIV)",
+      "code": "FIV",
+      "category": "infectious",
+      "animals": [
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2601",
+          "description": "Диагностика ВИК (FIV)",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 237,
+      "name": "FIP",
+      "code": "FIP",
+      "category": "infectious",
+      "animals": [
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 10-4/2602",
+          "description": "Диагностика инфекционного перитонита",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 238,
+      "name": "Криптоспоридиоз",
+      "code": "CRYPTO",
+      "category": "infectious",
+      "animals": [
+        "КРС",
+        "Свиньи",
+        "Птица",
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 11-5/3371",
+          "description": "Методы лабораторной диагностики",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "name": "Бабезиоз собак",
+      "code": "BAB",
+      "category": "infectious",
+      "animals": [
+        "Собаки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 11-5/3372",
+          "description": "Диагностика пироплазмоза",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "name": "Дирофиляриоз",
+      "code": "DIR",
+      "category": "infectious",
+      "animals": [
+        "Собаки",
+        "Кошки"
+      ],
+      "mu": [
+        {
+          "code": "МУ 11-5/3373",
+          "description": "Диагностика дирофиляриоза собак и кошек",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 241,
+      "name": "Микоплазмоз КРС",
+      "code": "MYCO-C",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": [
+        {
+          "code": "МУ 12-6/234",
+          "description": "Диагностика микоплазмоза КРС",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 242,
+      "name": "Уреаплазмоз КРС",
+      "code": "UREA-C",
+      "category": "infectious",
+      "animals": [
+        "КРС"
+      ],
+      "mu": [
+        {
+          "code": "МУ 12-6/235",
+          "description": "Диагностика уреаплазмоза КРС",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 243,
+      "name": "Инвазионные болезни пчёл",
+      "code": "BEE-INV",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 13-7/2400",
+          "description": "Диагностика (кроме гнильцов)",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 244,
+      "name": "Нозематоз пчёл",
+      "code": "NOZ-BEE",
+      "category": "bee_diseases",
+      "animals": [
+        "Пчелы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 13-7/2401",
+          "description": "Диагностика нозематоза",
+          "note": "Микроскопия, ПЦР"
+        }
+      ]
+    },
+    {
+      "id": 245,
+      "name": "Ихтиофтириоз рыб",
+      "code": "ICHT",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 14-8/1501",
+          "description": "Диагностика",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 246,
+      "name": "Сапролегниоз рыб",
+      "code": "SAP",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 14-8/1502",
+          "description": "Диагностика",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 247,
+      "name": "Фурункулёз лососевых рыб",
+      "code": "FUR",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 14-8/1503",
+          "description": "Диагностика фурункулёза лососевых",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 248,
+      "name": "Бактериальная почечная болезнь лососевых рыб",
+      "code": "BKD-FISH",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 14-8/1504",
+          "description": "Диагностика БПБ лососевых",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": 249,
+      "name": "Краснуха карпов",
+      "code": "KHV",
+      "category": "fish_diseases",
+      "animals": [
+        "Рыбы"
+      ],
+      "mu": [
+        {
+          "code": "МУ 14-8/1505",
+          "description": "Диагностика",
+          "note": ""
+        }
+      ]
+    }
+  ]
+}

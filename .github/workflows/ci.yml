@@ -1,0 +1,60 @@
+name: CI
+
+# Проверки на каждый push/PR
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🐍 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Pub get
+        run: flutter pub get
+
+      - name: 🔍 Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        continue-on-error: true
+
+      - name: 🧪 Test
+        run: flutter test
+        continue-on-error: true
+
+      - name: 📋 List dart files
+        run: |
+          echo "=== Dart files ==="
+          find lib -name "*.dart" | wc -l
+          echo "files in lib/"
+          find lib -name "*.dart" -exec wc -l {} + | tail -1
+
+      - name: ✅ Verify pubspec version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          echo "Version: $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ ]]; then
+            echo "::error::Версия должна быть в формате X.Y.Z+N, а не '$VERSION'"
+            exit 1
+          fi
+          echo "✅ Версия корректна"

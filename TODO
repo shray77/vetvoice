@@ -1,0 +1,65 @@
+# VetVoice — Roadmap и задачи
+
+## Сделано (v1.13.2)
+
+### Vosk — офлайн wake word «ВетВойс»
+- Нативная интеграция Vosk (com.alphacephei:vosk-android:0.3.47) через MethodChannel
+- Wake word detection: «ветвойс», «вет войс», «вет помощь», «ветеринар» + Levenshtein
+- Модель (~50 МБ) скачивается один раз, кешируется, обновление — раз в неделю
+- Прогресс загрузки MB/MB в UI
+- Синглтон WakeWordService — не сбрасывается при смене экранов
+- Автоматический запрос микрофона при первом включении
+- Автозапуск прослушивания после загрузки модели
+
+### Фиксы
+- Фильтры заболеваний: чипы передают правильные значения (КРС, МРС, Лошади и т.д.)
+- Поиск препаратов: приоритет по выбранному животному, защита от коротких совпадений
+- Опечатка «КРс» → «КРС» в diseases.json
+- AndroidX включен, jetifier включен
+
+### Сборка
+- ABI split: arm64-v8a (49 МБ), armeabi-v7a (47 МБ)
+- minifyEnabled + shrinkResources + ProGuard
+- Релизы в GitLab Generic Packages
+
+---
+
+## TODO / План развития
+
+### 🔴 Приоритет — Foreground Service (Ok Google аналог)
+**Зачем:** Ветеринары в поле, руки грязные/заняты. Нужно чтобы wake word работал
+когда приложение свернуто или телефон в кармане.
+
+**Что сделать:**
+1. `VoskForegroundService.kt` — Android foreground service с уведомлением
+   - Notification channel «VetVoice» с иконкой микрофона
+   - Статус в уведомлении: «Слушаю... / Модель загружается / Остановлен»
+   - Действие «Остановить» в уведомлении
+2. `AndroidManifest.xml` — зарегистрировать service, добавить permission:
+   ```xml
+   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+   <service android:name=".VoskForegroundService"
+            android:foregroundServiceType="microphone" />
+   ```
+3. `MainActivity.kt` — startForegroundService / stopForeground
+4. WakeLock (PARTIAL_WAKE_LOCK) — чтобы CPU не уснул
+5. Dart: обработка background state, не показывать ошибку если Activity восстановилась
+6. Проверка на Android 14+ — foreground service restrictions
+
+### 🟡 Средний приоритет
+- **Избранное препаратов** — сохранять часто используемые
+- **История расчётов** — логирование предыдущих вычислений
+- **Интерактивные побочные эффекты** — свайп по препарату показывает полную таблицу
+- **Голосовая инструкция при первом запуске** — краткий туториал
+- **Тёмная тема**
+
+### 🟢 Низкий приоритет
+- **iOS версия** — AVAudioEngine для записи, Vosk C-библиотека
+- **Мультимодальный ввод** — фото этикетки → OCR → распознать препарат
+- **Экспорт/импорт настроек** — для передачи между устройствами
+- **Калькулятор карantine period** — по препарату и стране
+
+---
+
+*Обновлено: 2026-04-01*

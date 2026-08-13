@@ -1,0 +1,31 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+    project.plugins.whenPluginAdded {
+        if (project.hasProperty("android")) {
+            project.android {
+                // ⚠️ Фикс: speech_to_text 7.3.0 не задаёт compileSdk в своём build.gradle,
+                // а полагается на flutter.compileSdkVersion который не доступен в AGP 8.7.
+                // Также flutter_tts требует compileSdk >= 36. Ставим 36 для всех плагинов
+                // (backward compatible — приложение работает на Android 5+).
+                if (compileSdk == null || compileSdk == 0 || compileSdk < 36) {
+                    compileSdk = 36
+                }
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

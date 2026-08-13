@@ -1,0 +1,207 @@
+name: Build & Release APK
+
+# Сборка release APK при создании тега v* и пуш в GitHub Releases.
+# Триггеры:
+#   * push тега v1.15.0+18, v1.16.0, и т.п.
+#   * manual dispatch через Actions UI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Версия для тега (например, v1.15.0+18)'
+        required: false
+        default: ''
+      prerelease:
+        description: 'Пререлиз (не показывать как Latest)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write       # для создания Release и пуша APK
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ---------- 1. Checkout ----------
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # ---------- 2. Установить тег (для manual dispatch) ----------
+      - name: 🏷️ Determine version tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF##*/}"
+          else
+            # Для push без тега — используем версию из pubspec.yaml + run_id
+            TAG="v$(grep '^version:' pubspec.yaml | head -1 | awk '{print $2}' | cut -d'+' -f1)-ci${{ github.run_id }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "🏷️ Tag: $TAG"
+
+      # ---------- 3. Java ----------
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ---------- 4. Flutter ----------
+      - name: 🐍 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: 'stable'
+          cache: true
+
+      # ---------- 5. Установка зависимостей ----------
+      - name: 📦 Flutter pub get
+        run: flutter pub get
+
+      # ---------- 6. Импорт signing keystore (если задан) ----------
+      # Если есть секреты ANDROID_KEYSTORE_BASE64 и ANDROID_KEY_PROPERTIES,
+      # подписываем release настоящим ключом. Иначе — debug-подпись.
+      - name: 🔑 Import signing keystore
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+          echo "$ANDROID_KEY_PROPERTIES" > android/key.properties
+          echo "✅ Keystore imported"
+
+      - name: ⚠️ No signing keystore — using debug
+        if: env.ANDROID_KEYSTORE_BASE64 == ''
+        run: |
+          echo "::warning::ANDROID_KEYSTORE_BASE64 secret не задан — APK будет подписан debug-ключом"
+          echo "Для production-подписи создай keystore и добавь секреты:"
+          echo "  keytool -genkey -v -keystore release.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias vetvoice"
+          echo "  base64 release.keystore > keystore.b64"
+          echo "  # Добавь ANDROID_KEYSTORE_BASE64 и ANDROID_KEY_PROPERTIES в Secrets"
+
+      # ---------- 7. Обновить build.gradle для release keystore ----------
+      - name: 🔧 Patch build.gradle for keystore
+        run: |
+          if [ -f android/key.properties ]; then
+            echo "Using keystore from key.properties"
+            python3 << 'PYEOF'
+            with open('android/app/build.gradle', 'r') as f:
+                content = f.read()
+            if 'def keystoreProperties' not in content:
+                patch = '''
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('key.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            }
+            '''
+                content = content.replace('android {', patch + '\nandroid {', 1)
+                content = content.replace(
+                    "    buildTypes {\n        release {\n            signingConfig = signingConfigs.debug",
+                    """    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug"""
+                )
+                with open('android/app/build.gradle', 'w') as f:
+                    f.write(content)
+                print("✅ build.gradle patched")
+            PYEOF
+          else
+            echo "⚠️ key.properties не найден — оставляем debug-подпись"
+          fi
+
+      # ---------- 8. Сборка release APK ----------
+      - name: 🔨 Build release APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # ---------- 9. Сборка AAB (опционально, для Play Store) ----------
+      - name: 🔨 Build AAB (bundle)
+        run: flutter build appbundle --release --no-tree-shake-icons
+        continue-on-error: true
+
+      # ---------- 10. Переименование APK с версией ----------
+      - name: 📦 Rename APK
+        run: |
+          VERSION="${{ steps.tag.outputs.tag }}"
+          mkdir -p artifacts
+          cp build/app/outputs/flutter-apk/app-release.apk "artifacts/vetvoice-${VERSION}.apk"
+          if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
+            cp build/app/outputs/bundle/release/app-release.aab "artifacts/vetvoice-${VERSION}.aab"
+          fi
+          ls -la artifacts/
+
+      # ---------- 11. Загрузить APK как артефакт ----------
+      - name: 📤 Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vetvoice-apk-${{ steps.tag.outputs.tag }}
+          path: artifacts/*.apk
+          retention-days: 90
+
+      # ---------- 12. Создать GitHub Release ----------
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: VetVoice AI ${{ steps.tag.outputs.tag }}
+          files: artifacts/*
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          generate_release_notes: true
+          body: |
+            ## VetVoice AI ${{ steps.tag.outputs.tag }}
+
+            ### Установка
+            1. Скачай `vetvoice-${{ steps.tag.outputs.tag }}.apk`
+            2. На Android: разрешить установку из неизвестных источников
+            3. Установить APK
+
+            ### Что нового
+            - База препаратов: 2401 (v7.6)
+            - 617 вакцин с vaccine_specific
+            - Sprint 1: VaccineCard, favorites, history, dark theme, color coding
+            - Sprint 2: symptom search, treatment protocols, interactions, withdrawal
+            - Офлайн STT: Vosk (русская модель 50 МБ)
+
+            ### Источники данных
+            - fsvps.gov.ru — Открытые данные Россельхознадзора
+            - vetprotocol.ru, vetlek.ru, vidal.ru/veterinar
+
+            ### Размеры
+            - APK: ARM64 (рекомендуется для современных устройств)
+            - Vosk модель скачается при первом запуске (50 МБ)
+
+            ---
+            *Собрано: ${{ github.run_id }} от ${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------- 13. Отчёт в лог ----------
+      - name: 📊 Summary
+        run: |
+          echo "=== Build & Release Summary ==="
+          echo "Tag: ${{ steps.tag.outputs.tag }}"
+          echo "APK size: $(du -h artifacts/*.apk | cut -f1)"
+          if ls artifacts/*.aab 1>/dev/null 2>&1; then
+            echo "AAB size: $(du -h artifacts/*.aab | cut -f1)"
+          fi
+          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag.outputs.tag }}"

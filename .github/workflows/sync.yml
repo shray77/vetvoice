@@ -1,0 +1,78 @@
+name: Sync from GitLab
+
+# Зеркалирование репозитория shray77/vetvoice с GitLab на GitHub.
+# Запускается:
+#   * По расписанию (каждые 6 часов)
+#   * Вручную через Actions UI
+
+on:
+  schedule:
+    # Каждые 6 часов
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write       # для пуша в main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout GitHub repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 📥 Add GitLab remote
+        run: |
+          # GitLab репо публичный — токен не нужен
+          git remote add gitlab https://gitlab.com/shray77/vetvoice.git || true
+          git fetch gitlab main --depth=50
+
+      - name: 🔄 Sync main from GitLab
+        run: |
+          # Сохраняем .github/ (workflow'ы есть только на GitHub)
+          git checkout main
+          git fetch gitlab main
+
+          # Проверяем есть ли новые коммиты
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse gitlab/main)
+          echo "Local:  $LOCAL"
+          echo "GitLab: $REMOTE"
+
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "✅ Уже актуально, пуш не нужен"
+            exit 0
+          fi
+
+          # Пробуем fast-forward merge
+          if git merge --ff-only gitlab/main; then
+            echo "✅ Fast-forward успешен"
+          else
+            echo "⚠️ Fast-forward не возможен — берём только файлы GitLab"
+            # Стратегия: копируем все файлы из GitLab, кроме .github/
+            git checkout gitlab/main -- .
+            git checkout HEAD -- .github/  # восстанавливаем .github
+            git add -A
+            git commit -m "🔄 Sync from GitLab (resolve conflicts, keep .github/)"
+          fi
+
+      - name: 📤 Push to GitHub
+        run: |
+          git push origin main
+
+      - name: 📊 Report
+        run: |
+          echo "=== Sync Summary ==="
+          echo "Last commit: $(git log -1 --oneline)"
+          echo "Diff vs GitLab:"
+          git log --oneline gitlab/main -5 || echo "no gitlab remote"

@@ -1,0 +1,474 @@
+{
+  "version": "2026.2",
+  "source": "Rosshlkhnadzor 2026",
+  "last_updated": "2026-03-15",
+  "drugs": [
+    {
+      "id": 1,
+      "name": "Энрофлоксацин",
+      "dose": 0.05,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Энрофлоксацин 10%",
+      "withdrawal_days": 14,
+      "description": "Антибактериальный препарат группы фторхинолонов",
+      "contraindications": {
+        "pregnancy": true,
+        "lactation": false,
+        "young": true,
+        "old": false,
+        "warnings": [
+          "Не применять одновременно с хлорамфениколом, тетрациклинами, макролидами",
+          "Не применять животным с поражением нервной системы"
+        ]
+      },
+      "dose_adjustment": {
+        "young_multiplier": 0.5
+      }
+    },
+    {
+      "id": 2,
+      "name": "Амоксициллин",
+      "dose": 0.1,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Амоксициллин 15%",
+      "withdrawal_days": 21,
+      "description": "Антибиотик пенициллинового ряда",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": false,
+        "old": false,
+        "warnings": [
+          "С осторожностью при почечной недостаточности"
+        ]
+      },
+      "dose_adjustment": {}
+    },
+    {
+      "id": 3,
+      "name": "Ивермектин",
+      "dose": 0.02,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади"
+      ],
+      "method": "Подкожно",
+      "method_short": "п/к",
+      "active_ingredient": "Ивермектин 1%",
+      "withdrawal_days": 28,
+      "description": "Противопаразитарный препарат",
+      "contraindications": {
+        "pregnancy": true,
+        "lactation": true,
+        "young": true,
+        "old": false,
+        "warnings": [
+          "Не применять дойным коровам",
+          "Не применять собакам пород колли, бобтейл, шелти"
+        ]
+      },
+      "dose_adjustment": {
+        "young_multiplier": 0.75
+      }
+    },
+    {
+      "id": 4,
+      "name": "Дексаметазон",
+      "dose": 0.04,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади",
+        "Свиньи"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Дексаметазон 0.4%",
+      "withdrawal_days": 5,
+      "description": "Глюкокортикостероид, противовоспалительное средство",
+      "contraindications": {
+        "pregnancy": true,
+        "lactation": false,
+        "young": false,
+        "old": true,
+        "warnings": [
+          "Может вызвать аборт при беременности!",
+          "С осторожностью при диабете",
+          "Не применять при вирусных инфекциях"
+        ]
+      },
+      "dose_adjustment": {
+        "pregnancy_multiplier": 0.5,
+        "old_multiplier": 0.75
+      }
+    },
+    {
+      "id": 5,
+      "name": "Тилозин",
+      "dose": 0.05,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "Свиньи",
+        "Птица"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Тилозин 20%",
+      "withdrawal_days": 8,
+      "description": "Антибиотик макролидной группы",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": false,
+        "old": false,
+        "warnings": [
+          "Не применять одновременно с клиндамицином, хлорамфениколом"
+        ]
+      },
+      "dose_adjustment": {}
+    },
+    {
+      "id": 6,
+      "name": "Флунексин",
+      "dose": 0.02,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади",
+        "Свиньи"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Флунексин меглумин",
+      "withdrawal_days": 7,
+      "description": "НПВС, обезболивающее и противовоспалительное",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": false,
+        "old": true,
+        "warnings": [
+          "С осторожностью при заболеваниях ЖКТ",
+          "Не применять одновременно с другими НПВС"
+        ]
+      },
+      "dose_adjustment": {
+        "old_multiplier": 0.75
+      }
+    },
+    {
+      "id": 7,
+      "name": "Окситетрациклин",
+      "dose": 0.1,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи",
+        "Птица"
+      ],
+      "method": "Внутримышечно",
+      "method_short": "в/м",
+      "active_ingredient": "Окситетрациклин 10%",
+      "withdrawal_days": 21,
+      "description": "Антибиотик тетрациклиновой группы",
+      "contraindications": {
+        "pregnancy": true,
+        "lactation": false,
+        "young": true,
+        "old": false,
+        "warnings": [
+          "Нарушает формирование костей и зубов у молодняка",
+          "Не применять при почечной недостаточности"
+        ]
+      },
+      "dose_adjustment": {
+        "young_multiplier": 0.5
+      }
+    },
+    {
+      "id": 8,
+      "name": "Гамавит",
+      "dose": 0.1,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Лошади",
+        "Свиньи",
+        "Птица"
+      ],
+      "method": "Внутримышечно или подкожно",
+      "method_short": "в/м, п/к",
+      "active_ingredient": "Комплексный иммуномодулятор",
+      "withdrawal_days": 0,
+      "description": "Иммуномодулятор, детоксикационное средство",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": false,
+        "old": false,
+        "warnings": []
+      },
+      "dose_adjustment": {}
+    },
+    {
+      "id": 9,
+      "name": "Кальция борглюконат",
+      "dose": 0.5,
+      "unit": "ml/kg",
+      "animals": [
+        "КРС",
+        "МРС"
+      ],
+      "method": "Внутривенно медленно",
+      "method_short": "в/в",
+      "active_ingredient": "Кальция глюконат + борная кислота",
+      "withdrawal_days": 0,
+      "description": "Препарат кальция для лечения гипокальциемии",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": false,
+        "old": false,
+        "warnings": [
+          "Вводить медленно во избежание аритмии",
+          "Не смешивать с другими препаратами"
+        ]
+      },
+      "dose_adjustment": {}
+    },
+    {
+      "id": 10,
+      "name": "Окситоцин",
+      "dose": 0.05,
+      "unit": "ml/животное",
+      "animals": [
+        "КРС",
+        "МРС",
+        "Свиньи"
+      ],
+      "method": "Внутримышечно или подкожно",
+      "method_short": "в/м, п/к",
+      "active_ingredient": "Окситоцин 10 ЕД/мл",
+      "withdrawal_days": 1,
+      "description": "Стимулятор родовой деятельности, стимулятор лактации",
+      "contraindications": {
+        "pregnancy": false,
+        "lactation": false,
+        "young": true,
+        "old": false,
+        "warnings": [
+          "Применять ТОЛЬКО при начавшейся родовой деятельности!",
+          "Противопоказан при узком тазе, неправильном положении плода"
+        ]
+      },
+      "dose_adjustment": {}
+    }
+  ],
+  "animals": [
+    {
+      "id": "cattle",
+      "name": "КРС",
+      "icon": "cattle",
+      "description": "Крупный рогатый скот",
+      "min_weight": 30,
+      "max_weight": 1500,
+      "weight_hint": "Теленок: 30-50 кг, Телка: 300-400 кг, Корова: 400-700 кг, Бык: 800-1500 кг",
+      "pregnancy_term": "Стельность",
+      "gestation_days": 285,
+      "age_groups": [
+        {
+          "name": "Теленок",
+          "category": "young",
+          "max_months": 6,
+          "description": "До 6 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 18,
+          "description": "6-18 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 120,
+          "description": "1.5-10 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 240,
+          "description": "Старше 10 лет"
+        }
+      ]
+    },
+    {
+      "id": "sheep",
+      "name": "МРС",
+      "icon": "sheep",
+      "description": "Мелкий рогатый скот (овцы, козы)",
+      "min_weight": 5,
+      "max_weight": 150,
+      "weight_hint": "Ягненок: 5-15 кг, Овца: 40-80 кг, Баран: 80-150 кг",
+      "pregnancy_term": "Сукотность",
+      "gestation_days": 152,
+      "age_groups": [
+        {
+          "name": "Ягненок",
+          "category": "young",
+          "max_months": 4,
+          "description": "До 4 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 12,
+          "description": "4-12 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 84,
+          "description": "1-7 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 144,
+          "description": "Старше 7 лет"
+        }
+      ]
+    },
+    {
+      "id": "horse",
+      "name": "Лошади",
+      "icon": "horse",
+      "description": "Лошади, пони",
+      "min_weight": 50,
+      "max_weight": 1000,
+      "weight_hint": "Пони: 50-150 кг, Лошадь: 400-600 кг, Тяжеловоз: 700-1000 кг",
+      "pregnancy_term": "Жеребость",
+      "gestation_days": 340,
+      "age_groups": [
+        {
+          "name": "Жеребенок",
+          "category": "young",
+          "max_months": 6,
+          "description": "До 6 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 36,
+          "description": "6-36 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 180,
+          "description": "3-15 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 360,
+          "description": "Старше 15 лет"
+        }
+      ]
+    },
+    {
+      "id": "pig",
+      "name": "Свиньи",
+      "icon": "pig",
+      "description": "Свиньи всех возрастов",
+      "min_weight": 1,
+      "max_weight": 400,
+      "weight_hint": "Поросенок: 1-20 кг, Свинья: 100-200 кг, Кабан: 200-400 кг",
+      "pregnancy_term": "Супоросность",
+      "gestation_days": 115,
+      "age_groups": [
+        {
+          "name": "Поросенок",
+          "category": "young",
+          "max_months": 2,
+          "description": "До 2 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 9,
+          "description": "2-9 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 48,
+          "description": "9 месяцев - 4 года"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 96,
+          "description": "Старше 4 лет"
+        }
+      ]
+    },
+    {
+      "id": "poultry",
+      "name": "Птица",
+      "icon": "poultry",
+      "description": "Куры, утки, гуси, индейки",
+      "min_weight": 0.1,
+      "max_weight": 20,
+      "weight_hint": "Цыпленок: 0.1-0.5 кг, Курица: 1.5-3 кг, Индюк: 5-20 кг",
+      "pregnancy_term": "Насиживание",
+      "gestation_days": 21,
+      "age_groups": [
+        {
+          "name": "Цыпленок",
+          "category": "young",
+          "max_months": 1,
+          "description": "До 1 месяца"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 5,
+          "description": "1-5 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 36,
+          "description": "5 месяцев - 3 года"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 72,
+          "description": "Старше 3 лет"
+        }
+      ]
+    }
+  ]
+}
