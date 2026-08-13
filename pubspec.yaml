@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.17.0+20  # 🆕 Sprint 3 final: PDF/CSV export
+version: 1.17.1+21  # 🆕 Sprint 3 final: PDF/CSV export
 
 environment:
   sdk: ^3.5.0
