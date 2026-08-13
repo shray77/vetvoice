@@ -371,7 +371,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   void _showAddDrugDialog() {
-    final allDrugs = widget.vetProvider.allDrugs;
+    final allDrugs = widget.vetProvider.allDrugs.whereType<CalcDrug>().toList();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
