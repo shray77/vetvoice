@@ -154,7 +154,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 300),
             decoration: BoxDecoration(
-              color: AppTheme.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: AppTheme.dividerGray),
               boxShadow: AppTheme.softShadow,
@@ -275,7 +275,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
             margin: const EdgeInsets.only(top: 4),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.backgroundGray,
+              color: AppTheme.backgroundFor(context),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             ),
             child: Text(

@@ -109,7 +109,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                             )
                           : null,
                       filled: true,
-                      fillColor: AppTheme.backgroundGray,
+                      fillColor: AppTheme.backgroundFor(context),
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusLarge),
@@ -295,7 +295,7 @@ class _SearchResultCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: rank <= 3
                       ? AppTheme.warningOrange.withOpacity(0.2)
-                      : AppTheme.backgroundGray,
+                      : AppTheme.backgroundFor(context),
                   shape: BoxShape.circle,
                 ),
                 child: Center(

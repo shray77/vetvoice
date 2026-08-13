@@ -174,33 +174,12 @@ class VoskWakeWordService(private val context: Context) {
      * Если грамматика недоступна — fallback на Recognizer без грамматики.
      */
     private fun createRecognizerWithGrammar(model: Model): Recognizer {
-        // Загружаем грамматику один раз и кешируем
-        if (grammarJson == null) {
-            try {
-                val asset = context.assets.open(GRAMMAR_ASSET)
-                val raw = asset.bufferedReader().use { it.readText() }
-                asset.close()
-                // Валидируем JSON и нормализуем
-                val arr = JSONArray(raw)
-                // Vosk принимает JSON-строку массива слов
-                grammarJson = arr.toString()
-                Log.i(TAG, "🆕 Grammar loaded: ${arr.length()} words")
-            } catch (e: Exception) {
-                Log.w(TAG, "Grammar not available, using free-form: ${e.message}")
-                grammarJson = ""
-            }
-        }
-
-        return if (!grammarJson.isNullOrEmpty()) {
-            try {
-                Recognizer(model, SAMPLE_RATE, grammarJson)
-            } catch (e: Exception) {
-                Log.w(TAG, "Recognizer with grammar failed, fallback: ${e.message}")
-                Recognizer(model, SAMPLE_RATE)
-            }
-        } else {
-            Recognizer(model, SAMPLE_RATE)
-        }
+        // Wake word использует free-form распознавание (без грамматики).
+        // Грамматика ограничивает словарь — для wake word это плохо,
+        // т.к. Vosk может не распознать "ветвойс" если его нет в грамматике.
+        // Грамматика нужна для основного распознавания (speech_service),
+        // которое идёт через системный STT, не через Vosk.
+        return Recognizer(model, SAMPLE_RATE)
     }
 
     fun getState(): State = state

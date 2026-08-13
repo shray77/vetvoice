@@ -148,7 +148,7 @@ class _WithdrawalCalculatorScreenState
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundGray,
+                  color: AppTheme.backgroundFor(context),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 ),
                 child: Row(
@@ -418,7 +418,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
                   )
                 : null,
             filled: true,
-            fillColor: AppTheme.backgroundGray,
+            fillColor: AppTheme.backgroundFor(context),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: BorderSide.none,
@@ -448,7 +448,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 250),
             decoration: BoxDecoration(
-              color: AppTheme.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: AppTheme.dividerGray),
               boxShadow: AppTheme.softShadow,

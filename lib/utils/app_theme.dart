@@ -74,6 +74,37 @@ class AppTheme {
     return const Color(0xFF8E8E93);
   }
 
+  // 🆕 Адаптивные цвета — зависят от темы (light/dark)
+  static Color textPrimaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkTextPrimary
+        : textPrimary;
+  }
+
+  static Color textSecondaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkTextSecondary
+        : textSecondary;
+  }
+
+  static Color textTertiaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkTextTertiary
+        : textTertiary;
+  }
+
+  static Color backgroundFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurface
+        : backgroundGray;
+  }
+
+  static Color dividerFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkDivider
+        : dividerGray;
+  }
+
   /// Получить иконку категории (для UI)
   static String getCategoryIcon(String? category) {
     if (category == null) return '💊';

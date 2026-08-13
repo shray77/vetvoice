@@ -877,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     );
                   },
                   icon: const Icon(Icons.history),
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.textSecondaryFor(context),
                   tooltip: 'История расчётов',
                 ),
 
@@ -906,7 +906,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   IconButton(
                     onPressed: _openDiseasesScreen,
                     icon: const Icon(Icons.coronavirus_outlined),
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSecondaryFor(context),
                     tooltip: 'Справочник болезней (${_vetProvider.diseasesCount})',
                   ),
 
@@ -1001,7 +1001,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     );
                   },
                   icon: const Icon(Icons.settings_outlined),
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.textSecondaryFor(context),
                   tooltip: 'Настройки',
                 ),
                 // Кнопка wake word - слушает "ВетВойс" как Ok Google
@@ -1636,9 +1636,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         expand: false,
         builder: (context, scrollController) => Container(
           padding: const EdgeInsets.only(top: 12),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
             controller: scrollController,

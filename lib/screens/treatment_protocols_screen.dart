@@ -236,7 +236,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                             )
                           : null,
                       filled: true,
-                      fillColor: AppTheme.backgroundGray,
+                      fillColor: AppTheme.backgroundFor(context),
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusLarge),
@@ -476,7 +476,7 @@ class _ProtocolDrugItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundGray,
+          color: AppTheme.backgroundFor(context),
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         ),
         child: Column(

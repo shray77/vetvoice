@@ -287,7 +287,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 40),
         filled: true,
-        fillColor: AppTheme.backgroundGray,
+        fillColor: AppTheme.backgroundFor(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           borderSide: BorderSide.none,
