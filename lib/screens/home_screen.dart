@@ -24,6 +24,7 @@ import 'symptom_search_screen.dart';  // 🆕 Sprint 2
 import 'treatment_protocols_screen.dart';  // 🆕 Sprint 2
 import 'interactions_checker_screen.dart';  // 🆕 Sprint 2
 import 'withdrawal_calculator_screen.dart';  // 🆕 Sprint 2
+import 'infusion_calculator_screen.dart';  // 🆕 Sprint 3
 import '../services/favorites_service.dart';  // 🆕
 import '../services/history_service.dart';    // 🆕
 import '../services/theme_service.dart';      // 🆕
@@ -956,6 +957,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     icon: const Icon(Icons.water_drop, color: AppTheme.maleBlue),
                     tooltip: 'Инфузионная терапия',
                   ),
+
+                // 🆕 Sprint 3: Калькулятор инфузии
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const InfusionCalculatorScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.calculate),
+                  color: Colors.teal,
+                  tooltip: 'Калькулятор инфузии',
+                ),
 
                 // 🆕 Sprint 2: Каренция-калькулятор
                 IconButton(

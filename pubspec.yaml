@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.15.0+18  # 🆕 Sprint 2: symptom search, protocols, interactions, withdrawal
+version: 1.16.0+19  # 🆕 Sprint 3: Vosk grammar, voice weight, infusion calc
 
 environment:
   sdk: ^3.5.0

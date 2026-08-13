@@ -1085,6 +1085,61 @@ class VoiceInputParser {
     return false;
   }
 
+  // 🆕 Sprint 3: Распознавание чисел прописью для голосового ввода веса.
+  // Поддерживает «двадцать пять», «пятнадцать целых пять», «двести».
+  static final Map<String, int> _numberWords = {
+    'ноль': 0, 'один': 1, 'одна': 1, 'два': 2, 'две': 2,
+    'три': 3, 'четыре': 4, 'пять': 5, 'шесть': 6, 'семь': 7,
+    'восемь': 8, 'девять': 9, 'десять': 10,
+    'одиннадцать': 11, 'двенадцать': 12, 'тринадцать': 13,
+    'четырнадцать': 14, 'пятнадцать': 15, 'шестнадцать': 16,
+    'семнадцать': 17, 'восемнадцать': 18, 'девятнадцать': 19,
+    'двадцать': 20, 'тридцать': 30, 'сорок': 40, 'пятьдесят': 50,
+    'шестьдесят': 60, 'семьдесят': 70, 'восемьдесят': 80, 'девяносто': 90,
+    'сто': 100, 'двести': 200, 'триста': 300, 'четыреста': 400,
+    'пятьсот': 500, 'шестьсот': 600, 'семьсот': 700,
+    'восемьсот': 800, 'девятьсот': 900,
+    'тысяча': 1000, 'тысяч': 1000, 'тысячи': 1000,
+  };
+
+  /// 🆕 Преобразует текстовое число в double.
+  /// «двадцать пять» → 25.0, «пятнадцать целых пять» → 15.5
+  static double? _parseSpelledNumber(String text) {
+    final words = text.toLowerCase().split(RegExp(r'[\s,]+'));
+    int total = 0;
+    int current = 0;
+    bool foundAny = false;
+
+    for (final word in words) {
+      final cleanWord = word.replaceAll(RegExp(r'[^а-яё]'), '');
+      if (cleanWord.isEmpty) continue;
+      if (cleanWord == 'целых' || cleanWord == 'целая' || cleanWord == 'запятая') {
+        // Разделитель — дальше идут десятые
+        total = current;
+        current = 0;
+        continue;
+      }
+      final value = _numberWords[cleanWord];
+      if (value == null) continue;
+      foundAny = true;
+      if (value == 1000) {
+        current = (current == 0 ? 1 : current) * 1000;
+      } else if (value >= 100) {
+        current += value;
+      } else if (value >= 20 && value < 100) {
+        current += value;
+      } else {
+        current += value;
+      }
+    }
+    if (!foundAny) return null;
+    if (total > 0) {
+      // Была «целых» — total = целая часть, current = десятые
+      return total + current / 10.0;
+    }
+    return current.toDouble();
+  }
+
   /// Парсит вес из голосового ввода
   static double? parseWeight(String input) {
     final lower = input.toLowerCase();
@@ -1160,7 +1215,23 @@ class VoiceInputParser {
         }
       }
     }
-    
+
+    // 🆕 Sprint 3: Если числа не найдены, пробуем числа прописью
+    // «двадцать пять килограмм» → 25.0
+    if (_hasWeightKeywords(lower)) {
+      final spelled = _parseSpelledNumber(lower);
+      if (spelled != null && spelled > 0 && spelled < 5000) {
+        // Конвертация единиц
+        if (lower.contains('грамм') || lower.contains(' гр') || lower.contains(' г ')) {
+          return spelled / 1000;
+        }
+        if (lower.contains('тонн') || lower.contains(' тонны') || lower.contains(' т')) {
+          return spelled * 1000;
+        }
+        return spelled;
+      }
+    }
+
     return null;
   }
 

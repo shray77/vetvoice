@@ -2,12 +2,14 @@ package com.vetvoice.vetvoice
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.AssetManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 import org.json.JSONObject
+import org.json.JSONArray
 import org.vosk.Model
 import org.vosk.Recognizer
 import org.vosk.android.RecognitionListener
@@ -42,7 +44,12 @@ class VoskWakeWordService(private val context: Context) {
         private const val MODEL_DIR_NAME = "vosk-model-ru"
         private const val SAMPLE_RATE = 16000f
         private const val CHECK_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
+        // 🆕 JSGF-грамматика с мед-терминами для точного распознавания
+        private const val GRAMMAR_ASSET = "data/vosk_grammar.json"
     }
+
+    // 🆕 Кешированная грамматика (JSON-строка для Recognizer)
+    private var grammarJson: String? = null
 
     enum class State { IDLE, LOADING, READY, LISTENING, ERROR }
 
@@ -148,13 +155,51 @@ class VoskWakeWordService(private val context: Context) {
         voskRecognizer = null
         // Создаём новые экземпляры и стартуем
         try {
-            voskRecognizer = Recognizer(model, SAMPLE_RATE)
+            voskRecognizer = createRecognizerWithGrammar(model)
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю... (рестарт)")
         } catch (e: Exception) {
             Log.e(TAG, "restartRecognition: failed to recreate", e)
             setState(State.ERROR, "Ошибка рестарта: ${e.localizedMessage}")
+        }
+    }
+
+    /**
+     * 🆕 Создаёт Recognizer с грамматикой мед-терминов.
+     *
+     * Загружает vosk_grammar.json из assets при первом вызове,
+     * затем передаёт в Recognizer(model, sampleRate, grammar).
+     *
+     * Если грамматика недоступна — fallback на Recognizer без грамматики.
+     */
+    private fun createRecognizerWithGrammar(model: Model): Recognizer {
+        // Загружаем грамматику один раз и кешируем
+        if (grammarJson == null) {
+            try {
+                val asset = context.assets.open(GRAMMAR_ASSET)
+                val raw = asset.bufferedReader().use { it.readText() }
+                asset.close()
+                // Валидируем JSON и нормализуем
+                val arr = JSONArray(raw)
+                // Vosk принимает JSON-строку массива слов
+                grammarJson = arr.toString()
+                Log.i(TAG, "🆕 Grammar loaded: ${arr.length()} words")
+            } catch (e: Exception) {
+                Log.w(TAG, "Grammar not available, using free-form: ${e.message}")
+                grammarJson = ""
+            }
+        }
+
+        return if (!grammarJson.isNullOrEmpty()) {
+            try {
+                Recognizer(model, SAMPLE_RATE, grammarJson)
+            } catch (e: Exception) {
+                Log.w(TAG, "Recognizer with grammar failed, fallback: ${e.message}")
+                Recognizer(model, SAMPLE_RATE)
+            }
+        } else {
+            Recognizer(model, SAMPLE_RATE)
         }
     }
 
@@ -199,7 +244,7 @@ class VoskWakeWordService(private val context: Context) {
             return
         }
         try {
-            voskRecognizer = Recognizer(model, SAMPLE_RATE)
+            voskRecognizer = createRecognizerWithGrammar(model)
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю...")
