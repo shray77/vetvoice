@@ -9,10 +9,12 @@ on:
   push:
     tags:
       - 'v*'
+    branches-ignore:
+      - '**'  # не запускать на push веток, только на теги
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'Версия для тега (например, v1.15.0+18)'
+        description: 'Версия для тега (например, v1.15.0)'
         required: false
         default: ''
       prerelease:
