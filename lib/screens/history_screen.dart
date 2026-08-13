@@ -9,6 +9,7 @@
 
 import 'package:flutter/material.dart';
 import '../services/history_service.dart';
+import '../services/export_service.dart';
 import '../utils/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -38,7 +39,40 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('🕒 История расчётов'),
         actions: [
-          if (_histService.history.isNotEmpty)
+          if (_histService.history.isNotEmpty) ...[
+            // 🆕 Экспорт CSV
+            IconButton(
+              icon: const Icon(Icons.table_view, color: Colors.green),
+              tooltip: 'Экспорт в CSV',
+              onPressed: () async {
+                try {
+                  await ExportService.exportToCsv(_histService.history);
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка экспорта CSV: $e')),
+                    );
+                  }
+                }
+              },
+            ),
+            // 🆕 Экспорт PDF
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+              tooltip: 'Экспорт в PDF',
+              onPressed: () async {
+                try {
+                  await ExportService.exportToPdf(_histService.history);
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка экспорта PDF: $e')),
+                    );
+                  }
+                }
+              },
+            ),
+            // Очистка
             IconButton(
               icon: const Icon(Icons.delete_sweep),
               tooltip: 'Очистить историю',
@@ -69,6 +103,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 }
               },
             ),
+          ],
         ],
       ),
       body: _histService.history.isEmpty
