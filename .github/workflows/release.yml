@@ -1,0 +1,162 @@
+name: Release APK
+
+# Сборка release APK и публикация в GitHub Releases.
+# Триггеры:
+#   - Push тега v* (например v1.15.0)
+#   - Manual dispatch через Actions UI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Версия для тега (например, v1.15.0)'
+        required: false
+        default: ''
+      prerelease:
+        description: 'Пререлиз (не показывать как Latest)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏷️ Determine version tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF##*/}"
+          else
+            TAG="v$(grep '^version:' pubspec.yaml | head -1 | awk '{print $2}' | cut -d'+' -f1)-ci${{ github.run_id }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "🏷️ Tag: $TAG"
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🐍 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Pub get
+        run: flutter pub get
+
+      - name: 🔑 Import signing keystore
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+          echo "$ANDROID_KEY_PROPERTIES" > android/key.properties
+
+      - name: 🔧 Patch build.gradle for keystore
+        run: |
+          if [ -f android/key.properties ]; then
+            python3 << 'PYEOF'
+            with open('android/app/build.gradle', 'r') as f:
+                content = f.read()
+            if 'def keystoreProperties' not in content:
+                patch = '''
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('key.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            }
+            '''
+                content = content.replace('android {', patch + '\nandroid {', 1)
+                content = content.replace(
+                    "    buildTypes {\n        release {\n            signingConfig = signingConfigs.debug",
+                    """    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug"""
+                )
+                with open('android/app/build.gradle', 'w') as f:
+                    f.write(content)
+            PYEOF
+            echo "✅ build.gradle patched"
+          else
+            echo "⚠️ No key.properties — using debug signing"
+          fi
+
+      - name: 🔨 Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: 🔨 Build AAB
+        run: flutter build appbundle --release --no-tree-shake-icons
+        continue-on-error: true
+
+      - name: 📦 Rename artifacts
+        run: |
+          VERSION="${{ steps.tag.outputs.tag }}"
+          mkdir -p artifacts
+          cp build/app/outputs/flutter-apk/app-release.apk "artifacts/vetvoice-${VERSION}.apk"
+          if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
+            cp build/app/outputs/bundle/release/app-release.aab "artifacts/vetvoice-${VERSION}.aab"
+          fi
+          ls -la artifacts/
+
+      - name: 📤 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vetvoice-apk-${{ steps.tag.outputs.tag }}
+          path: artifacts/*.apk
+          retention-days: 90
+
+      - name: 🚀 Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: VetVoice AI ${{ steps.tag.outputs.tag }}
+          files: artifacts/*
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          generate_release_notes: true
+          body: |
+            ## VetVoice AI ${{ steps.tag.outputs.tag }}
+
+            ### Установка
+            1. Скачай `vetvoice-${{ steps.tag.outputs.tag }}.apk`
+            2. Разреши установку из неизвестных источников
+            3. Установи APK
+
+            ### Что нового
+            - 2401 препаратов (drugs_calc v7.6)
+            - 617 вакцин с vaccine_specific
+            - Sprint 1: VaccineCard, favorites, history, dark theme, color coding
+            - Sprint 2: symptom search, treatment protocols, interactions, withdrawal
+            - Vosk offline STT (русская модель 50 МБ)
+
+            ---
+            *Собрано: ${{ github.run_id }}*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
