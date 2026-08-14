@@ -23,7 +23,7 @@ class AnimalCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.safeGreen.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
+          color: isSelected ? AppTheme.safeGreen.withOpacity(0.1) : AppTheme.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           border: Border.all(
             color: isSelected ? AppTheme.safeGreen : AppTheme.backgroundGray,

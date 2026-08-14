@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../models/drug_registry.dart';
@@ -28,7 +27,6 @@ class _DrugDropdownState extends State<DrugDropdown> {
   final FocusNode _focusNode = FocusNode();
   bool _showDropdown = false;
   List<dynamic> _filteredDrugs = [];
-  Timer? _debounce;  // 🆕 Debounce для поиска
 
   @override
   void initState() {
@@ -103,7 +101,6 @@ class _DrugDropdownState extends State<DrugDropdown> {
 
   @override
   void dispose() {
-    _debounce?.cancel();  // 🆕
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -139,18 +136,10 @@ class _DrugDropdownState extends State<DrugDropdown> {
                 : null,
           ),
           onChanged: (_) {
-            // 🆕 Debounce 300мс — не сортируем на каждый символ
-            _debounce?.cancel();
-            _debounce = Timer(const Duration(milliseconds: 300), () {
-              if (mounted) {
-                setState(() {
-                  _updateFilteredDrugs();
-                  _showDropdown = true;
-                });
-              }
+            setState(() {
+              _updateFilteredDrugs();
+              _showDropdown = true;
             });
-            // Мгновенно показываем dropdown без фильтрации
-            setState(() => _showDropdown = true);
           },
           onTap: () {
             setState(() {
@@ -165,7 +154,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 300),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: AppTheme.white,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: AppTheme.dividerGray),
               boxShadow: AppTheme.softShadow,

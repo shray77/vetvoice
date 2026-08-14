@@ -109,7 +109,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                             )
                           : null,
                       filled: true,
-                      fillColor: AppTheme.backgroundFor(context),
+                      fillColor: AppTheme.backgroundGray,
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusLarge),
@@ -232,7 +232,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           const SizedBox(height: 8),
           Text(
             'Попробуйте другие ключевые слова',
-            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -295,7 +295,7 @@ class _SearchResultCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: rank <= 3
                       ? AppTheme.warningOrange.withOpacity(0.2)
-                      : AppTheme.backgroundFor(context),
+                      : AppTheme.backgroundGray,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -369,7 +369,7 @@ class _SearchResultCard extends StatelessWidget {
                           drug.inn,
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textSecondaryFor(context),
+                            color: Colors.grey[600],
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,

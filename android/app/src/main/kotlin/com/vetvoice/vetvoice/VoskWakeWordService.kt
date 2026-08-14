@@ -2,14 +2,12 @@ package com.vetvoice.vetvoice
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.AssetManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 import org.json.JSONObject
-import org.json.JSONArray
 import org.vosk.Model
 import org.vosk.Recognizer
 import org.vosk.android.RecognitionListener
@@ -44,12 +42,7 @@ class VoskWakeWordService(private val context: Context) {
         private const val MODEL_DIR_NAME = "vosk-model-ru"
         private const val SAMPLE_RATE = 16000f
         private const val CHECK_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
-        // 🆕 JSGF-грамматика с мед-терминами для точного распознавания
-        private const val GRAMMAR_ASSET = "data/vosk_grammar.json"
     }
-
-    // 🆕 Кешированная грамматика (JSON-строка для Recognizer)
-    private var grammarJson: String? = null
 
     enum class State { IDLE, LOADING, READY, LISTENING, ERROR }
 
@@ -155,7 +148,7 @@ class VoskWakeWordService(private val context: Context) {
         voskRecognizer = null
         // Создаём новые экземпляры и стартуем
         try {
-            voskRecognizer = createRecognizerWithGrammar(model)
+            voskRecognizer = Recognizer(model, SAMPLE_RATE)
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю... (рестарт)")
@@ -163,23 +156,6 @@ class VoskWakeWordService(private val context: Context) {
             Log.e(TAG, "restartRecognition: failed to recreate", e)
             setState(State.ERROR, "Ошибка рестарта: ${e.localizedMessage}")
         }
-    }
-
-    /**
-     * 🆕 Создаёт Recognizer с грамматикой мед-терминов.
-     *
-     * Загружает vosk_grammar.json из assets при первом вызове,
-     * затем передаёт в Recognizer(model, sampleRate, grammar).
-     *
-     * Если грамматика недоступна — fallback на Recognizer без грамматики.
-     */
-    private fun createRecognizerWithGrammar(model: Model): Recognizer {
-        // Wake word использует free-form распознавание (без грамматики).
-        // Грамматика ограничивает словарь — для wake word это плохо,
-        // т.к. Vosk может не распознать "ветвойс" если его нет в грамматике.
-        // Грамматика нужна для основного распознавания (speech_service),
-        // которое идёт через системный STT, не через Vosk.
-        return Recognizer(model, SAMPLE_RATE)
     }
 
     fun getState(): State = state
@@ -223,7 +199,7 @@ class VoskWakeWordService(private val context: Context) {
             return
         }
         try {
-            voskRecognizer = createRecognizerWithGrammar(model)
+            voskRecognizer = Recognizer(model, SAMPLE_RATE)
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю...")

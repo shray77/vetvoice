@@ -217,7 +217,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppTheme.backgroundFor(context),
+                            color: AppTheme.backgroundGray,
                             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                           ),
                           child: const Center(
@@ -296,7 +296,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'База: ${_allInteractions.length} взаимодействий',
-            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -317,7 +317,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'Проверено ${_selectedDrugs.length} препаратов',
-            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
+            style: TextStyle(color: Colors.grey[600]),
           ),
           const SizedBox(height: 24),
           Container(
@@ -371,19 +371,14 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   void _showAddDrugDialog() {
-    final allDrugs = widget.vetProvider.allDrugs.whereType<CalcDrug>().toList();
+    final allDrugs = widget.vetProvider.allDrugs;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (ctx) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.85,
           padding: const EdgeInsets.all(AppTheme.paddingMedium),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
           child: _AddDrugSearch(
             allDrugs: allDrugs,
             excludeDrugs: _selectedDrugs,
@@ -582,7 +577,7 @@ class _AddDrugSearchState extends State<_AddDrugSearch> {
             hintText: 'Поиск по названию или МНН...',
             prefixIcon: const Icon(Icons.search),
             filled: true,
-            fillColor: AppTheme.backgroundFor(context),
+            fillColor: AppTheme.backgroundGray,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: BorderSide.none,

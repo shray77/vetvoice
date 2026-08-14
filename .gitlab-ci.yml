@@ -1,0 +1,33 @@
+stages:
+  - build
+
+build_apk:
+  stage: build
+  # Ubuntu 22.04 имеет предустановленные git/curl, ставим только JDK
+  image: ubuntu:22.04
+  before_script:
+    # Install dependencies
+    - apt-get update -qq
+    - apt-get install -y -qq curl unzip git openjdk-17-jdk-headless > /dev/null 2>&1
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    - export PATH="$JAVA_HOME/bin:$PATH"
+    - java -version
+    # Install Flutter
+    - if [ ! -d "/opt/flutter" ]; then
+        cd /opt &&
+        curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz -o flutter.tar.xz &&
+        tar xf flutter.tar.xz &&
+        rm flutter.tar.xz;
+      fi
+    - export PATH="/opt/flutter/bin:$PATH"
+    - flutter precache --android
+    - flutter --version
+    - flutter pub get
+  script:
+    - flutter build apk --release
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/app-release.apk
+    expire_in: 1 week
+  # ⚠️ Фикс: тег `docker` искал собственный runner, которого нет.
+  # Убираем тег — GitLab подберёт любой доступный shared runner (saas-linux-*).

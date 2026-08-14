@@ -35,12 +35,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _initData() async {
     await _favService.init();
-    // Используем уже загруженную базу (initialize() вызывается в main.dart)
+    await _vetProvider.loadCalcDatabase();
     _loadFavorites();
   }
 
   void _loadFavorites() {
-    final allDrugs = _vetProvider.allDrugs.whereType<CalcDrug>().toList();
+    final allDrugs = _vetProvider.calcDatabase?.drugs ?? [];
     final favIds = _favService.favorites.toSet();
     setState(() {
       _favoriteDrugs = allDrugs.where((d) => favIds.contains(d.id)).toList();
@@ -110,7 +110,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Text(
             'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -194,7 +194,7 @@ class _FavoriteDrugCard extends StatelessWidget {
                         drug.inn,
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.textSecondaryFor(context),
+                          color: Colors.grey[600],
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,

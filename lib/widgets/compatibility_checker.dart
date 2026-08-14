@@ -1,4 +1,3 @@
-import '../utils/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
 
@@ -116,7 +115,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -278,11 +277,11 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppTheme.dividerGray),
+              borderSide: BorderSide(color: Colors.grey.shade300),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppTheme.dividerGray),
+              borderSide: BorderSide(color: Colors.grey.shade300),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -297,7 +296,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppTheme.dividerGray),
+              border: Border.all(color: Colors.grey.shade300),
             ),
             child: ListView.builder(
               shrinkWrap: true,

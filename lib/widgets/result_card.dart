@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
 import 'interaction_warning.dart';
@@ -58,135 +57,26 @@ class _ResultCardState extends State<ResultCard> {
 
     // 🆕 Если препарат — вакцина, показываем VaccineCard
     final drug = widget.result.calcDrug;
-    if (drug != null && drug.isVaccine) {
-      // Если есть данные vaccine_specific — показываем VaccineCard
-      if (drug.vaccineSpecific != null && drug.vaccineSpecific!.hasData) {
-        return Column(
-          children: [
-            _buildFavoriteButton(drug.id),
-            const SizedBox(height: 8),
-            VaccineCard(
-              drugName: drug.name,
-              drugInn: drug.inn,
-              vaccine: drug.vaccineSpecific!,
-              category: drug.category,
-            ),
-          ],
-        );
-      }
-      // Если вакцина без vaccine_specific — показываем info-карточку,
-      // НЕ пытаемся считать через мг/кг
-      return _buildVaccineInfoCard(drug);
+    if (drug != null &&
+        drug.isVaccine &&
+        drug.vaccineSpecific != null &&
+        drug.vaccineSpecific!.hasData) {
+      return Column(
+        children: [
+          _buildFavoriteButton(drug.id),
+          const SizedBox(height: 8),
+          VaccineCard(
+            drugName: drug.name,
+            drugInn: drug.inn,
+            vaccine: drug.vaccineSpecific!,
+            category: drug.category,
+          ),
+        ],
+      );
     }
 
     if (widget.result.hasDosage) return _buildCalculated();
     return _buildInfo();
-  }
-
-  /// 🆕 Карточка для вакцин без vaccine_specific данных
-  Widget _buildVaccineInfoCard(CalcDrug drug) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppTheme.paddingLarge),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
-        border: Border.all(color: AppTheme.maleBlue.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text('💉', style: TextStyle(fontSize: 28)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  drug.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              // Кнопка избранного
-              AnimatedBuilder(
-                animation: _favService,
-                builder: (context, _) {
-                  final isFav = _favService.isFavorite(drug.id);
-                  return IconButton(
-                    icon: Icon(
-                      isFav ? Icons.star : Icons.star_border,
-                      color: isFav
-                          ? AppTheme.warningOrange
-                          : AppTheme.textTertiary,
-                      size: 24,
-                    ),
-                    onPressed: () async {
-                      await _favService.toggleFavorite(drug.id);
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-          if (drug.inn.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                drug.inn,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          if (drug.form.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                drug.form,
-                style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
-              ),
-            ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.maleBlue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.info_outline, color: AppTheme.maleBlue, size: 18),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Это иммунобиологический препарат. '
-                    'Дозировка зависит от вида животного и схемы вакцинации — '
-                    'смотрите инструкцию производителя.',
-                    style: TextStyle(fontSize: 13, color: AppTheme.maleBlue),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (drug.indications.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            const Text(
-              'Показания',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              drug.indications,
-              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-            ),
-          ],
-        ],
-      ),
-    );
   }
 
   /// 🆕 Кнопка избранного — ⭐ над карточкой
@@ -290,7 +180,7 @@ class _ResultCardState extends State<ResultCard> {
           decoration: BoxDecoration(
             color: hasRiskWarnings
                 ? AppTheme.errorRed.withOpacity(0.05)
-                : Theme.of(context).colorScheme.surface,
+                : Colors.white,
             borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
             border: Border.all(
               color: hasRiskWarnings
@@ -299,9 +189,7 @@ class _ResultCardState extends State<ResultCard> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.black54
-                    : Colors.black.withOpacity(0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -346,7 +234,7 @@ class _ResultCardState extends State<ResultCard> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warningOrange.withOpacity(0.15),
+                        color: Colors.orange.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -355,7 +243,7 @@ class _ResultCardState extends State<ResultCard> {
                             : '⏱ ${widget.result.withdrawalDays} дн.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.warningOrange,
+                          color: Colors.orange.shade800,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -489,7 +377,7 @@ class _ResultCardState extends State<ResultCard> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.warningOrange,
+                              color: Colors.orange.shade800,
                             ),
                           ),
                         ],
@@ -736,7 +624,7 @@ class _ResultCardState extends State<ResultCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
         border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
       ),

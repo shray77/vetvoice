@@ -43,10 +43,10 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
   Widget build(BuildContext context) {
     final list = _filtered;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundFor(context),
+      backgroundColor: AppTheme.backgroundGray,
       appBar: AppBar(
         title: const Text('Неофициальные протоколы'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: AppTheme.white,
         foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
@@ -77,9 +77,9 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: FilterChip(
-                      label: Text(a, style: TextStyle(fontSize: 12, color: sel ? Theme.of(context).colorScheme.surface : AppTheme.textSecondary)),
+                      label: Text(a, style: TextStyle(fontSize: 12, color: sel ? AppTheme.white : AppTheme.textSecondary)),
                       selected: sel,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: AppTheme.white,
                       selectedColor: AppTheme.safeGreen,
                       side: BorderSide(color: sel ? AppTheme.safeGreen : AppTheme.dividerGray),
                       onSelected: (_) => setState(() => _filterAnimal = _filterAnimal == a ? null : a),
@@ -107,7 +107,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
+      decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

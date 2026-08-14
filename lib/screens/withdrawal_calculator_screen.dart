@@ -148,7 +148,7 @@ class _WithdrawalCalculatorScreenState
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundFor(context),
+                  color: AppTheme.backgroundGray,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 ),
                 child: Row(
@@ -385,7 +385,6 @@ class _DrugSelectorState extends State<_DrugSelector> {
       _controller.text = widget.selectedDrug!.name;
     }
     _filtered = widget.vetProvider.allDrugs
-        .whereType<CalcDrug>()
         .where((d) => d.withdrawalDays > 0 || d.withdrawalText.isNotEmpty)
         .toList();
   }
@@ -418,7 +417,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
                   )
                 : null,
             filled: true,
-            fillColor: AppTheme.backgroundFor(context),
+            fillColor: AppTheme.backgroundGray,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: BorderSide.none,
@@ -428,7 +427,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
             final q = value.toLowerCase();
             setState(() {
               _showDropdown = value.isNotEmpty;
-              _filtered = widget.vetProvider.allDrugs.whereType<CalcDrug>().where((d) {
+              _filtered = widget.vetProvider.allDrugs.where((d) {
                 if (d.withdrawalDays == 0 && d.withdrawalText.isEmpty) {
                   return false;
                 }
@@ -448,7 +447,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 250),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: AppTheme.white,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: AppTheme.dividerGray),
               boxShadow: AppTheme.softShadow,

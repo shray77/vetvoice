@@ -1,4 +1,3 @@
-import '../utils/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
 
@@ -46,8 +45,8 @@ class InteractionWarning extends StatelessWidget {
               color: critical.isNotEmpty 
                   ? Colors.red.shade100 
                   : warnings.isNotEmpty 
-                      ? AppTheme.warningOrange.withOpacity(0.15) 
-                      : AppTheme.maleBlue.withOpacity(0.15),
+                      ? Colors.orange.shade100 
+                      : Colors.blue.shade100,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
             ),
             child: Row(
@@ -123,7 +122,7 @@ class InteractionWarning extends StatelessWidget {
               color: interaction.isCritical 
                   ? Colors.red.shade100 
                   : interaction.isWarning 
-                      ? AppTheme.warningOrange.withOpacity(0.15) 
+                      ? Colors.orange.shade100 
                       : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(4),
             ),

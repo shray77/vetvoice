@@ -1,78 +1,86 @@
-# Flutter / Dart
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-build/
-.fvm/
-.dart_code/
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# VS Code
-.vscode/
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
-# Android
-android/.gradle/
-android/local.properties
-android/key.properties
-android/app/release.keystore
-android/app/debug.keystore
-**/android/**/gradle-wrapper.jar
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# === Secrets & env ===
+.env
+.env.*
+*.env
+
+# === Signing keys (NEVER commit) ===
 *.jks
+*.keystore
+key.properties
+!**/debug.keystore
 
-# iOS
-ios/Pods/
-ios/.symlinks/
-ios/Flutter/App.framework
-ios/Flutter/Flutter.framework
-ios/Flutter/Flutter.podspec
-ios/Flutter/Generated.xcconfig
-ios/Flutter/app.flx
-ios/Flutter/app.zip
-ios/Flutter/flutter_assets/
-ios/Flutter/flutter_export_environment.sh
-ios/ServiceDefinitions.json
-ios/Runner/GeneratedPluginRegistrant.*
+# === Firebase / Google services ===
+**/google-services.json
+**/GoogleService-Info.plist
 
-# macOS
-macos/Flutter/GeneratedPluginRegistrant.swift
-macos/Flutter/ephemeral
+# === Build artifacts ===
+*.apk
+*.aab
+*.ipa
+*.tar.gz
+*.zip
 
-# Web
-web/icons/Icon-192.png
-web/icons/Icon-512.png
-web/icons/Icon-maskable-192.png
-web/icons/Icon-maskable-512.png
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Временные
-*.log
+# === Stray/temp ===
 *.tmp
 *.bak
-*.swp
-*~
+*.orig
 
-# Секреты
-.env
-.env.local
-secrets.json
-*.keystore
-*.jks
-!android/app/debug.keystore
+# === AI-tool leftovers (must never be in this repo) ===
+/skills/
+/tools/
+/download/
 
-# Vosk model (скачивается в рантайме, не коммитится)
-**/vosk-model*/
+# === Vosk model cache (downloaded at runtime, never commit) ===
+**/vosk-model-ru/
+**/vosk-model-small-ru-*/
+
+# === Local databases ===
+*.db
+*.db-journal
+
+# === Android local config (SDK paths, JDK paths) ===
+**/local.properties

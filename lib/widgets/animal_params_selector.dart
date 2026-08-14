@@ -307,7 +307,7 @@ class AgeSelector extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppTheme.backgroundGray,
+          color: AppTheme.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(color: AppTheme.dividerGray),
           boxShadow: [

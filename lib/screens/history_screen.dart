@@ -9,7 +9,6 @@
 
 import 'package:flutter/material.dart';
 import '../services/history_service.dart';
-import '../services/export_service.dart';
 import '../utils/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -39,40 +38,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('🕒 История расчётов'),
         actions: [
-          if (_histService.history.isNotEmpty) ...[
-            // 🆕 Экспорт CSV
-            IconButton(
-              icon: const Icon(Icons.table_view, color: Colors.green),
-              tooltip: 'Экспорт в CSV',
-              onPressed: () async {
-                try {
-                  await ExportService.exportToCsv(_histService.history);
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Ошибка экспорта CSV: $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            // 🆕 Экспорт PDF
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
-              tooltip: 'Экспорт в PDF',
-              onPressed: () async {
-                try {
-                  await ExportService.exportToPdf(_histService.history);
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Ошибка экспорта PDF: $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            // Очистка
+          if (_histService.history.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep),
               tooltip: 'Очистить историю',
@@ -103,7 +69,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 }
               },
             ),
-          ],
         ],
       ),
       body: _histService.history.isEmpty
@@ -127,7 +92,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Text(
             'Здесь появятся ваши расчёты\nпосле первого использования',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -211,7 +176,7 @@ class _HistoryEntryCard extends StatelessWidget {
                         entry.formattedTime,
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.textTertiaryFor(context),
+                          color: Colors.grey[500],
                         ),
                       ),
                     ],
@@ -263,7 +228,7 @@ class _HistoryEntryCard extends StatelessWidget {
                             '· ${entry.frequency}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppTheme.textSecondaryFor(context),
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],
@@ -290,14 +255,14 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundFor(context),
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
-          color: AppTheme.textSecondaryFor(context),
+          color: Colors.grey[700],
         ),
       ),
     );
