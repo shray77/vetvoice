@@ -13,6 +13,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/vaccine_specific.dart';
+import '../utils/app_theme.dart';
 
 class VaccineCard extends StatefulWidget {
   final String drugName;
