@@ -50,7 +50,7 @@ class GenderSelector extends StatelessWidget {
                 icon,
                 style: TextStyle(
                   fontSize: 28,
-                  color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textSecondary,
+                  color: isSelected ? AppTheme.white : AppTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -59,7 +59,7 @@ class GenderSelector extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textPrimary,
+                  color: isSelected ? AppTheme.white : AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -132,7 +132,7 @@ class PregnancySelector extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textPrimary,
+            color: isSelected ? AppTheme.white : AppTheme.textPrimary,
           ),
         ),
       ),
@@ -291,7 +291,7 @@ class AgeSelector extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? Theme.of(context).colorScheme.surface : color,
+              color: isSelected ? AppTheme.white : color,
             ),
             textAlign: TextAlign.center,
           ),
@@ -307,7 +307,7 @@ class AgeSelector extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: AppTheme.backgroundGray,
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(color: AppTheme.dividerGray),
           boxShadow: [
