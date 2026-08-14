@@ -849,174 +849,130 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 letterSpacing: -0.5,
               ),
             ),
+            // Компактный AppBar: 3 главные + меню
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // 🆕 Кнопка избранного
+                // Поиск по симптомам
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FavoritesScreen(),
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => SymptomSearchScreen(
+                        onDrugSelected: (drug) => _vetProvider.selectDrug(drug),
                       ),
-                    );
-                  },
-                  icon: const Icon(Icons.star_border),
-                  color: AppTheme.warningOrange,
-                  tooltip: 'Избранное',
-                ),
-
-                // 🆕 Кнопка истории расчётов
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const HistoryScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.history),
-                  color: AppTheme.textSecondaryFor(context),
-                  tooltip: 'История расчётов',
-                ),
-
-                // 🆕 Sprint 2: Поиск по симптомам
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SymptomSearchScreen(
-                          onDrugSelected: (drug) {
-                            // Передаём выбранный препарат в калькулятор
-                            _vetProvider.selectDrug(drug);
-                          },
-                        ),
-                      ),
-                    );
+                    ));
                   },
                   icon: const Icon(Icons.search),
                   color: AppTheme.safeGreen,
                   tooltip: 'Поиск по симптомам',
                 ),
-
-                // Кнопка болезней
-                if (_vetProvider.diseasesCount > 0)
-                  IconButton(
-                    onPressed: _openDiseasesScreen,
-                    icon: const Icon(Icons.coronavirus_outlined),
-                    color: AppTheme.textSecondaryFor(context),
-                    tooltip: 'Справочник болезней (${_vetProvider.diseasesCount})',
-                  ),
-
-                // 🆕 Sprint 2: Протоколы лечения
+                // Избранное
                 IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TreatmentProtocolsScreen(
-                          vetProvider: _vetProvider,
-                          onDrugSelected: (drug) {
-                            _vetProvider.selectDrug(drug);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.medical_information_outlined),
-                  color: AppTheme.maleBlue,
-                  tooltip: 'Протоколы лечения',
-                ),
-
-                // 🆕 Sprint 2: Проверка совместимости
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InteractionsCheckerScreen(
-                          vetProvider: _vetProvider,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.compare_arrows),
+                  onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+                  icon: const Icon(Icons.star_border),
                   color: AppTheme.warningOrange,
-                  tooltip: 'Проверка совместимости',
+                  tooltip: 'Избранное',
                 ),
-
-                if (_vetProvider.fluidTherapyDatabase != null)
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (_) => FluidTherapyScreen(db: _vetProvider.fluidTherapyDatabase!),
-                      ));
-                    },
-                    icon: const Icon(Icons.water_drop, color: AppTheme.maleBlue),
-                    tooltip: 'Инфузионная терапия',
-                  ),
-
-                // 🆕 Sprint 3: Калькулятор инфузии
+                // История
                 IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const InfusionCalculatorScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.calculate),
-                  color: Colors.teal,
-                  tooltip: 'Калькулятор инфузии',
-                ),
-
-                // 🆕 Sprint 2: Каренция-калькулятор
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => WithdrawalCalculatorScreen(
-                          vetProvider: _vetProvider,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.schedule),
-                  color: AppTheme.errorRed,
-                  tooltip: 'Калькулятор каренции',
-                ),
-
-                // 🆕 Кнопка настроек
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const HistoryScreen())),
+                  icon: const Icon(Icons.history),
                   color: AppTheme.textSecondaryFor(context),
-                  tooltip: 'Настройки',
+                  tooltip: 'История',
                 ),
-                // Кнопка wake word - слушает "ВетВойс" как Ok Google
+                // Wake word
                 _buildWakeWordButton(),
-                const SizedBox(width: 8),
-                // Кнопка автоозвучивания
+                // Автоозвучивание
                 IconButton(
                   onPressed: () => setState(() => _autoSpeakResult = !_autoSpeakResult),
-                  icon: Icon(
-                    _autoSpeakResult ? Icons.volume_up : Icons.volume_off,
-                    color: _autoSpeakResult ? AppTheme.safeGreen : AppTheme.textTertiary,
-                  ),
-                  tooltip: _autoSpeakResult ? 'Автоозвучивание включено' : 'Автоозвучивание выключено',
+                  icon: Icon(_autoSpeakResult ? Icons.volume_up : Icons.volume_off,
+                    color: _autoSpeakResult ? AppTheme.safeGreen : AppTheme.textTertiary),
+                  tooltip: _autoSpeakResult ? 'Автоозвучивание вкл' : 'Автоозвучивание выкл',
+                ),
+                // Меню с остальными инструментами
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.apps, color: AppTheme.textSecondaryFor(context)),
+                  tooltip: 'Инструменты',
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'protocols':
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => TreatmentProtocolsScreen(
+                            vetProvider: _vetProvider,
+                            onDrugSelected: (drug) => _vetProvider.selectDrug(drug),
+                          ),
+                        ));
+                        break;
+                      case 'interactions':
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => InteractionsCheckerScreen(vetProvider: _vetProvider),
+                        ));
+                        break;
+                      case 'withdrawal':
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => WithdrawalCalculatorScreen(vetProvider: _vetProvider),
+                        ));
+                        break;
+                      case 'infusion':
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => const InfusionCalculatorScreen(),
+                        ));
+                        break;
+                      case 'diseases':
+                        _openDiseasesScreen();
+                        break;
+                      case 'fluid':
+                        if (_vetProvider.fluidTherapyDatabase != null) {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (_) => FluidTherapyScreen(db: _vetProvider.fluidTherapyDatabase!),
+                          ));
+                        }
+                        break;
+                      case 'settings':
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ));
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'protocols', child: ListTile(
+                      leading: Icon(Icons.medical_information_outlined), title: Text('Протоколы'),
+                      dense: true,
+                    )),
+                    const PopupMenuItem(value: 'interactions', child: ListTile(
+                      leading: Icon(Icons.compare_arrows), title: Text('Совместимость'),
+                      dense: true,
+                    )),
+                    const PopupMenuItem(value: 'withdrawal', child: ListTile(
+                      leading: Icon(Icons.schedule), title: Text('Каренция'),
+                      dense: true,
+                    )),
+                    const PopupMenuItem(value: 'infusion', child: ListTile(
+                      leading: Icon(Icons.calculate), title: Text('Инфузия'),
+                      dense: true,
+                    )),
+                    if (_vetProvider.diseasesCount > 0)
+                      const PopupMenuItem(value: 'diseases', child: ListTile(
+                        leading: Icon(Icons.coronavirus_outlined), title: Text('Болезни'),
+                        dense: true,
+                      )),
+                    if (_vetProvider.fluidTherapyDatabase != null)
+                      const PopupMenuItem(value: 'fluid', child: ListTile(
+                        leading: Icon(Icons.water_drop), title: Text('Инфуз. терапия'),
+                        dense: true,
+                      )),
+                    const PopupMenuDivider(),
+                    const PopupMenuItem(value: 'settings', child: ListTile(
+                      leading: Icon(Icons.settings_outlined), title: Text('Настройки'),
+                      dense: true,
+                    )),
+                  ],
                 ),
               ],
+            ),
             ),
           ],
         ),
