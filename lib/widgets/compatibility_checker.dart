@@ -278,11 +278,11 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppTheme.dividerFor(context)),
+              borderSide: BorderSide(color: AppTheme.dividerGray),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppTheme.dividerFor(context)),
+              borderSide: BorderSide(color: AppTheme.dividerGray),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -297,7 +297,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppTheme.dividerFor(context)),
+              border: Border.all(color: AppTheme.dividerGray),
             ),
             child: ListView.builder(
               shrinkWrap: true,

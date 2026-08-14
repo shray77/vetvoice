@@ -26,7 +26,7 @@ class AnimalCard extends StatelessWidget {
           color: isSelected ? AppTheme.safeGreen.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           border: Border.all(
-            color: isSelected ? AppTheme.safeGreen : AppTheme.backgroundFor(context),
+            color: isSelected ? AppTheme.safeGreen : AppTheme.backgroundGray,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected ? AppTheme.greenGlow : AppTheme.softShadow,
@@ -41,7 +41,7 @@ class AnimalCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.safeGreen.withOpacity(0.15)
-                    : AppTheme.backgroundFor(context),
+                    : AppTheme.backgroundGray,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               ),
               child: Center(

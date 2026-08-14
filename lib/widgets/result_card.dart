@@ -225,7 +225,7 @@ class _ResultCardState extends State<ResultCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundFor(context),
+        color: AppTheme.backgroundGray,
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
       ),
       child: Column(
