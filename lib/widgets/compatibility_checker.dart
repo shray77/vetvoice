@@ -115,7 +115,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -277,11 +277,11 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppTheme.dividerFor(context)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppTheme.dividerFor(context)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -296,7 +296,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppTheme.dividerFor(context)),
             ),
             child: ListView.builder(
               shrinkWrap: true,

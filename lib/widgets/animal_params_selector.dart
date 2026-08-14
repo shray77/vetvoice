@@ -35,7 +35,7 @@ class GenderSelector extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected 
                 ? (gender == Gender.male ? AppTheme.maleBlue : AppTheme.femalePink)
-                : AppTheme.backgroundGray,
+                : AppTheme.backgroundFor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             border: Border.all(
               color: isSelected 
@@ -50,7 +50,7 @@ class GenderSelector extends StatelessWidget {
                 icon,
                 style: TextStyle(
                   fontSize: 28,
-                  color: isSelected ? AppTheme.white : AppTheme.textSecondary,
+                  color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -59,7 +59,7 @@ class GenderSelector extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? AppTheme.white : AppTheme.textPrimary,
+                  color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -119,7 +119,7 @@ class PregnancySelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected 
               ? (isWarning ? AppTheme.warningOrange : AppTheme.safeGreen)
-              : AppTheme.backgroundGray,
+              : AppTheme.backgroundFor(context),
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(
             color: isSelected 
@@ -132,7 +132,7 @@ class PregnancySelector extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: isSelected ? AppTheme.white : AppTheme.textPrimary,
+            color: isSelected ? Theme.of(context).colorScheme.surface : AppTheme.textPrimary,
           ),
         ),
       ),
@@ -207,7 +207,7 @@ class AgeSelector extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundGray,
+            color: AppTheme.backgroundFor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
           child: Row(
@@ -226,7 +226,7 @@ class AgeSelector extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 100),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                   border: Border.all(color: AppTheme.dividerGray),
                 ),
@@ -291,7 +291,7 @@ class AgeSelector extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppTheme.white : color,
+              color: isSelected ? Theme.of(context).colorScheme.surface : color,
             ),
             textAlign: TextAlign.center,
           ),
@@ -307,7 +307,7 @@ class AgeSelector extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppTheme.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(color: AppTheme.dividerGray),
           boxShadow: [
@@ -378,7 +378,7 @@ class AnimalParamsSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         border: Border.all(color: AppTheme.dividerGray),
       ),

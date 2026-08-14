@@ -60,10 +60,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: const Text('Справочник болезней'),
-        backgroundColor: AppTheme.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
@@ -187,7 +187,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
         onSelected: (_) => setState(() => _filterAnimal = category),
         selectedColor: AppTheme.safeGreen.withOpacity(0.2),
         checkmarkColor: AppTheme.safeGreen,
-        backgroundColor: AppTheme.backgroundGray,
+        backgroundColor: AppTheme.backgroundFor(context),
         labelStyle: TextStyle(
           fontSize: 13,
           color: isSelected ? AppTheme.safeGreen : AppTheme.textSecondary,
@@ -351,7 +351,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppTheme.dividerGray.withOpacity(0.5)),
       ),
@@ -495,7 +495,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppTheme.dividerGray.withOpacity(0.5)),
       ),
@@ -549,7 +549,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray.withOpacity(0.5),
+        color: AppTheme.backgroundFor(context).withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

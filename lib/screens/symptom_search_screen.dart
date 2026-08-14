@@ -232,7 +232,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           const SizedBox(height: 8),
           Text(
             'Попробуйте другие ключевые слова',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
           ),
         ],
       ),
@@ -369,7 +369,7 @@ class _SearchResultCard extends StatelessWidget {
                           drug.inn,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppTheme.textSecondaryFor(context),
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,

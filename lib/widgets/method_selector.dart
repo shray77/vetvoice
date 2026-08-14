@@ -90,7 +90,7 @@ class MethodSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray,
+        color: AppTheme.backgroundFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(color: AppTheme.dividerGray),
       ),

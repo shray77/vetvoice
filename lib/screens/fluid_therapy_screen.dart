@@ -53,7 +53,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: AppTheme.softShadow,
       ),
@@ -84,7 +84,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
             children: s.indications.map((ind) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppTheme.backgroundGray,
+                color: AppTheme.backgroundFor(context),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(ind, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
@@ -108,7 +108,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: AppTheme.softShadow,
       ),
@@ -211,10 +211,10 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGray,
+      backgroundColor: AppTheme.backgroundFor(context),
       appBar: AppBar(
         title: const Text('Инфузионная терапия'),
-        backgroundColor: AppTheme.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         bottom: TabBar(
@@ -247,7 +247,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

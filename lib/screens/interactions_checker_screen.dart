@@ -296,7 +296,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'База: ${_allInteractions.length} взаимодействий',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
           ),
         ],
       ),
@@ -317,7 +317,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'Проверено ${_selectedDrugs.length} препаратов',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
           ),
           const SizedBox(height: 24),
           Container(

@@ -118,7 +118,7 @@ class _VaccineCardState extends State<VaccineCard> {
                 widget.drugInn,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[700],
+                  color: AppTheme.textSecondaryFor(context),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -216,7 +216,7 @@ class _InfoRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600],
+                color: AppTheme.textSecondaryFor(context),
               ),
             ),
           ),
@@ -259,7 +259,7 @@ class _VialCalculator extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
+            color: AppTheme.textPrimaryFor(context),
           ),
         ),
         const SizedBox(height: 8),
@@ -341,7 +341,7 @@ class _VialCalculator extends StatelessWidget {
                       'Объём: ${volume.toStringAsFixed(volume >= 10 ? 1 : 2)} мл',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[700],
+                        color: AppTheme.textSecondaryFor(context),
                       ),
                     ),
                   ),

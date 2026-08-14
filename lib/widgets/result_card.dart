@@ -346,7 +346,7 @@ class _ResultCardState extends State<ResultCard> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.orange.shade100,
+                        color: AppTheme.warningOrange.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -355,7 +355,7 @@ class _ResultCardState extends State<ResultCard> {
                             : '⏱ ${widget.result.withdrawalDays} дн.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.orange.shade800,
+                          color: AppTheme.warningOrange,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -489,7 +489,7 @@ class _ResultCardState extends State<ResultCard> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Colors.orange.shade800,
+                              color: AppTheme.warningOrange,
                             ),
                           ),
                         ],

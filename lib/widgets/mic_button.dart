@@ -117,7 +117,7 @@ class _MicButtonState extends State<MicButton> with TickerProviderStateMixin {
                     child: Icon(
                       widget.isListening ? Icons.mic : Icons.mic_none,
                       size: 44,
-                      color: AppTheme.white,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                   ),
                 );

@@ -45,8 +45,8 @@ class InteractionWarning extends StatelessWidget {
               color: critical.isNotEmpty 
                   ? Colors.red.shade100 
                   : warnings.isNotEmpty 
-                      ? Colors.orange.shade100 
-                      : Colors.blue.shade100,
+                      ? AppTheme.warningOrange.withOpacity(0.15) 
+                      : AppTheme.maleBlue.withOpacity(0.15),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
             ),
             child: Row(
@@ -122,7 +122,7 @@ class InteractionWarning extends StatelessWidget {
               color: interaction.isCritical 
                   ? Colors.red.shade100 
                   : interaction.isWarning 
-                      ? Colors.orange.shade100 
+                      ? AppTheme.warningOrange.withOpacity(0.15) 
                       : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(4),
             ),

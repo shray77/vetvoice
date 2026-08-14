@@ -110,7 +110,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Text(
             'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
           ),
         ],
       ),
@@ -194,7 +194,7 @@ class _FavoriteDrugCard extends StatelessWidget {
                         drug.inn,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: AppTheme.textSecondaryFor(context),
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,

@@ -127,7 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Text(
             'Здесь появятся ваши расчёты\nпосле первого использования',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textSecondaryFor(context)),
           ),
         ],
       ),
@@ -211,7 +211,7 @@ class _HistoryEntryCard extends StatelessWidget {
                         entry.formattedTime,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey[500],
+                          color: AppTheme.textTertiaryFor(context),
                         ),
                       ),
                     ],
@@ -263,7 +263,7 @@ class _HistoryEntryCard extends StatelessWidget {
                             '· ${entry.frequency}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: AppTheme.textSecondaryFor(context),
                             ),
                           ),
                         ],
@@ -290,14 +290,14 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: AppTheme.backgroundFor(context),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
-          color: Colors.grey[700],
+          color: AppTheme.textSecondaryFor(context),
         ),
       ),
     );

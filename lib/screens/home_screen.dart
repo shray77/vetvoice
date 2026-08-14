@@ -604,7 +604,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
         child: Row(children: [
           Container(width: 40, height: 40, decoration: BoxDecoration(color: iconColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: iconColor, size: 20)),
@@ -652,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: _vetProvider.isLoading
             ? _buildLoadingScreen()
@@ -760,7 +760,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: _handsFreeMode 
             ? AppTheme.safeGreen.withOpacity(0.1)
-            : AppTheme.backgroundGray,
+            : AppTheme.backgroundFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(
           color: _handsFreeMode 
@@ -1202,7 +1202,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               shape: BoxShape.circle,
               color: _wakeWordEnabled 
                   ? AppTheme.safeGreen.withOpacity(0.1 + _wakeWordAnimationController.value * 0.15)
-                  : AppTheme.backgroundGray,
+                  : AppTheme.backgroundFor(context),
               border: Border.all(
                 color: _wakeWordEnabled 
                     ? AppTheme.safeGreen.withOpacity(0.5 + _wakeWordAnimationController.value * 0.5)
@@ -1241,7 +1241,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       decoration: BoxDecoration(
                         color: AppTheme.safeGreen,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.white, width: 2),
+                        border: Border.all(color: Theme.of(context).colorScheme.surface, width: 2),
                       ),
                     ),
                   ),
@@ -1513,7 +1513,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: Icon(
                     _isListening ? Icons.mic : Icons.mic_none,
                     size: 48,
-                    color: AppTheme.white,
+                    color: Theme.of(context).colorScheme.surface,
                   ),
                 ),
               ),
@@ -1593,7 +1593,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray,
+        color: AppTheme.backgroundFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
       ),
       child: Text(
@@ -1651,7 +1651,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppTheme.dividerFor(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1796,7 +1796,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       avatar: Icon(icon, size: 18, color: isActive ? AppTheme.safeGreen : AppTheme.textSecondary),
       label: Text(label),
       onPressed: onTap,
-      backgroundColor: isActive ? AppTheme.safeGreen.withOpacity(0.1) : AppTheme.backgroundGray,
+      backgroundColor: isActive ? AppTheme.safeGreen.withOpacity(0.1) : AppTheme.backgroundFor(context),
       side: BorderSide(
         color: isActive ? AppTheme.safeGreen.withOpacity(0.3) : Colors.transparent,
       ),
