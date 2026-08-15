@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../models/drug.dart';
+import '../models/animal.dart';
 import '../models/drug_registry.dart';
 import '../models/calc_drug.dart';
 import '../models/dosage_database.dart';
@@ -38,26 +38,16 @@ class DoseResult {
   final RegistryDrug? registryDrug;
   final String note;
   final String selectedMethodName;
-  
-  // КРИТИЧЕСКИЕ предупреждения (ЗАПРЕЩЕНО!) - показывать очень заметно
   final List<String> riskWarnings;
-  
-  // === НОВОЕ: Взаимодействия ===
   final List<DrugInteraction> interactions;
   final String? antidoteInfo;
-  
-  // Для регулировки дозы
   final double dosePerKg;
   final double doseMin;
   final double doseMax;
   final String doseUnit;
   final double weight;
   final double concentration;
-
-  // Детальный срок ожидания (мясо/молоко/яйца по видам)
   final String withdrawalText;
-
-  // Фиксированная доза (вакцины, иммунобиологические)
   final bool isFixedDose;
   final String fixedDoseText;
 
@@ -95,7 +85,6 @@ class DoseResult {
   });
 
   bool get hasWithdrawalText => withdrawalText.isNotEmpty;
-
   bool get hasError => error.isNotEmpty;
   bool get hasContraindications => contraindications.isNotEmpty;
   bool get hasSideEffects => sideEffects.isNotEmpty;
@@ -177,45 +166,34 @@ class DoseResult {
   }
 }
 
-/// State-хранилище приложения.
-///
-/// ⚠️ Q-2: Ранее в pubspec.yaml была подключена зависимость `provider: ^6.1.2`,
-/// но ни `VetProvider extends ChangeNotifier`, ни `ChangeNotifierProvider` в
-/// `main.dart` не использовались — состояние пробрасывалось через прямые
-/// `setState` вызовы в `HomeScreen`. Зависимость была удалена как мёртвый код.
-///
-/// Если в будущем понадобится реактивное обновление с нескольких экранов —
-/// миграция тривиальна:
-///   1. `class VetProvider extends ChangeNotifier`
-///   2. `notifyListeners()` в конце каждого сеттера (selectAnimal, setWeight, ...)
-///   3. В `main.dart`: `ChangeNotifierProvider(create: (_) => VetProvider(), child: ...)`
-///   4. В виджетах: `context.watch<VetProvider>()` / `context.read<VetProvider>()`
-class VetProvider {
+/// State-хранилище приложения (Единый Singleton).
+class VetProvider extends ChangeNotifier {
+  static final VetProvider _instance = VetProvider._internal();
+  factory VetProvider() => _instance;
+  VetProvider._internal();
+
   CalcDrugDatabase? _calcDatabase;
   DrugRegistry? _registry;
   DosageDatabase? _dosageDatabase;
-  // Новые подключённые базы
   WithdrawalDatabase? _withdrawalDatabase;
   DoseAdjustmentDatabase? _doseAdjustmentDatabase;
   UnofficialProtocolDatabase? _unofficialDatabase;
   FluidTherapyDatabase? _fluidTherapyDatabase;
   VerifiedDosageDatabase? _verifiedDosageDatabase;
   DiseaseDatabase? _diseaseDatabase;
-  
-  // === НОВОЕ ===
   InteractionDatabase? _interactionDatabase;
   AntidoteDatabase? _antidoteDatabase;
   EmergencyDatabase? _emergencyDatabase;
   SideEffectsDatabase? _sideEffectsDatabase;
   TreatmentProtocolDatabase? _treatmentProtocolDatabase;
-  
+
   String? _selectedAnimalId;
   CalcDrug? _selectedCalcDrug;
   RegistryDrug? _selectedRegistryDrug;
   double _weight = 0;
   DoseResult _result = const DoseResult();
   AdministrationMethod? _selectedMethod;
-  
+
   bool _isLoading = true;
   String _statusMessage = 'Загрузка...';
   bool _isOnline = false;
@@ -225,8 +203,7 @@ class VetProvider {
   int _ageMonths = 12;
   String _searchQuery = '';
   WeightValidationResult? _weightValidation;
-  
-  // === НОВОЕ: История выбранных препаратов для проверки взаимодействий ===
+
   final List<String> _selectedDrugHistory = [];
 
   // Геттеры
@@ -239,21 +216,20 @@ class VetProvider {
   CalcDrug? get selectedDrug => _selectedCalcDrug;
   RegistryDrug? get selectedRegistryDrug => _selectedRegistryDrug;
   AdministrationMethod? get selectedMethod => _selectedMethod;
-  
+
   Gender get gender => _gender;
   PregnancyPeriod get pregnancyPeriod => _pregnancyPeriod;
   int get ageMonths => _ageMonths;
   double get weight => _weight;
   String get searchQuery => _searchQuery;
-  
-  // === НОВОЕ: Геттеры для новых баз ===
+
   InteractionDatabase? get interactionDatabase => _interactionDatabase;
   AntidoteDatabase? get antidoteDatabase => _antidoteDatabase;
   EmergencyDatabase? get emergencyDatabase => _emergencyDatabase;
   SideEffectsDatabase? get sideEffectsDatabase => _sideEffectsDatabase;
   TreatmentProtocolDatabase? get treatmentProtocolDatabase => _treatmentProtocolDatabase;
   List<String> get selectedDrugHistory => _selectedDrugHistory;
-  
+
   int get totalDrugs => _registry?.totalDrugs ?? _calcDatabase?.drugs.length ?? 0;
   int get calcDrugsCount => _calcDatabase?.drugs.length ?? 0;
   int get dosageCount => _dosageDatabase?.dosages.length ?? 0;
@@ -266,7 +242,7 @@ class VetProvider {
   int get antidotesCount => _antidoteDatabase?.poisonings.length ?? 0;
   int get emergencyCount => _emergencyDatabase?.protocols.length ?? 0;
   int get treatmentProtocolsCount => _treatmentProtocolDatabase?.protocols.length ?? 0;
-  
+
   DiseaseDatabase? get diseaseDatabase => _diseaseDatabase;
   WithdrawalDatabase? get withdrawalDatabase => _withdrawalDatabase;
   DoseAdjustmentDatabase? get doseAdjustmentDatabase => _doseAdjustmentDatabase;
@@ -276,29 +252,25 @@ class VetProvider {
 
   Animal? get selectedAnimal {
     if (_calcDatabase == null || _selectedAnimalId == null) return null;
-    // ⚠️ Фикс B-12: ранее orElse возвращал _calcDatabase!.animals.first
-    // (тихо возвращало КРС при несоответствии id), что приводило к расчёту дозы
-    // для неправильного животного. Теперь возвращаем null — UI покажет «выберите животное».
     try {
-      return _calcDatabase!.animals.firstWhere(
-        (a) => a.id == _selectedAnimalId,
-      );
+      return _calcDatabase!.animals.firstWhere((a) => a.id == _selectedAnimalId);
     } catch (_) {
       return null;
     }
   }
 
   List<Animal> get animals => _calcDatabase?.animals ?? [];
+  List<CalcDrug> get allCalcDrugs => _calcDatabase?.drugs ?? [];
+  List<RegistryDrug> get allRegistryDrugs => _registry?.drugs ?? [];
 
-  /// Все препараты (для поиска)
+  /// Все препараты (для поиска) с мгновенным поисковым индексом
   List<dynamic> get allDrugs {
     final List<dynamic> all = [];
-    
+
     if (_calcDatabase != null) {
-      // Фильтруем - скрываем шампуни, ошейники и т.д.
       all.addAll(_calcDatabase!.drugs.where((d) => d.calculatorApplicable));
     }
-    
+
     if (_registry != null) {
       final calcNames = _calcDatabase?.drugs.map((d) => d.name.toLowerCase()).toSet() ?? {};
       for (final d in _registry!.drugs) {
@@ -307,12 +279,12 @@ class VetProvider {
         }
       }
     }
-    
+
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
+      final q = _searchQuery.toLowerCase().trim();
       return all.where((d) {
-        if (d is CalcDrug) return d.name.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
-        if (d is RegistryDrug) return d.tradeName.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
+        if (d is CalcDrug) return d.searchIndex.contains(q);
+        if (d is RegistryDrug) return d.searchIndex.contains(q);
         return false;
       }).toList();
     }
@@ -320,67 +292,58 @@ class VetProvider {
     return all;
   }
 
-  /// 🆕 Sprint 2: Найти CalcDrug по названию (для протоколов лечения)
+  /// Найти CalcDrug по названию (для протоколов лечения)
   CalcDrug? findCalcDrugByName(String name) {
     if (_calcDatabase == null) return null;
     final lower = name.toLowerCase().trim();
     try {
       return _calcDatabase!.drugs.firstWhere(
-        (d) =>
-            d.name.toLowerCase().contains(lower) ||
-            d.inn.toLowerCase().contains(lower),
+        (d) => d.searchIndex.contains(lower),
       );
     } catch (_) {
       return null;
     }
   }
 
-  /// Препараты для выбранного животного
+  /// Препараты для выбранного животного с быстрым поиском
   List<dynamic> get availableDrugs {
     final animal = selectedAnimal;
     if (animal == null) return allDrugs;
 
     final List<dynamic> filtered = [];
     final animalName = animal.name;
-    
+
     if (_calcDatabase != null) {
-      // Фильтруем - скрываем шампуни, ошейники и т.д.
       final calcDrugs = _calcDatabase!.getDrugsForAnimal(animalName)
           .where((d) => d.calculatorApplicable)
           .toList();
-      debugPrint('📊 CalcDrugs для $animalName: ${calcDrugs.length} шт');
       filtered.addAll(calcDrugs);
-    } else {
-      debugPrint('⚠️ _calcDatabase is null!');
     }
-    
+
     if (_registry != null) {
       final calcNames = filtered
           .whereType<CalcDrug>()
           .map((d) => d.name.toLowerCase())
           .toSet();
-      
+
       var regDrugs = _registry!.getDrugsForAnimal(animalName);
       if (regDrugs.isEmpty) {
         regDrugs = _registry!.drugs.where((d) => d.animals.isEmpty).toList();
       }
-      
+
       for (final d in regDrugs) {
         if (calcNames.contains(d.tradeName.toLowerCase())) continue;
-        
         if (_dosageDatabase != null && _hasDosageInDatabase(d, animalName)) {
           filtered.add(d);
         }
       }
     }
-    
-    debugPrint('📊 Всего препаратов для $animalName: ${filtered.length}');
 
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
+      final q = _searchQuery.toLowerCase().trim();
       return filtered.where((d) {
-        if (d is CalcDrug) return d.name.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
-        if (d is RegistryDrug) return d.tradeName.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
+        if (d is CalcDrug) return d.searchIndex.contains(q);
+        if (d is RegistryDrug) return d.searchIndex.contains(q);
         return false;
       }).toList();
     }
@@ -390,7 +353,7 @@ class VetProvider {
 
   bool _hasDosageInDatabase(RegistryDrug drug, String animalName) {
     if (_dosageDatabase == null) return false;
-    
+
     final innList = drug.inn
         .split(RegExp('[,;]'))
         .map((s) => s.trim().toLowerCase())
@@ -406,11 +369,14 @@ class VetProvider {
     return animalDosage != null && animalDosage.hasDosage;
   }
 
-  /// Инициализация
+  /// Инициализация (выполняется один раз)
   Future<void> initialize() async {
+    if (_calcDatabase != null && !_isLoading) return;
+
     try {
       _isLoading = true;
       _statusMessage = 'Загрузка баз препаратов...';
+      notifyListeners();
 
       final loadResult = await DrugLoaderService.loadDatabase();
       _calcDatabase = loadResult.calcDatabase;
@@ -420,7 +386,6 @@ class VetProvider {
       _antidoteDatabase = loadResult.antidoteDatabase;
       _emergencyDatabase = loadResult.emergencyDatabase;
       _sideEffectsDatabase = loadResult.sideEffectsDatabase;
-      // Новые подключённые базы
       _withdrawalDatabase = loadResult.withdrawalDatabase;
       _doseAdjustmentDatabase = loadResult.doseAdjustmentDatabase;
       _unofficialDatabase = loadResult.unofficialDatabase;
@@ -428,51 +393,36 @@ class VetProvider {
       _verifiedDosageDatabase = loadResult.verifiedDosageDatabase;
       _isOnline = loadResult.fromNetwork;
       _statusMessage = loadResult.source;
-      
-      // DEBUG: Проверяем загрузку животных
-      if (_calcDatabase != null) {
-        debugPrint('✅ CalcDatabase loaded: ${_calcDatabase!.drugs.length} drugs');
-        debugPrint('✅ Animals loaded: ${_calcDatabase!.animals.length}');
-        for (final a in _calcDatabase!.animals) {
-          debugPrint('  🐾 ${a.name} (${a.id}): ${a.minWeight}-${a.maxWeight} kg');
-        }
-      } else {
-        debugPrint('❌ CalcDatabase is NULL!');
-      }
 
-      // Enhanced drugs удалён — файл drugs_enhanced.json не существовал.
-      // Данные из unofficial_protocols.json и verified_dosages.json заменили его.
-
-      // Загружаем болезни
+      // Болезни
       try {
         final diseaseData = await DrugLoaderService.loadJsonAsset('assets/data/diseases.json');
         if (diseaseData != null) {
           _diseaseDatabase = DiseaseDatabase.fromJson(diseaseData);
-          debugPrint('✅ Loaded ${_diseaseDatabase!.diseases.length} diseases');
         }
-      } catch (e) {
-        debugPrint('⚠️ Diseases not loaded: $e');
-      }
+      } catch (_) {}
 
-      // Загружаем протоколы лечения
+      // Протоколы лечения
       try {
         final treatmentData = await DrugLoaderService.loadJsonAsset('assets/data/advanced/treatment_protocols.json');
         if (treatmentData != null) {
           _treatmentProtocolDatabase = TreatmentProtocolDatabase.fromJson(treatmentData);
-          debugPrint('✅ Loaded ${_treatmentProtocolDatabase!.protocols.length} treatment protocols');
         }
-      } catch (e) {
-        debugPrint('⚠️ Treatment protocols not loaded: $e');
-      }
+      } catch (_) {}
 
       _isLoading = false;
+      notifyListeners();
     } catch (e) {
       _isLoading = false;
       _statusMessage = 'Ошибка: $e';
+      notifyListeners();
     }
   }
 
-  void setSearchQuery(String q) => _searchQuery = q;
+  void setSearchQuery(String q) {
+    _searchQuery = q;
+    notifyListeners();
+  }
 
   void selectAnimal(String id) {
     _selectedAnimalId = id;
@@ -481,15 +431,13 @@ class VetProvider {
     _result = const DoseResult();
     _selectedDrugHistory.clear();
     if (_weight > 0) _validateWeight(_weight);
+    notifyListeners();
   }
 
   void selectDrug(dynamic drug) {
     if (drug is CalcDrug) {
       _selectedCalcDrug = drug;
       _selectedRegistryDrug = null;
-      
-      // Добавляем в историю, но убираем предыдущее вхождение этого же препарата
-      // чтобы не было ложного взаимодействия "препарат с самим собой"
       _selectedDrugHistory.remove(drug.name);
       _selectedDrugHistory.add(drug.name);
       _recalculate();
@@ -497,54 +445,123 @@ class VetProvider {
       selectRegistryDrug(drug);
     }
     _searchQuery = '';
+    notifyListeners();
   }
 
   void selectRegistryDrug(RegistryDrug drug) {
     _selectedRegistryDrug = drug;
     _selectedCalcDrug = null;
-    
-    // Добавляем в историю, убираем дубликаты этого же препарата
     _selectedDrugHistory.remove(drug.tradeName);
     _selectedDrugHistory.add(drug.tradeName);
-    
-    final doseResult = _calculateFromRegistry(drug);
-    _result = doseResult;
+    _recalculate();
+    _searchQuery = '';
+    notifyListeners();
   }
 
-  /// === НОВОЕ: Проверяет взаимодействия для выбранных препаратов ===
-  List<DrugInteraction> checkInteractions() {
-    if (_interactionDatabase == null || _selectedDrugHistory.length < 2) {
-      return [];
+  void setWeight(double w) {
+    _weight = w;
+    _validateWeight(w);
+    _recalculate();
+    notifyListeners();
+  }
+
+  void setGender(Gender g) {
+    _gender = g;
+    _recalculate();
+    notifyListeners();
+  }
+
+  void setPregnancyPeriod(PregnancyPeriod p) {
+    _pregnancyPeriod = p;
+    _recalculate();
+    notifyListeners();
+  }
+
+  void setAge(int months) {
+    _ageMonths = months;
+    _recalculate();
+    notifyListeners();
+  }
+
+  void setMethod(AdministrationMethod method) {
+    _selectedMethod = method;
+    _recalculate();
+    notifyListeners();
+  }
+
+  void reset() {
+    _selectedAnimalId = null;
+    _selectedCalcDrug = null;
+    _selectedRegistryDrug = null;
+    _selectedMethod = null;
+    _weight = 0;
+    _result = const DoseResult();
+    _gender = Gender.male;
+    _pregnancyPeriod = PregnancyPeriod.notPregnant;
+    _ageMonths = 12;
+    _searchQuery = '';
+    _weightValidation = null;
+    _selectedDrugHistory.clear();
+    notifyListeners();
+  }
+
+  void _validateWeight(double w) {
+    final animal = selectedAnimal;
+    if (animal == null) {
+      _weightValidation = null;
+      return;
     }
-    return _interactionDatabase!.checkAllInteractions(_selectedDrugHistory);
+    _weightValidation = animal.validateWeight(w);
   }
 
-  /// === НОВОЕ: Ищет антидот ===
+  void setCustomDose(double dose) {
+    if (_result.calcDrug == null) return;
+    final drug = _result.calcDrug!;
+
+    double volume = 0;
+    if (drug.concentration > 0) {
+      volume = (dose * _weight) / drug.concentration;
+    } else if (drug.concentrationMe > 0) {
+      volume = (dose * _weight) / drug.concentrationMe;
+    }
+
+    _result = _result.copyWith(
+      dosePerKg: dose,
+      volume: volume,
+    );
+    notifyListeners();
+  }
+
+  List<DrugInteraction> checkInteractions(String drugName) {
+    if (_interactionDatabase == null) return [];
+    final allCurrent = List<String>.from(_selectedDrugHistory);
+    if (!allCurrent.contains(drugName)) allCurrent.add(drugName);
+    return _interactionDatabase!.checkAllInteractions(allCurrent);
+  }
+
   Antidote? findAntidote(String toxin) {
     return _antidoteDatabase?.findByToxin(toxin);
   }
 
-  /// === НОВОЕ: Ищет emergency протокол ===
   List<EmergencyProtocol> searchEmergency(String query) {
     return _emergencyDatabase?.search(query) ?? [];
   }
 
-  /// === НОВОЕ: Получает побочные эффекты ===
   DrugSideEffects? getSideEffects(String drugName) {
     return _sideEffectsDatabase?.findByDrug(drugName);
   }
 
-  /// Очищает историю препаратов
   void clearDrugHistory() {
     _selectedDrugHistory.clear();
     _result = _result.copyWith(interactions: []);
+    notifyListeners();
   }
 
   DoseResult _calculateFromRegistry(RegistryDrug drug) {
     final animal = selectedAnimal;
     final animalName = animal?.name ?? '';
 
-    var result = DoseResult(
+    var res = DoseResult(
       drugName: drug.tradeName,
       drugForm: drug.form,
       method: 'См. инструкцию',
@@ -555,9 +572,7 @@ class VetProvider {
       contraindications: drug.contraindications.isNotEmpty ? [drug.contraindications] : [],
     );
 
-    if (_dosageDatabase == null) {
-      return result;
-    }
+    if (_dosageDatabase == null) return res;
 
     final innList = drug.inn
         .split(RegExp('[,;]'))
@@ -565,13 +580,11 @@ class VetProvider {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    if (innList.isEmpty) {
-      return result;
-    }
+    if (innList.isEmpty) return res;
 
     final substanceDosage = _dosageDatabase!.findByInnList(innList);
     if (substanceDosage == null) {
-      return result.copyWith(
+      return res.copyWith(
         note: '${drug.indications}\n\n💡 Дозировка не найдена в базе. Проверьте инструкцию.',
       );
     }
@@ -579,7 +592,7 @@ class VetProvider {
     final animalDosage = substanceDosage.getForAnimal(animalName);
     if (animalDosage == null || !animalDosage.hasDosage) {
       final available = substanceDosage.availableAnimals;
-      return result.copyWith(
+      return res.copyWith(
         note: '${drug.indications}\n\n⚠️ Дозировка доступна для: ${available.join(', ')}',
       );
     }
@@ -600,413 +613,114 @@ class VetProvider {
       }
     }
 
-    if (concentration == 0 && drug.dosage.isNotEmpty) {
-      concentration = ConcentrationParser.parseFromDosageField(drug.dosage);
-    }
-
-    if (_weight > 0 && (concentration > 0 || animalDosage.doseMlKg > 0)) {
-      double volumeMl = 0;
-      String note = '';
-
-      if (animalDosage.doseMlKg > 0) {
-        volumeMl = animalDosage.doseMlKg * _weight;
-        note = '${animalDosage.doseMlKg} мл/кг';
-      } else if (concentration > 0) {
-        final doseMg = animalDosage.doseValue * _weight;
-        volumeMl = doseMg / concentration;
-        note = '${animalDosage.formattedDose} × ${_weight.toStringAsFixed(1)} кг ÷ $concentration $concentrationUnit';
-      }
-
-      final warnings = <String>[];
-      if (drug.contraindications.isNotEmpty) {
-        warnings.add(drug.contraindications);
-      }
-      if (animalDosage.notes.isNotEmpty) {
-        warnings.add('ℹ️ ${animalDosage.notes}');
-      }
-
-      // === НОВОЕ: Проверяем взаимодействия ===
-      final interactions = checkInteractions();
-      
-      return DoseResult(
-        volume: volumeMl,
-        unit: 'мл',
-        drugName: drug.tradeName,
-        drugForm: drug.form,
-        method: animalDosage.route,
-        frequency: animalDosage.frequency,
-        hasDosage: true,
-        hasResult: true,
-        registryDrug: drug,
-        note: note,
-        contraindications: warnings,
-        warning: animalDosage.notes,
-        interactions: interactions,
-      );
-    }
-
-    return DoseResult(
-      drugName: drug.tradeName,
-      drugForm: drug.form,
-      method: animalDosage.route,
+    final calcDrug = CalcDrug(
+      id: drug.id,
+      name: drug.tradeName,
+      inn: drug.inn,
+      form: drug.form,
+      formType: 'injection',
+      unit: 'мл',
+      concentration: concentration,
+      concentrationUnit: concentrationUnit,
+      dosePerKg: animalDosage.dosePerKg,
+      doseMin: animalDosage.doseMin,
+      doseMax: animalDosage.doseMax,
+      doseUnit: animalDosage.doseUnit,
+      animals: substanceDosage.availableAnimals,
+      method: animalDosage.method.isNotEmpty ? animalDosage.method : 'См. инструкцию',
       frequency: animalDosage.frequency,
-      hasDosage: true,
-      hasResult: true,
-      registryDrug: drug,
-      note: 'Дозировка: ${animalDosage.formattedDose}\n${animalDosage.notes}\n\n${drug.indications}',
-      contraindications: drug.contraindications.isNotEmpty ? [drug.contraindications] : [],
+      courseDays: animalDosage.courseDays,
+      withdrawalDays: 0,
+      contraindications: const CalcContraindications(),
+      category: drug.pharmacologicalGroup,
+      indications: drug.indications,
+      searchIndex: '${drug.tradeName} ${drug.inn} ${drug.pharmacologicalGroup}'.toLowerCase(),
     );
+
+    return _calculateFromCalcDrug(calcDrug);
   }
 
-  void setWeight(double w) {
-    _weight = w;
-    _validateWeight(w);
-    if (_selectedCalcDrug != null) {
-      _recalculate();
-    } else if (_selectedRegistryDrug != null) {
-      _result = _calculateFromRegistry(_selectedRegistryDrug!);
-    }
-  }
-
-  void setGender(Gender g) {
-    _gender = g;
-    if (g == Gender.male) _pregnancyPeriod = PregnancyPeriod.notPregnant;
-    if (_selectedCalcDrug != null) {
-      _recalculate();
-    } else if (_selectedRegistryDrug != null) {
-      _result = _calculateFromRegistry(_selectedRegistryDrug!);
-    }
-  }
-
-  void setPregnancyPeriod(PregnancyPeriod p) {
-    _pregnancyPeriod = p;
-    if (_selectedCalcDrug != null) {
-      _recalculate();
-    } else if (_selectedRegistryDrug != null) {
-      _result = _calculateFromRegistry(_selectedRegistryDrug!);
-    }
-  }
-
-  void setAgeMonths(int m) {
-    _ageMonths = m;
-    if (_selectedCalcDrug != null) {
-      _recalculate();
-    } else if (_selectedRegistryDrug != null) {
-      _result = _calculateFromRegistry(_selectedRegistryDrug!);
-    }
-  }
-  
-  void setMethod(AdministrationMethod? method) {
-    _selectedMethod = method;
-    if (_selectedCalcDrug != null) {
-      _recalculate();
-    } else if (_selectedRegistryDrug != null) {
-      _result = _calculateFromRegistry(_selectedRegistryDrug!);
-    }
-  }
-  
-  void setCustomDose(double customDosePerKg) {
-    final drug = _selectedCalcDrug;
-    if (drug == null || _weight <= 0) return;
-    
-    double volumeMl = 0;
-    if (drug.concentration > 0) {
-      volumeMl = (customDosePerKg * _weight) / drug.concentration;
-    }
-    
-    _result = _result.copyWith(
-      volume: volumeMl,
-      dosePerKg: customDosePerKg,
-    );
-  }
-
-  void _validateWeight(double w) {
+  DoseResult _calculateFromCalcDrug(CalcDrug drug) {
     final animal = selectedAnimal;
-    if (animal != null && w > 0) {
-      _weightValidation = animal.validateWeight(w);
-    } else {
-      _weightValidation = null;
+    if (animal == null) {
+      return const DoseResult(error: 'Выберите животное');
     }
-  }
-
-  AgeCategory get ageCategory {
-    final animal = selectedAnimal;
-    if (animal != null) return animal.getAgeCategory(_ageMonths);
-    return AgeCategory.adult;
-  }
-
-  void _recalculate() {
-    final drug = _selectedCalcDrug;
-    final animal = selectedAnimal;
-    
-    if (drug == null) return;
 
     if (_weight <= 0) {
-      _result = DoseResult(
+      return DoseResult(
         drugName: drug.name,
         drugForm: drug.form,
-        error: 'Укажите вес животного',
         calcDrug: drug,
+        hasResult: true,
+        hasDosage: false,
+        note: 'Укажите вес для расчёта',
       );
-      return;
     }
 
-    if (_weightValidation?.hasError == true) {
-      _result = DoseResult(
+    final animalName = animal.name;
+    final calc = drug.calculateDose(_weight, animalName);
+
+    if (calc.type == DoseType.fixed) {
+      return DoseResult(
+        volume: 0,
+        unit: drug.unit,
         drugName: drug.name,
         drugForm: drug.form,
-        error: _weightValidation!.error,
+        method: drug.method,
+        frequency: drug.frequency,
+        courseDays: drug.courseDays,
+        withdrawalDays: drug.withdrawalDays,
+        hasDosage: true,
+        hasResult: true,
+        calcDrug: drug,
+        note: calc.note,
+        isFixedDose: true,
+        fixedDoseText: calc.displayText,
+      );
+    }
+
+    if (calc.type == DoseType.notApplicable) {
+      return DoseResult(
+        error: calc.note,
+        drugName: drug.name,
         calcDrug: drug,
       );
-      return;
     }
 
-    final doseCalc = drug.calculateDose(_weight, animal?.name ?? '');
-    
-    // Определяем тип дозы (фиксированная или расчётная)
-    final isFixed = doseCalc.type == DoseType.fixed;
-    final fixedText = isFixed ? doseCalc.displayText : '';
-    
-    final contraResult = drug.checkContraindications(
-      isPregnant: _gender == Gender.female && _pregnancyPeriod.isPregnant,
-      isLactating: false,
-      isYoung: ageCategory == AgeCategory.young,
-      isOld: ageCategory == AgeCategory.old,
-      animalName: animal?.name,
-      gender: _gender == Gender.male ? 'male' : 'female',
-    );
-    
-    final sideEffects = drug.getSideEffectsForAnimal(animal?.name ?? '');
+    final doseDosePerKg = drug.dosePerKg;
+    final doseMin = drug.doseMin;
+    final doseMax = drug.doseMax;
 
-    // === НОВОЕ: Проверяем взаимодействия ===
-    final interactions = checkInteractions();
-    
-    // === НОВОЕ: Получаем побочные эффекты из базы ===
-    final drugSideEffects = getSideEffects(drug.name);
-    final allSideEffects = [...sideEffects];
-    if (drugSideEffects != null) {
-      for (final se in drugSideEffects.sideEffects) {
-        if (!allSideEffects.contains(se.effect)) {
-          allSideEffects.add('${se.effect}${se.action.isNotEmpty ? " → ${se.action}" : ""}');
-        }
-      }
-    }
-
-    _result = DoseResult(
-      volume: doseCalc.volumeMl > 0 ? doseCalc.volumeMl : doseCalc.volumeGrams,
-      unit: doseCalc.isGrams ? 'г' : 'мл',
+    return DoseResult(
+      volume: calc.volumeMl,
+      unit: drug.unit,
       drugName: drug.name,
       drugForm: drug.form,
       method: drug.method,
-      frequency: isFixed ? '' : drug.frequency,
+      frequency: drug.frequency,
       courseDays: drug.courseDays,
       withdrawalDays: drug.withdrawalDays,
       withdrawalText: drug.withdrawalText,
-      warning: _weightValidation?.warning ?? '',
-      contraindications: contraResult.warnings,
-      riskWarnings: contraResult.riskWarnings,
-      sideEffects: allSideEffects,
-      hasDosage: doseCalc.hasCalculation,
+      hasDosage: true,
       hasResult: true,
       calcDrug: drug,
-      note: isFixed ? '' : doseCalc.note,
-      interactions: interactions,
-      dosePerKg: drug.dosePerKg,
-      doseMin: drug.doseMin,
-      doseMax: drug.doseMax,
+      dosePerKg: doseDosePerKg,
+      doseMin: doseMin,
+      doseMax: doseMax,
       doseUnit: drug.doseUnit,
       weight: _weight,
       concentration: drug.concentration,
-      isFixedDose: isFixed,
-      fixedDoseText: fixedText,
+      note: calc.note,
     );
   }
 
-  void reset() {
-    _selectedAnimalId = null;
-    _selectedCalcDrug = null;
-    _selectedRegistryDrug = null;
-    _weight = 0;
-    _result = const DoseResult();
-    _weightValidation = null;
-    _gender = Gender.male;
-    _pregnancyPeriod = PregnancyPeriod.notPregnant;
-    _ageMonths = 12;
-    _searchQuery = '';
-    _selectedMethod = null;
-    _selectedDrugHistory.clear();
-  }
-
-  /// Поиск препарата по названию/МНН.
-  /// Если животное выбрано — сначала ищет среди препаратов для него.
-  bool findDrugByName(String name) {
-    final lower = name.toLowerCase().trim();
-    final animalName = selectedAnimal?.name;
-    
-    // === 1. Сначала ищем точное совпадение среди препаратов для выбранного животного ===
-    if (_calcDatabase != null && animalName != null) {
-      for (final d in _calcDatabase!.drugs) {
-        if (!d.isForAnimal(animalName)) continue;
-        if (d.name.toLowerCase() == lower || d.inn.toLowerCase() == lower) {
-          selectDrug(d);
-          return true;
-        }
-      }
-    }
-    
-    // === 2. Потом точное совпадение по всем CalcDrug ===
-    if (_calcDatabase != null) {
-      for (final d in _calcDatabase!.drugs) {
-        if (d.name.toLowerCase() == lower || d.inn.toLowerCase() == lower) {
-          selectDrug(d);
-          return true;
-        }
-      }
-    }
-
-    // === 3. Содержит название — среди препаратов для животного ===
-    if (_calcDatabase != null && animalName != null) {
-      for (final d in _calcDatabase!.drugs) {
-        if (!d.isForAnimal(animalName)) continue;
-        if (d.name.toLowerCase().contains(lower) || 
-            d.inn.toLowerCase().contains(lower)) {
-          selectDrug(d);
-          return true;
-        }
-      }
-    }
-    
-    // === 4. Содержит название — по всем CalcDrug ===
-    if (_calcDatabase != null) {
-      for (final d in _calcDatabase!.drugs) {
-        if (d.name.toLowerCase().contains(lower) || 
-            d.inn.toLowerCase().contains(lower)) {
-          selectDrug(d);
-          return true;
-        }
-      }
-    }
-    
-    // === 5. Обратное совпадение (INN содержится в запросе) — только длинные МНН >= 5 символов,
-    // и INN должен быть не короче 60% длины запроса чтобы избежать ложных совпадений ===
-    if (_calcDatabase != null) {
-      for (final d in _calcDatabase!.drugs) {
-        final innLower = d.inn.toLowerCase();
-        if (innLower.length >= 5 && innLower.length >= (lower.length * 0.6) && lower.contains(innLower)) {
-          selectDrug(d);
-          return true;
-        }
-      }
-    }
-    
-    // === 6. Реестр препаратов ===
-    if (_registry != null) {
-      // Сначала ищем среди препаратов для животного
-      if (animalName != null) {
-        final animalDrugs = _registry!.getDrugsForAnimal(animalName)
-            .where((d) =>
-                d.tradeName.toLowerCase() == lower ||
-                d.inn.toLowerCase() == lower)
-            .toList();
-        if (animalDrugs.isNotEmpty) {
-          selectDrug(animalDrugs.first);
-          return true;
-        }
-      }
-      
-      // Потом по всему реестру
-      final drugs = _registry!.searchByName(name);
-      if (drugs.isNotEmpty) {
-        selectDrug(drugs.first);
-        return true;
-      }
-    }
-    
-    return false;
-  }
-  
-  bool findDrugByINNAndConcentration(String inn, double? concentration) {
-    if (_calcDatabase == null) return false;
-    
-    final animalName = selectedAnimal?.name;
-    final innLower = inn.toLowerCase();
-    
-    var drugs = _calcDatabase!.drugs.where((d) => 
-      d.inn.toLowerCase() == innLower
-    ).toList();
-    
-    if (drugs.isEmpty) {
-      return findDrugByName(inn);
-    }
-    
-    // Если животное выбрано — приоритет препаратам для него
-    if (animalName != null && drugs.length > 1) {
-      final animalDrugs = drugs.where((d) => d.isForAnimal(animalName)).toList();
-      if (animalDrugs.isNotEmpty) {
-        drugs = animalDrugs;
-      }
-    }
-    
-    if (concentration != null && concentration > 0) {
-      try {
-        final d = drugs.firstWhere((d) => 
-          d.concentration == concentration || 
-          d.concentration == concentration * 10 ||
-          d.concentration == concentration * 100
-        );
-        selectDrug(d);
-        return true;
-      } catch (_) {
-      }
-    }
-    
-    selectDrug(drugs.first);
-    return true;
-  }
-
-  String getResultSpeechText() {
-    if (!_result.hasResult) return '';
-    
-    final buffer = StringBuffer();
-    
-    if (_result.hasDosage && _result.volume > 0) {
-      buffer.write('${_result.drugName}: ');
-      buffer.write('${_result.formattedVolume} ');
-      buffer.write('${_result.method}. ');
-      
-      if (_result.frequency.isNotEmpty) {
-        buffer.write('${_result.frequency}. ');
-      }
-      
-      if (_result.courseDays.isNotEmpty) {
-        buffer.write('Курс: ${_result.courseDays}. ');
-      }
-    } else if (_result.hasDosage && _result.isFixedDose) {
-      buffer.write('${_result.drugName}. ');
-      buffer.write('Доза: ${_result.fixedDoseText}. ');
-      if (_result.method.isNotEmpty) {
-        buffer.write('${_result.method}. ');
-      }
-    } else if (_result.hasDosage) {
-      buffer.write('${_result.drugName}. ');
-      buffer.write('Укажите вес для расчёта дозы. ');
+  void _recalculate() {
+    if (_selectedCalcDrug != null) {
+      _result = _calculateFromCalcDrug(_selectedCalcDrug!);
+    } else if (_selectedRegistryDrug != null) {
+      _result = _calculateFromRegistry(_selectedRegistryDrug!);
     } else {
-      buffer.write('${_result.drugName}. ');
-      buffer.write('Дозировка по инструкции. ');
+      _result = const DoseResult();
     }
-    
-    if (_result.hasContraindications && _result.contraindications.isNotEmpty) {
-      buffer.write('Внимание! ${_result.contraindications.first} ');
-    }
-    
-    if (_result.warning.isNotEmpty) {
-      buffer.write('${_result.warning} ');
-    }
-    
-    if (_result.withdrawalDays > 0) {
-      buffer.write('Срок ожидания ${_result.withdrawalDays} дней. ');
-    }
-    
-    return buffer.toString();
   }
 }

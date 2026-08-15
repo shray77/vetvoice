@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/app_theme.dart';
 
 /// Кнопка микрофона с плавной пульсацией и эффектом расходящихся волн
@@ -86,8 +87,18 @@ class _MicButtonState extends State<MicButton> with TickerProviderStateMixin {
     final isDark = AppTheme.isDark(context);
 
     return GestureDetector(
-      onTap: widget.enabled ? widget.onTap : null,
-      onLongPress: widget.enabled ? widget.onLongPress : null,
+      onTap: widget.enabled
+          ? () {
+              HapticFeedback.mediumImpact();
+              widget.onTap();
+            }
+          : null,
+      onLongPress: widget.enabled
+          ? () {
+              HapticFeedback.heavyImpact();
+              widget.onLongPress?.call();
+            }
+          : null,
       child: SizedBox(
         width: 110,
         height: 110,

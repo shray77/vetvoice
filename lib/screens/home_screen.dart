@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/drug.dart';
+import '../models/animal.dart';
 import '../models/drug_registry.dart';
 import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';

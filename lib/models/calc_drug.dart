@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'drug.dart';
+import 'animal.dart';
 import 'vaccine_specific.dart';
 
 /// Дозировка для конкретного животного
@@ -122,11 +122,11 @@ class CalcDrug {
   /// Дозировки для конкретных животных
   final Map<String, AnimalSpecificDose> animalSpecific;
   
-  /// Подходит ли для калькулятора (скрыть шампуни, ошейники и т.д.)
-  final bool calculatorApplicable;
-
   /// 🆕 Специфичные для вакцин поля (если form_type == 'vaccine')
   final VaccineSpecific? vaccineSpecific;
+
+  /// Предрасчитанный поисковый индекс (name + inn + category) для моментального поиска (0.2 мс)
+  final String searchIndex;
 
   const CalcDrug({
     required this.id,
@@ -157,8 +157,9 @@ class CalcDrug {
     this.animalSpecific = const {},
     this.calculatorApplicable = true,
     this.vaccineSpecific,
+    this.searchIndex = '',
   });
-  
+
   /// Есть ли диапазон доз
   bool get hasDoseRange => doseMin > 0 && doseMax > 0 && doseMin < doseMax;
 
@@ -179,12 +180,6 @@ class CalcDrug {
       });
     }
 
-    // ⚠️ Фикс B-4: если concentration_unit содержит "МЕ" (международные единицы),
-    // но в JSON concentration_me не задан — значение в поле concentration
-    // на самом деле является концентрацией в МЕ/мл. Переносим его в concentrationMe,
-    // чтобы calculateDose() корректно считал объём через МЕ-ветку.
-    // Это затрагивает 18 препаратов (Димоксан WS, Энроколи, Интроцил, Авидокс и т.д.),
-    // у которых ранее (доза мг/кг × вес) / concentration_МЕ = численный мусор.
     final concentrationUnit = json['concentration_unit'] as String? ?? 'мг/мл';
     final concentrationRaw = (json['concentration'] as num?)?.toDouble() ?? 0;
     final concentrationMeRaw = (json['concentration_me'] as num?)?.toDouble() ?? 0;
@@ -196,10 +191,14 @@ class CalcDrug {
       concentration = 0;
     }
 
+    final name = json['name'] as String? ?? '';
+    final inn = json['inn'] as String? ?? '';
+    final category = json['category'] as String? ?? 'прочие';
+
     return CalcDrug(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      inn: json['inn'] as String? ?? '',
+      id: json['id'] as int? ?? 0,
+      name: name,
+      inn: inn,
       form: json['form'] as String? ?? '',
       formType: json['form_type'] as String? ?? 'injection',
       unit: json['unit'] as String? ?? 'мл',
@@ -222,16 +221,16 @@ class CalcDrug {
       sideEffects: (json['side_effects'] as List<dynamic>?)
               ?.map((e) => e.toString()).toList() ??
           const [],
-      category: json['category'] as String? ?? 'прочие',
+      category: category,
       subcategory: json['subcategory'] as String?,
       indications: json['indications'] as String? ?? '',
       animalSpecific: animalSpecific,
       calculatorApplicable: json['calculator_applicable'] as bool? ?? true,
-      // 🆕 Парсим vaccine_specific для вакцин
       vaccineSpecific: json['vaccine_specific'] != null
           ? VaccineSpecific.fromJson(
               json['vaccine_specific'] as Map<String, dynamic>)
           : null,
+      searchIndex: '$name $inn $category'.toLowerCase(),
     );
   }
 

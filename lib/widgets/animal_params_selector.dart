@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/drug.dart';
+import '../models/animal.dart';
 import '../utils/app_theme.dart';
 
 /// Виджет для выбора пола животного

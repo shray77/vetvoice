@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/drug.dart';
+import 'package:flutter/services.dart';
+import '../models/animal.dart';
 import '../utils/app_theme.dart';
 
 /// Карточка выбора животного (современный Apple Health Style)
@@ -35,7 +36,10 @@ class AnimalCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -55,7 +59,6 @@ class AnimalCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Контейнер с эмодзи
               Container(
                 width: 44,
                 height: 44,
@@ -78,7 +81,6 @@ class AnimalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              // Название животного
               Text(
                 animal.name,
                 style: TextStyle(
