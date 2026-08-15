@@ -66,10 +66,12 @@ class _ResultCardState extends State<ResultCard> {
           _buildFavoriteButton(drug.id),
           const SizedBox(height: 8),
           VaccineCard(
+            drug: drug,
             drugName: drug.name,
             drugInn: drug.inn,
-            vaccine: drug.vaccineSpecific!,
+            vaccine: drug.vaccineSpecific,
             category: drug.category,
+            onSpeak: widget.onSpeak,
           ),
         ],
       );

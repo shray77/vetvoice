@@ -5,12 +5,20 @@ import '../utils/app_theme.dart';
 
 /// VaccineCard — карточка для вакцин и иммунобиологических препаратов
 class VaccineCard extends StatefulWidget {
-  final CalcDrug drug;
+  final CalcDrug? drug;
+  final String? drugName;
+  final String? drugInn;
+  final VaccineSpecific? vaccine;
+  final String? category;
   final VoidCallback? onSpeak;
 
   const VaccineCard({
     super.key,
-    required this.drug,
+    this.drug,
+    this.drugName,
+    this.drugInn,
+    this.vaccine,
+    this.category,
     this.onSpeak,
   });
 
@@ -22,10 +30,14 @@ class _VaccineCardState extends State<VaccineCard> {
   final TextEditingController _animalsController = TextEditingController(text: '1');
   int? _selectedVialOption;
 
+  VaccineSpecific? get _vaccine => widget.vaccine ?? widget.drug?.vaccineSpecific;
+  String get _name => widget.drugName ?? widget.drug?.name ?? 'Вакцина';
+  String get _inn => widget.drugInn ?? widget.drug?.inn ?? '';
+
   @override
   void initState() {
     super.initState();
-    final v = widget.drug.vaccineSpecific;
+    final v = _vaccine;
     if (v != null && v.dosesPerVialOptions.isNotEmpty) {
       _selectedVialOption = v.dosesPerVialOptions.first;
     }
@@ -39,7 +51,7 @@ class _VaccineCardState extends State<VaccineCard> {
 
   @override
   Widget build(BuildContext context) {
-    final v = widget.drug.vaccineSpecific;
+    final v = _vaccine;
     if (v == null) return const SizedBox.shrink();
 
     final isDark = AppTheme.isDark(context);
@@ -80,13 +92,22 @@ class _VaccineCardState extends State<VaccineCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.drug.name,
+                        _name,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimaryColor(context),
                         ),
                       ),
+                      if (_inn.isNotEmpty)
+                        Text(
+                          _inn,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: AppTheme.textSecondaryColor(context),
+                          ),
+                        ),
                       const SizedBox(height: 2),
                       Wrap(
                         spacing: 6,
