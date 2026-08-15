@@ -441,6 +441,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
       _controller.text = widget.selectedDrug!.name;
     }
     _filtered = widget.vetProvider.allDrugs
+        .whereType<CalcDrug>()
         .where((d) => d.withdrawalDays > 0 || d.withdrawalText.isNotEmpty)
         .toList();
   }
@@ -481,7 +482,9 @@ class _DrugSelectorState extends State<_DrugSelector> {
             final q = value.toLowerCase();
             setState(() {
               _showDropdown = value.isNotEmpty;
-              _filtered = widget.vetProvider.allDrugs.where((d) {
+              _filtered = widget.vetProvider.allDrugs
+                  .whereType<CalcDrug>()
+                  .where((d) {
                 if (d.withdrawalDays == 0 && d.withdrawalText.isEmpty) {
                   return false;
                 }

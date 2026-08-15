@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import '../models/calc_drug.dart';
 import '../models/vaccine_specific.dart';
 import '../utils/app_theme.dart';
 
+/// VaccineCard — карточка для вакцин и иммунобиологических препаратов
 class VaccineCard extends StatefulWidget {
-  final String drugName;
-  final String drugInn;
-  final VaccineSpecific vaccine;
-  final String category;
+  final CalcDrug drug;
+  final VoidCallback? onSpeak;
 
   const VaccineCard({
     super.key,
-    required this.drugName,
-    required this.drugInn,
-    required this.vaccine,
-    this.category = 'Иммунобиологические',
+    required this.drug,
+    this.onSpeak,
   });
 
   @override
@@ -27,10 +25,9 @@ class _VaccineCardState extends State<VaccineCard> {
   @override
   void initState() {
     super.initState();
-    if (widget.vaccine.dosesPerVialOptions.isNotEmpty) {
-      _selectedVialOption = widget.vaccine.dosesPerVialOptions.last;
-    } else if (widget.vaccine.dosesPerVial != null) {
-      _selectedVialOption = widget.vaccine.dosesPerVial;
+    final v = widget.drug.vaccineSpecific;
+    if (v != null && v.dosesPerVialOptions.isNotEmpty) {
+      _selectedVialOption = v.dosesPerVialOptions.first;
     }
   }
 
@@ -42,38 +39,38 @@ class _VaccineCardState extends State<VaccineCard> {
 
   @override
   Widget build(BuildContext context) {
-    final v = widget.vaccine;
+    final v = widget.drug.vaccineSpecific;
+    if (v == null) return const SizedBox.shrink();
+
     final isDark = AppTheme.isDark(context);
-    final vtypeColor = Color(v.vaccineType.colorHex);
+    final typeColor = Color(v.vaccineType.colorHex);
 
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
         color: AppTheme.cardColor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(color: AppTheme.borderColor(context)),
+        border: Border.all(color: typeColor.withOpacity(0.4), width: 1.5),
         boxShadow: AppTheme.cardShadow(context),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Заголовок
+            // Заголовок карточки
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color: vtypeColor.withOpacity(isDark ? 0.25 : 0.12),
+                    color: typeColor.withOpacity(isDark ? 0.25 : 0.12),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   ),
                   child: Center(
                     child: Text(
-                      v.vaccineType.icon.isNotEmpty ? v.vaccineType.icon : '💉',
-                      style: const TextStyle(fontSize: 24),
+                      v.vaccineType.icon,
+                      style: const TextStyle(fontSize: 22),
                     ),
                   ),
                 ),
@@ -83,60 +80,75 @@ class _VaccineCardState extends State<VaccineCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.drugName,
+                        widget.drug.name,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimaryColor(context),
                         ),
                       ),
-                      if (v.vaccineType.displayName.isNotEmpty)
-                        Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: vtypeColor.withOpacity(isDark ? 0.25 : 0.12),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: vtypeColor.withOpacity(0.4), width: 1),
-                          ),
-                          child: Text(
-                            v.vaccineType.displayName,
-                            style: TextStyle(
-                              color: vtypeColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                      const SizedBox(height: 2),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          if (v.vaccineType.displayName.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: typeColor.withOpacity(isDark ? 0.25 : 0.12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                v.vaccineType.displayName,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: typeColor,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          if (v.animal.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: AppTheme.maleBlue.withOpacity(isDark ? 0.25 : 0.12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                v.animal,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.maleBlue,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
+                if (widget.onSpeak != null)
+                  IconButton(
+                    icon: const Icon(Icons.volume_up_rounded, color: AppTheme.safeGreen),
+                    onPressed: widget.onSpeak,
+                    tooltip: 'Озвучить',
+                  ),
               ],
             ),
 
-            if (widget.drugInn.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                widget.drugInn,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textSecondaryColor(context),
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-
             const SizedBox(height: 16),
             Divider(color: AppTheme.dividerColor(context), height: 1),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Разовая доза
             _buildInfoRow(
               context,
-              icon: Icons.medication_rounded,
+              icon: Icons.vaccines_rounded,
               label: 'Разовая доза',
               value: v.formattedSingleDose,
-              valueColor: AppTheme.maleBlue,
+              valueColor: AppTheme.safeGreen,
+              isBold: true,
             ),
 
             // Путь введения
@@ -144,13 +156,24 @@ class _VaccineCardState extends State<VaccineCard> {
               const SizedBox(height: 10),
               _buildInfoRow(
                 context,
-                icon: Icons.alt_route_rounded,
+                icon: Icons.navigation_rounded,
                 label: 'Путь введения',
                 value: v.route,
               ),
             ],
 
-            // Схема
+            // Фасовка
+            if (v.dosesPerVial != null || v.dosesPerVialOptions.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _buildInfoRow(
+                context,
+                icon: Icons.inventory_2_rounded,
+                label: 'Фасовка',
+                value: v.formattedPackaging,
+              ),
+            ],
+
+            // Схема вакцинации
             if (v.schedule.isNotEmpty) ...[
               const SizedBox(height: 10),
               _buildInfoRow(
@@ -161,19 +184,19 @@ class _VaccineCardState extends State<VaccineCard> {
               ),
             ],
 
-            // Иммунитет
-            if (v.immunityDuration.isNotEmpty) ...[
+            // Особые указания / Заметки
+            if (v.notes.isNotEmpty) ...[
               const SizedBox(height: 10),
               _buildInfoRow(
                 context,
-                icon: Icons.shield_outlined,
-                label: 'Иммунитет',
-                value: v.immunityDuration,
+                icon: Icons.info_outline_rounded,
+                label: 'Указания',
+                value: v.notes,
               ),
             ],
 
-            // Калькулятор флаконов
-            if (v.hasDosesPerVial) ...[
+            // Калькулятор флаконов на поголовье
+            if ((v.dosesPerVial != null && v.dosesPerVial! > 0) || v.dosesPerVialOptions.isNotEmpty) ...[
               const SizedBox(height: 16),
               Divider(color: AppTheme.dividerColor(context), height: 1),
               const SizedBox(height: 14),
@@ -204,7 +227,7 @@ class _VaccineCardState extends State<VaccineCard> {
                   if (v.dosesPerVialOptions.length > 1) ...[
                     const SizedBox(width: 10),
                     DropdownButton<int>(
-                      value: _selectedVialOption,
+                      value: _selectedVialOption ?? v.dosesPerVialOptions.first,
                       dropdownColor: AppTheme.cardColor(context),
                       items: v.dosesPerVialOptions
                           .map((opt) => DropdownMenuItem(
@@ -232,20 +255,21 @@ class _VaccineCardState extends State<VaccineCard> {
     required String label,
     required String value,
     Color? valueColor,
+    bool isBold = false,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 18, color: AppTheme.textSecondaryColor(context)),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         SizedBox(
-          width: 100,
+          width: 110,
           child: Text(
             label,
             style: TextStyle(
               fontSize: 13,
-              color: AppTheme.textSecondaryColor(context),
               fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondaryColor(context),
             ),
           ),
         ),
@@ -254,7 +278,7 @@ class _VaccineCardState extends State<VaccineCard> {
             value,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
               color: valueColor ?? AppTheme.textPrimaryColor(context),
             ),
           ),
@@ -266,31 +290,29 @@ class _VaccineCardState extends State<VaccineCard> {
   Widget _buildVialsResult(BuildContext context, VaccineSpecific v) {
     final count = int.tryParse(_animalsController.text) ?? 1;
     final dosesPerVial = _selectedVialOption ?? v.dosesPerVial ?? 1;
-    final vials = (count / dosesPerVial).ceil();
-    final totalDoses = vials * dosesPerVial;
-    final leftover = totalDoses - count;
+    final vialsNeeded = (count / dosesPerVial).ceil();
     final isDark = AppTheme.isDark(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppTheme.safeGreen.withOpacity(isDark ? 0.2 : 0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(color: AppTheme.safeGreen.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Необходимо флаконов:',
-            style: TextStyle(fontSize: 13, color: AppTheme.textPrimaryColor(context)),
+            'Потребуется флаконов:',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context)),
           ),
           Text(
-            '$vials шт. ${leftover > 0 ? "(остаток $leftover доз)" : ""}',
-            style: TextStyle(
+            '$vialsNeeded фл. ($count доз)',
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
+              color: AppTheme.safeGreen,
             ),
           ),
         ],
