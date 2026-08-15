@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.15.0+18  # 🆕 Sprint 2: symptom search, protocols, interactions, withdrawal
+version: 1.15.0+18
 
 environment:
   sdk: ^3.5.0
@@ -17,8 +17,11 @@ dependencies:
   # Text-to-Speech
   flutter_tts: ^4.0.2
 
-  # 🆕 Local storage для избранного, истории, настроек темы
+  # Хранение настроек, избранного, истории
   shared_preferences: ^2.2.2
+
+  # Доступ к локальным директориям для персистентного хранения баз
+  path_provider: ^2.1.2
 
 dev_dependencies:
   flutter_test:
