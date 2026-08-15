@@ -1,23 +1,3 @@
-// WithdrawalCalculatorScreen — калькулятор каренции (waiting period).
-//
-// После применения препарата корова даёт молоко. Когда можно пить?
-// Когда мясо безопасно? Зависит от withdrawal_days и withdrawal_by_product.
-//
-// Использует:
-//   - drug.withdrawal_days (глобальная каренция в днях)
-//   - drug.withdrawalText (детально: «Мясо: 28 сут; Молоко: 120 ч»)
-//   - withdrawal_by_product.json (если есть детальные данные)
-//
-// Логика:
-//   1. Пользователь выбирает препарат
-//   2. Выбирает вид животного (КРС / МРС / Свиньи / Птица)
-//   3. Указывает дату введения
-//   4. Получает даты безопасного употребления мяса/молока/яиц
-//
-// Зависимости:
-//   - VetProvider для доступа к drugs
-//   - AppTheme
-
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
@@ -52,8 +32,11 @@ class _WithdrawalCalculatorScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('🐄 Калькулятор каренции')),
+      backgroundColor: AppTheme.backgroundColor(context),
+      appBar: AppBar(title: const Text('Калькулятор каренции')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
@@ -63,19 +46,18 @@ class _WithdrawalCalculatorScreenState
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.05),
+                color: AppTheme.infoBlue.withOpacity(isDark ? 0.15 : 0.08),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.infoBlue.withOpacity(0.25)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.blue, size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.info_outline_rounded, color: AppTheme.infoBlue, size: 20),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Расчёт даты, когда молоко/мясо безопасно после '
-                      'применения препарата',
-                      style: TextStyle(fontSize: 13, color: Colors.blue),
+                      'Расчёт даты безопасного использования молока, мяса и яиц после применения препарата',
+                      style: TextStyle(fontSize: 12, color: AppTheme.textPrimaryColor(context), height: 1.3),
                     ),
                   ),
                 ],
@@ -83,121 +65,183 @@ class _WithdrawalCalculatorScreenState
             ),
             const SizedBox(height: 16),
 
-            // Выбор препарата
-            const Text(
-              'Препарат',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            _DrugSelector(
-              vetProvider: widget.vetProvider,
-              selectedDrug: _selectedDrug,
-              onSelected: (drug) {
-                setState(() {
-                  _selectedDrug = drug;
-                  _calculate();
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Выбор животного
-            const Text(
-              'Вид животного',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              children: _productAnimals.map((animal) {
-                return ChoiceChip(
-                  label: Text(animal),
-                  selected: _selectedAnimal == animal,
-                  onSelected: (_) {
-                    setState(() {
-                      _selectedAnimal = animal;
-                      _calculate();
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-
-            // Дата введения
-            const Text(
-              'Дата введения препарата',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _applicationDate,
-                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                  lastDate: DateTime.now().add(const Duration(days: 30)),
-                );
-                if (date != null) {
-                  setState(() {
-                    _applicationDate = date;
-                    _calculate();
-                  });
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.backgroundGray,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.calendar_today,
-                        color: AppTheme.safeGreen, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${_applicationDate.day.toString().padLeft(2, '0')}.'
-                      '${_applicationDate.month.toString().padLeft(2, '0')}.'
-                      '${_applicationDate.year}',
-                      style: const TextStyle(fontSize: 16),
+            // Карточка выбора параметров
+            Container(
+              padding: const EdgeInsets.all(AppTheme.paddingMedium),
+              decoration: BoxDecoration(
+                color: AppTheme.cardColor(context),
+                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                border: Border.all(color: AppTheme.borderColor(context)),
+                boxShadow: AppTheme.cardShadow(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Препарат',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondaryColor(context),
                     ),
-                    const Spacer(),
-                    const Icon(Icons.edit, color: AppTheme.textTertiary, size: 18),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  _DrugSelector(
+                    vetProvider: widget.vetProvider,
+                    selectedDrug: _selectedDrug,
+                    onSelected: (drug) {
+                      setState(() {
+                        _selectedDrug = drug;
+                        _calculate();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 14),
+
+                  Text(
+                    'Вид продуктивного животного',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondaryColor(context),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: _productAnimals.map((animal) {
+                      final isSel = _selectedAnimal == animal;
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedAnimal = animal;
+                            _calculate();
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSel
+                                ? AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12)
+                                : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                            border: Border.all(
+                              color: isSel ? AppTheme.safeGreen : AppTheme.borderColor(context),
+                            ),
+                          ),
+                          child: Text(
+                            animal,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                              color: isSel ? AppTheme.safeGreen : AppTheme.textPrimaryColor(context),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+
+                  Text(
+                    'Дата последнего введения',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondaryColor(context),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _applicationDate,
+                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
+                      );
+                      if (date != null) {
+                        setState(() {
+                          _applicationDate = date;
+                          _calculate();
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        border: Border.all(color: AppTheme.borderColor(context)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, color: AppTheme.safeGreen, size: 18),
+                          const SizedBox(width: 10),
+                          Text(
+                            '${_applicationDate.day.toString().padLeft(2, '0')}.'
+                            '${_applicationDate.month.toString().padLeft(2, '0')}.'
+                            '${_applicationDate.year}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimaryColor(context),
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Изменить',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.safeGreen),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Результаты
             if (_results.isNotEmpty) ...[
-              const Text(
-                'Результат',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              Text(
+                'Сроки ожидания продукции',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimaryColor(context),
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               ..._results.map((r) => _WithdrawalResultCard(result: r)),
             ] else if (_selectedDrug != null) ...[
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: AppTheme.warningOrange.withOpacity(isDark ? 0.15 : 0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  border: Border.all(color: AppTheme.warningOrange.withOpacity(0.3)),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.orange, size: 32),
-                    SizedBox(height: 8),
+                    const Icon(Icons.warning_amber_rounded, color: AppTheme.warningOrange, size: 32),
+                    const SizedBox(height: 8),
                     Text(
-                      'Для этого препарата нет данных по каренции',
-                      style: TextStyle(fontSize: 13, color: Colors.orange),
+                      'Для данного препарата нет данных по каренции в базе',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.warningOrange,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'Смотрите инструкцию производителя',
-                      style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                      'Обратитесь к инструкции производителя',
+                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
                     ),
                   ],
                 ),
@@ -220,10 +264,8 @@ class _WithdrawalCalculatorScreenState
     final results = <WithdrawalResult>[];
     final drug = _selectedDrug!;
 
-    // Из withdrawalText — парсим «Мясо: 28 сут; Молоко: 120 ч»
     final withdrawalText = drug.withdrawalText;
     if (withdrawalText.isNotEmpty) {
-      // Парсим «Мясо: N сут/дн/ч; Молоко: N ч/сут; Яйца: N сут»
       final patterns = [
         ('Мясо', RegExp(r'мясо[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), '🥩'),
         ('Молоко', RegExp(r'молоко[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), '🥛'),
@@ -252,7 +294,6 @@ class _WithdrawalCalculatorScreenState
       }
     }
 
-    // Fallback: используем withdrawal_days (глобальная каренция в днях)
     if (results.isEmpty && drug.withdrawalDays > 0) {
       final safeDate =
           _applicationDate.add(Duration(days: drug.withdrawalDays));
@@ -290,10 +331,10 @@ class WithdrawalResult {
     if (waitHours >= 24) {
       final days = waitHours ~/ 24;
       final hours = waitHours % 24;
-      if (hours == 0) return '$days дн';
-      return '$days дн $hours ч';
+      if (hours == 0) return '$days дн.';
+      return '$days дн. $hours ч.';
     }
-    return '$waitHours ч';
+    return '$waitHours ч.';
   }
 
   String get safeDateFormatted {
@@ -310,49 +351,64 @@ class _WithdrawalResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Text(result.icon, style: const TextStyle(fontSize: 32)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    result.product,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Безопасно с: ${result.safeDateFormatted}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.safeGreen,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Каренция: ${result.waitTimeFormatted}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+    final isDark = AppTheme.isDark(context);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor(context),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.safeGreen.withOpacity(0.35)),
+        boxShadow: AppTheme.cardShadow(context),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppTheme.safeGreen.withOpacity(isDark ? 0.2 : 0.1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
             ),
-            const Icon(Icons.check_circle,
-                color: AppTheme.safeGreen, size: 32),
-          ],
-        ),
+            child: Center(
+              child: Text(result.icon, style: const TextStyle(fontSize: 24)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  result.product,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondaryColor(context),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Безопасно с ${result.safeDateFormatted}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
+                  ),
+                ),
+                Text(
+                  'Период ожидания: ${result.waitTimeFormatted}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textTertiaryColor(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.verified_rounded, color: AppTheme.safeGreen, size: 28),
+        ],
       ),
     );
   }
@@ -401,13 +457,17 @@ class _DrugSelectorState extends State<_DrugSelector> {
       children: [
         TextField(
           controller: _controller,
-          style: const TextStyle(fontSize: 15),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimaryColor(context),
+          ),
           decoration: InputDecoration(
-            hintText: 'Поиск препарата...',
-            prefixIcon: const Icon(Icons.search, color: AppTheme.safeGreen),
+            hintText: 'Выберите или найдите препарат...',
+            prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear),
+                    icon: Icon(Icons.clear, color: AppTheme.textSecondaryColor(context)),
                     onPressed: () {
                       _controller.clear();
                       setState(() {
@@ -416,12 +476,6 @@ class _DrugSelectorState extends State<_DrugSelector> {
                     },
                   )
                 : null,
-            filled: true,
-            fillColor: AppTheme.backgroundGray,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              borderSide: BorderSide.none,
-            ),
           ),
           onChanged: (value) {
             final q = value.toLowerCase();
@@ -444,18 +498,19 @@ class _DrugSelectorState extends State<_DrugSelector> {
         ),
         if (_showDropdown && _filtered.isNotEmpty)
           Container(
-            margin: const EdgeInsets.only(top: 4),
-            constraints: const BoxConstraints(maxHeight: 250),
+            margin: const EdgeInsets.only(top: 6),
+            constraints: const BoxConstraints(maxHeight: 220),
             decoration: BoxDecoration(
-              color: AppTheme.white,
+              color: AppTheme.cardColor(context),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: Border.all(color: AppTheme.dividerGray),
-              boxShadow: AppTheme.softShadow,
+              border: Border.all(color: AppTheme.borderColor(context)),
+              boxShadow: AppTheme.cardShadow(context),
             ),
-            child: ListView.builder(
+            child: ListView.separated(
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: _filtered.length > 50 ? 50 : _filtered.length,
+              itemCount: _filtered.length > 40 ? 40 : _filtered.length,
+              separatorBuilder: (_, __) => Divider(color: AppTheme.dividerColor(context), height: 1),
               itemBuilder: (context, index) {
                 final drug = _filtered[index];
                 final catColor = AppTheme.getCategoryColor(drug.category);
@@ -463,18 +518,25 @@ class _DrugSelectorState extends State<_DrugSelector> {
                   dense: true,
                   leading: Container(
                     width: 4,
-                    height: 32,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: catColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  title: Text(drug.name, style: const TextStyle(fontSize: 13)),
+                  title: Text(
+                    drug.name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimaryColor(context),
+                    ),
+                  ),
                   subtitle: Text(
                     drug.withdrawalText.isNotEmpty
                         ? drug.withdrawalText
-                        : '${drug.withdrawalDays} дн',
-                    style: const TextStyle(fontSize: 10),
+                        : '${drug.withdrawalDays} дн.',
+                    style: TextStyle(fontSize: 11, color: AppTheme.textTertiaryColor(context)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -31,7 +31,6 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
     _filterAnimal = widget.selectedAnimal;
   }
 
-  /// Получить протокол для болезни
   TreatmentProtocol? _getProtocol(Disease disease) {
     return widget.treatmentDatabase?.findByDiseaseName(disease.name);
   }
@@ -60,22 +59,14 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.white,
+      backgroundColor: AppTheme.backgroundColor(context),
       appBar: AppBar(
         title: const Text('Справочник болезней'),
-        backgroundColor: AppTheme.white,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
         actions: [
-          Text(
-            '${widget.treatmentDatabase?.protocols.length ?? 0} протоколов',
-            style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
-          ),
-          const SizedBox(width: 8),
           IconButton(
             icon: Icon(
-              _showOnlyDangerous ? Icons.warning : Icons.warning_outlined,
-              color: _showOnlyDangerous ? AppTheme.errorRed : AppTheme.textSecondary,
+              _showOnlyDangerous ? Icons.warning_rounded : Icons.warning_amber_rounded,
+              color: _showOnlyDangerous ? AppTheme.errorRed : AppTheme.textSecondaryColor(context),
             ),
             onPressed: () => setState(() => _showOnlyDangerous = !_showOnlyDangerous),
             tooltip: 'Только особо опасные',
@@ -86,26 +77,15 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
         children: [
           // Поиск
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => FocusScope.of(context).unfocus(),
+              style: TextStyle(fontSize: 14, color: AppTheme.textPrimaryColor(context), fontWeight: FontWeight.w600),
               decoration: InputDecoration(
-                hintText: 'Поиск болезни...',
-                prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.dividerGray),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.dividerGray),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.safeGreen, width: 2),
-                ),
+                hintText: 'Поиск болезни, кода МКБ...',
+                prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
               ),
             ),
           ),
@@ -140,18 +120,18 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               children: [
                 Text(
                   'Найдено: ${filteredDiseases.length}',
-                  style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context), fontWeight: FontWeight.w600),
                 ),
                 if (_showOnlyDangerous)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withOpacity(0.1),
+                      color: AppTheme.errorRed.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
                       '⚠️ Особо опасные',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.errorRed),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.errorRed),
                     ),
                   ),
               ],
@@ -162,9 +142,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
           // Список болезней
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: filteredDiseases.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final disease = filteredDiseases[index];
                 final protocol = _getProtocol(disease);
@@ -179,19 +160,32 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
   Widget _buildAnimalChip(String label, String? category) {
     final isSelected = _filterAnimal == category;
+    final isDark = AppTheme.isDark(context);
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (_) => setState(() => _filterAnimal = category),
-        selectedColor: AppTheme.safeGreen.withOpacity(0.2),
-        checkmarkColor: AppTheme.safeGreen,
-        backgroundColor: AppTheme.backgroundGray,
-        labelStyle: TextStyle(
-          fontSize: 13,
-          color: isSelected ? AppTheme.safeGreen : AppTheme.textSecondary,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      child: InkWell(
+        onTap: () => setState(() => _filterAnimal = category),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12)
+                : AppTheme.cardColor(context),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+            border: Border.all(
+              color: isSelected ? AppTheme.safeGreen : AppTheme.borderColor(context),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isSelected ? AppTheme.safeGreen : AppTheme.textPrimaryColor(context),
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
@@ -200,146 +194,141 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   Widget _buildDiseaseCard(Disease disease, TreatmentProtocol? protocol) {
     final hasProtocol = protocol != null && (protocol.hasPrimaryDrugs || protocol.hasSupportiveTherapy);
     final hasMu = disease.mu.isNotEmpty;
+    final isDark = AppTheme.isDark(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        side: BorderSide(
-          color: disease.isParticularlyDangerous
-              ? AppTheme.errorRed.withOpacity(0.3)
-              : hasProtocol
-                  ? AppTheme.safeGreen.withOpacity(0.3)
-                  : AppTheme.dividerGray,
-        ),
+    final borderColor = disease.isParticularlyDangerous
+        ? AppTheme.errorRed.withOpacity(0.4)
+        : hasProtocol
+            ? AppTheme.safeGreen.withOpacity(0.35)
+            : AppTheme.borderColor(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor(context),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: borderColor),
+        boxShadow: AppTheme.cardShadow(context),
       ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Row(
-          children: [
-            if (disease.isParticularlyDangerous) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.errorRed.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          title: Row(
+            children: [
+              if (disease.isParticularlyDangerous) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.errorRed.withOpacity(isDark ? 0.25 : 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('⚠️', style: TextStyle(fontSize: 12)),
                 ),
-                child: const Text('⚠️', style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  disease.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: disease.isParticularlyDangerous ? AppTheme.errorRed : AppTheme.textPrimaryColor(context),
+                  ),
+                ),
               ),
-              const SizedBox(width: 8),
+              if (hasProtocol)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('💊', style: TextStyle(fontSize: 12)),
+                ),
+              if (hasMu) ...[
+                const SizedBox(width: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.maleBlue.withOpacity(isDark ? 0.25 : 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('📋', style: TextStyle(fontSize: 12)),
+                ),
+              ],
             ],
-            Expanded(
-              child: Text(
-                disease.name,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: disease.isParticularlyDangerous ? AppTheme.errorRed : AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            if (hasProtocol)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.safeGreen.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  '💊',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-            if (hasMu)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.maleBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  '📋',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-          ],
-        ),
-        subtitle: Text(
-          '${disease.code} ${hasProtocol ? "• Протокол лечения" : ""} ${hasMu ? "• ${disease.mu.length} МУ" : ""}',
-          style: TextStyle(
-            fontSize: 12,
-            color: hasProtocol ? AppTheme.safeGreen : hasMu ? AppTheme.maleBlue : AppTheme.textTertiary,
           ),
-        ),
-        children: [
-          const Divider(),
-          const SizedBox(height: 8),
-
-          // Основная информация
-          _buildInfoRow('Категория', _getCategoryName(disease.category)),
-          _buildInfoRow('Код', disease.code),
-          if (disease.animals.isNotEmpty)
-            _buildInfoRow('Животные', disease.animals.join(', ')),
-
-          // Методы диагностики
-          if (disease.methods.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            _buildInfoRow('Методы', disease.methods.join(', ')),
-          ],
-
-          // МУ (методические указания)
-          if (hasMu) ...[
-            const SizedBox(height: 12),
-            _buildMuSection(disease),
-          ],
-
-          // Протокол лечения
-          if (hasProtocol) ...[
-            const SizedBox(height: 12),
-            _buildProtocolSection(protocol!),
-          ] else ...[
-            const SizedBox(height: 4),
-            Text(
-              'ℹ️ Протокол лечения не доступен для данной болезни',
-              style: TextStyle(fontSize: 12, color: AppTheme.textTertiary.withOpacity(0.7)),
+          subtitle: Text(
+            '${disease.code} ${hasProtocol ? "• Протокол" : ""} ${hasMu ? "• ${disease.mu.length} МУ" : ""}',
+            style: TextStyle(
+              fontSize: 12,
+              color: hasProtocol ? AppTheme.safeGreen : (hasMu ? AppTheme.maleBlue : AppTheme.textTertiaryColor(context)),
             ),
+          ),
+          children: [
+            Divider(color: AppTheme.dividerColor(context), height: 1),
+            const SizedBox(height: 10),
+
+            _buildInfoRow('Категория', _getCategoryName(disease.category)),
+            _buildInfoRow('Код МКБ', disease.code),
+            if (disease.animals.isNotEmpty)
+              _buildInfoRow('Животные', disease.animals.join(', ')),
+
+            if (disease.methods.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _buildInfoRow('Методы', disease.methods.join(', ')),
+            ],
+
+            if (hasMu) ...[
+              const SizedBox(height: 12),
+              _buildMuSection(disease),
+            ],
+
+            if (hasProtocol) ...[
+              const SizedBox(height: 12),
+              _buildProtocolSection(protocol!),
+            ] else ...[
+              const SizedBox(height: 4),
+              Text(
+                'Протокол лечения не зарегистрирован в базе',
+                style: TextStyle(fontSize: 12, color: AppTheme.textTertiaryColor(context)),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildMuSection(Disease disease) {
+    final isDark = AppTheme.isDark(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.maleBlue.withOpacity(0.05),
+        color: AppTheme.maleBlue.withOpacity(isDark ? 0.15 : 0.08),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.maleBlue.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.maleBlue.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Заголовок МУ
           Row(
             children: [
-              const Icon(Icons.menu_book, size: 18, color: AppTheme.maleBlue),
+              const Icon(Icons.menu_book_rounded, size: 18, color: AppTheme.maleBlue),
               const SizedBox(width: 8),
               Text(
                 'МЕТОДИЧЕСКИЕ УКАЗАНИЯ (${disease.mu.length})',
                 style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.maleBlue,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          
-          // Список МУ
+          const SizedBox(height: 10),
           ...disease.mu.map((mu) => _buildMuCard(mu)),
         ],
       ),
@@ -351,24 +340,23 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: AppTheme.cardColor(context),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.dividerGray.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.borderColor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Код МУ
           Text(
             mu.code,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
           ),
           if (mu.description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 mu.description,
-                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
               ),
             ),
           if (mu.note != null && mu.note!.isNotEmpty)
@@ -376,7 +364,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 '📝 ${mu.note!}',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiaryColor(context), fontStyle: FontStyle.italic),
               ),
             ),
         ],
@@ -385,105 +373,57 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   }
 
   Widget _buildProtocolSection(TreatmentProtocol protocol) {
+    final isDark = AppTheme.isDark(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.safeGreen.withOpacity(0.05),
+        color: AppTheme.safeGreen.withOpacity(isDark ? 0.15 : 0.08),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.safeGreen.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Заголовок протокола
           Row(
             children: [
-              const Icon(Icons.medication, size: 18, color: AppTheme.safeGreen),
+              const Icon(Icons.medication_rounded, size: 18, color: AppTheme.safeGreen),
               const SizedBox(width: 8),
               const Text(
                 'ПРОТОКОЛ ЛЕЧЕНИЯ',
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.safeGreen,
                 ),
               ),
-              const Spacer(),
-              if (protocol.severity == 'severe')
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppTheme.errorRed.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text('ОСОБО ОПАСНАЯ', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.errorRed)),
-                ),
             ],
           ),
           if (protocol.pathogenType.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(protocol.pathogenType, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-            ),
-          if (protocol.source.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(protocol.source, style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(protocol.pathogenType, style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context))),
             ),
 
-          const Divider(height: 24),
+          const SizedBox(height: 10),
 
-          // Специфическая терапия
           if (protocol.hasPrimaryDrugs) ...[
-            const Text(
+            Text(
               'Специфическая терапия',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
             ),
             const SizedBox(height: 8),
-            ...protocol.primaryDrugs.take(10).map((drug) => _buildDrugCard(drug)),
-            if (protocol.primaryDrugs.length > 10)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  '...и ещё ${protocol.primaryDrugs.length - 10} препаратов',
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
-                ),
-              ),
+            ...protocol.primaryDrugs.take(6).map((drug) => _buildDrugCard(drug)),
           ],
 
-          // Симптоматическая терапия
           if (protocol.hasSupportiveTherapy) ...[
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: 12),
+            Text(
               'Симптоматическая терапия',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
             ),
             const SizedBox(height: 8),
-            ...protocol.supportiveTherapy.take(5).map((drug) => _buildSupportDrugCard(drug)),
-          ],
-
-          // Предупреждения
-          if (protocol.warnings.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            ...protocol.warnings.map((w) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                '⚠️ $w',
-                style: const TextStyle(fontSize: 11, color: AppTheme.errorRed),
-              ),
-            )),
-          ],
-
-          // Примечания
-          if (protocol.notes.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ...protocol.notes.map((n) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                '• $n',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
-              ),
-            )),
+            ...protocol.supportiveTherapy.take(4).map((drug) => _buildSupportDrugCard(drug)),
           ],
         ],
       ),
@@ -492,53 +432,38 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
   Widget _buildDrugCard(TreatmentDrug drug) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: AppTheme.cardColor(context),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.dividerGray.withOpacity(0.5)),
+        border: Border.all(color: AppTheme.borderColor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Название и МНН
           Text(
             drug.name,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
           ),
           if (drug.inn.isNotEmpty && drug.inn.toLowerCase() != drug.name.toLowerCase())
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                drug.inn,
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
-              ),
+            Text(
+              drug.inn,
+              style: TextStyle(fontSize: 11, color: AppTheme.textTertiaryColor(context), fontStyle: FontStyle.italic),
             ),
-          const SizedBox(height: 6),
-          // Параметры
+          const SizedBox(height: 4),
           Wrap(
-            spacing: 8,
+            spacing: 6,
             runSpacing: 4,
             children: [
               if (drug.dose.isNotEmpty && drug.dose != 'по инструкции')
-                _buildParamChip('Дозировка', drug.dose),
+                _buildParamChip('Доза', drug.dose),
               if (drug.route.isNotEmpty && drug.route != 'по инструкции')
                 _buildParamChip('Путь', drug.route),
               if (drug.frequency.isNotEmpty && drug.frequency != 'по инструкции')
                 _buildParamChip('Кратность', drug.frequency),
-              if (drug.duration.isNotEmpty && drug.duration != 'по инструкции')
-                _buildParamChip('Курс', drug.duration),
             ],
           ),
-          if (drug.waitingPeriod.isNotEmpty && drug.waitingPeriod != '')
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                '🕐 Срок ожидания: ${drug.waitingPeriod}',
-                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-              ),
-            ),
         ],
       ),
     );
@@ -546,33 +471,26 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
   Widget _buildSupportDrugCard(SupportiveTherapy drug) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray.withOpacity(0.5),
+        color: AppTheme.isDark(context) ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            drug.name,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textPrimary),
-          ),
-          if (drug.inn.isNotEmpty)
-            Text(drug.inn, style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
-          const SizedBox(height: 4),
-          Wrap(
-            spacing: 8,
-            runSpacing: 2,
-            children: [
-              if (drug.dose.isNotEmpty && drug.dose != 'по инструкции')
-                Text('💊 ${drug.dose}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-              if (drug.route.isNotEmpty && drug.route != 'по инструкции')
-                Text('📍 ${drug.route}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-              if (drug.frequency.isNotEmpty && drug.frequency != 'по инструкции')
-                Text('🔄 ${drug.frequency}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  drug.name,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context)),
+                ),
+                if (drug.dose.isNotEmpty)
+                  Text('💊 ${drug.dose}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondaryColor(context))),
+              ],
+            ),
           ),
         ],
       ),
@@ -581,30 +499,30 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
   Widget _buildParamChip(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.safeGreen.withOpacity(0.08),
+        color: AppTheme.safeGreen.withOpacity(0.12),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         '$label: $value',
-        style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.safeGreen),
       ),
     );
   }
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 80,
-            child: Text('$label:', style: const TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+            child: Text('$label:', style: TextStyle(fontSize: 12, color: AppTheme.textTertiaryColor(context))),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
           ),
         ],
       ),

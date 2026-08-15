@@ -1,18 +1,3 @@
-// TreatmentProtocolsScreen — экран протоколов лечения.
-//
-// Показывает 124 протокола из treatment_protocols.json.
-// Каждый протокол = {diagnosis, species, treatment: {primary, support, symptomatic}}.
-//
-// Возможности:
-//   - Поиск по диагнозу/виду животного
-//   - Фильтр по category (особо опасные / инфекционные / и т.д.)
-//   - Раскрытие протокола → список препаратов с дозами
-//   - Кнопка «Применить» → передаёт первый препарат в калькулятор
-//
-// Зависимости:
-//   - treatment_protocols.json (assets/data/advanced/)
-//   - AppTheme (lib/utils/app_theme.dart)
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -63,7 +48,6 @@ class TreatmentProtocol {
     );
   }
 
-  /// Получить список всех препаратов в протоколе.
   List<Map<String, dynamic>> get allDrugs {
     final result = <Map<String, dynamic>>[];
     for (final section in ['primary', 'support', 'symptomatic', 'prevention']) {
@@ -137,8 +121,7 @@ class TreatmentProtocolsScreen extends StatefulWidget {
   });
 
   @override
-  State<TreatmentProtocolsScreen> createState() =>
-      _TreatmentProtocolsScreenState();
+  State<TreatmentProtocolsScreen> createState() => _TreatmentProtocolsScreenState();
 }
 
 class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
@@ -167,9 +150,11 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
     } catch (e) {
       debugPrint('TreatmentProtocols load error: $e');
     }
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -182,11 +167,9 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
     final query = _searchController.text.toLowerCase().trim();
     setState(() {
       _filtered = _allProtocols.where((p) {
-        // Фильтр по категории
         if (_selectedCategory != null && p.category != _selectedCategory) {
           return false;
         }
-        // Фильтр по поиску
         if (query.isEmpty) return true;
         return p.diagnosis.toLowerCase().contains(query) ||
             p.code.toLowerCase().contains(query) ||
@@ -211,37 +194,34 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('📜 Протоколы лечения')),
+      backgroundColor: AppTheme.backgroundColor(context),
+      appBar: AppBar(title: const Text('Протоколы лечения')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.safeGreen))
           : Column(
               children: [
                 // Поиск
-                Container(
-                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: TextField(
                     controller: _searchController,
-                    style: const TextStyle(fontSize: 15),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: AppTheme.textPrimaryColor(context),
+                      fontWeight: FontWeight.w600,
+                    ),
                     decoration: InputDecoration(
-                      hintText: 'Поиск: диагноз, вид, код...',
-                      prefixIcon: const Icon(Icons.search,
-                          color: AppTheme.safeGreen),
+                      hintText: 'Поиск диагноза, кода, животного...',
+                      prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear),
+                              icon: Icon(Icons.clear, color: AppTheme.textSecondaryColor(context)),
                               onPressed: () {
                                 _searchController.clear();
                                 _applyFilters();
                               },
                             )
                           : null,
-                      filled: true,
-                      fillColor: AppTheme.backgroundGray,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusLarge),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                     onChanged: (_) {
                       setState(() {});
@@ -249,63 +229,58 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                     },
                   ),
                 ),
+
                 // Фильтр по категориям
                 SizedBox(
-                  height: 40,
+                  height: 38,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      FilterChip(
-                        label: const Text('Все'),
-                        selected: _selectedCategory == null,
-                        onSelected: (_) {
-                          setState(() {
-                            _selectedCategory = null;
-                          });
-                          _applyFilters();
-                        },
-                      ),
-                      const SizedBox(width: 6),
+                      _buildFilterChip('Все', _selectedCategory == null, () {
+                        setState(() => _selectedCategory = null);
+                        _applyFilters();
+                      }),
                       ..._categories.map((cat) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: FilterChip(
-                            label: Text(_categoryLabel(cat)),
-                            selected: _selectedCategory == cat,
-                            onSelected: (_) {
-                              setState(() {
-                                _selectedCategory =
-                                    _selectedCategory == cat ? null : cat;
-                              });
-                              _applyFilters();
-                            },
-                          ),
+                        return _buildFilterChip(
+                          _categoryLabel(cat),
+                          _selectedCategory == cat,
+                          () {
+                            setState(() {
+                              _selectedCategory = _selectedCategory == cat ? null : cat;
+                            });
+                            _applyFilters();
+                          },
                         );
                       }),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
+
                 // Счётчик
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${_filtered.length} протоколов',
-                      style: TextStyle(
-                          fontSize: 12, color: AppTheme.textSecondary),
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Найдено протоколов: ${_filtered.length}',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context), fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 8),
+
                 // Список протоколов
                 Expanded(
                   child: _filtered.isEmpty
                       ? _buildEmptyState()
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           itemCount: _filtered.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             return _ProtocolCard(
                               protocol: _filtered[index],
@@ -320,16 +295,53 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
     );
   }
 
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    final isDark = AppTheme.isDark(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12)
+                : AppTheme.cardColor(context),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+            border: Border.all(
+              color: isSelected ? AppTheme.safeGreen : AppTheme.borderColor(context),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected ? AppTheme.safeGreen : AppTheme.textPrimaryColor(context),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('📜', style: TextStyle(fontSize: 64)),
+          Icon(Icons.menu_book_rounded, size: 48, color: AppTheme.textTertiaryColor(context)),
           const SizedBox(height: 16),
           Text(
-            'Не найдено протоколов',
-            style: Theme.of(context).textTheme.headlineMedium,
+            'Протоколов не найдено',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimaryColor(context),
+            ),
           ),
         ],
       ),
@@ -359,23 +371,28 @@ class _ProtocolCardState extends State<_ProtocolCard> {
   Widget build(BuildContext context) {
     final p = widget.protocol;
     final sevColor = p.severityColor;
+    final isDark = AppTheme.isDark(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor(context),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.borderColor(context)),
+        boxShadow: AppTheme.cardShadow(context),
+      ),
       child: Column(
         children: [
           // Заголовок
           InkWell(
             onTap: () => setState(() => _expanded = !_expanded),
-            borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(AppTheme.radiusLarge)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
             child: Padding(
               padding: const EdgeInsets.all(AppTheme.paddingMedium),
               child: Row(
                 children: [
                   Container(
                     width: 4,
-                    height: 50,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: sevColor,
                       borderRadius: BorderRadius.circular(2),
@@ -388,24 +405,22 @@ class _ProtocolCardState extends State<_ProtocolCard> {
                       children: [
                         Text(
                           p.diagnosis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimaryColor(context),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Wrap(
                           spacing: 6,
+                          runSpacing: 4,
                           children: [
                             if (p.code.isNotEmpty)
-                              _MiniChip(
-                                  label: p.code, color: AppTheme.maleBlue),
-                            _MiniChip(
-                                label: p.severityLabel, color: sevColor),
+                              _buildBadge(p.code, AppTheme.maleBlue, isDark),
+                            _buildBadge(p.severityLabel, sevColor, isDark),
                             if (p.species.isNotEmpty)
-                              _MiniChip(
-                                  label: p.species.take(3).join(', '),
-                                  color: AppTheme.textSecondary),
+                              _buildBadge(p.species.take(3).join(', '), AppTheme.textSecondaryColor(context), isDark),
                           ],
                         ),
                       ],
@@ -413,26 +428,28 @@ class _ProtocolCardState extends State<_ProtocolCard> {
                   ),
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSecondaryColor(context),
                   ),
                 ],
               ),
             ),
           ),
+
           // Раскрытое содержимое
           if (_expanded)
-            Container(
+            Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Divider(color: AppTheme.dividerColor(context), height: 1),
+                  const SizedBox(height: 12),
                   if (p.pathogenType.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'Тип: ${p.pathogenType}',
-                        style: TextStyle(
-                            fontSize: 12, color: AppTheme.textSecondary),
+                        'Тип возбудителя: ${p.pathogenType}',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
                       ),
                     ),
                   ...p.allDrugs.map((d) => _ProtocolDrugItem(
@@ -444,6 +461,20 @@ class _ProtocolCardState extends State<_ProtocolCard> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBadge(String text, Color color, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(isDark ? 0.25 : 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }
@@ -464,146 +495,82 @@ class _ProtocolDrugItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = drug['name'] as String? ?? '';
     final inn = drug['inn'] as String? ?? '';
-    final dose = drug['dose'] as String? ?? '';
-    final route = drug['route'] as String? ?? '';
-    final frequency = drug['frequency'] as String? ?? '';
-    final duration = drug['duration'] as String? ?? '';
+    final dosage = drug['dosage'] as String? ?? '';
     final section = drug['section'] as String? ?? '';
-    final pharmGroup = drug['pharm_group'] as String? ?? '';
+    final isDark = AppTheme.isDark(context);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundGray,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (section.isNotEmpty)
-                  Text(
-                    section,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.textTertiary,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-              ],
-            ),
-            if (inn.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  inn,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.textSecondary,
-                      fontStyle: FontStyle.italic),
-                ),
-              ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 8,
-              children: [
-                if (dose.isNotEmpty) _MiniInfo(label: '💊 $dose'),
-                if (route.isNotEmpty) _MiniInfo(label: '📍 $route'),
-                if (frequency.isNotEmpty) _MiniInfo(label: '⏰ $frequency'),
-                if (duration.isNotEmpty) _MiniInfo(label: '📅 $duration'),
-              ],
-            ),
-            if (pharmGroup.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  pharmGroup,
-                  style: TextStyle(
-                      fontSize: 10, color: AppTheme.textTertiary),
-                ),
-              ),
-            // Кнопка «Применить»
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () {
-                  // Найдём препарат в vetProvider
-                  final calcDrug = vetProvider.findCalcDrugByName(name);
-                  if (calcDrug != null && onDrugSelected != null) {
-                    onDrugSelected!(calcDrug);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Препарат "$name" не найден в базе калькулятора'),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.calculate, size: 16),
-                label: const Text('Рассчитать дозу', style: TextStyle(fontSize: 12)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniChip extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _MiniChip({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(3),
+        color: isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 9,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniInfo extends StatelessWidget {
-  final String label;
-
-  const _MiniInfo({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 11,
-        color: AppTheme.textSecondary,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: AppTheme.maleBlue.withOpacity(isDark ? 0.25 : 0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        section,
+                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppTheme.maleBlue),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimaryColor(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (inn.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      inn,
+                      style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppTheme.textSecondaryColor(context)),
+                    ),
+                  ),
+                if (dosage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Дозировка: $dosage',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.safeGreen),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (onDrugSelected != null)
+            TextButton(
+              onPressed: () {
+                final found = vetProvider.findCalcDrugByName(name) ??
+                    (inn.isNotEmpty ? vetProvider.findCalcDrugByName(inn) : null);
+                if (found != null) {
+                  onDrugSelected!(found);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Выбрать', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            ),
+        ],
       ),
     );
   }

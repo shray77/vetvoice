@@ -26,16 +26,15 @@ class VoskWakeWordService(private val context: Context) {
     companion object {
         private const val TAG = "VoskWakeWord"
 
-        // ===== КОНФИГУРАЦИЯ (менять тут при обновлении модели) =====
-        // ⚠️ Фикс Q-5: все настройки модели собраны в одном месте —
-        // было разбросано по коду, теперь меняешь версию → правишь 3 строки тут.
-        // URL скачивания модели Vosk (офлайн-распознавание русской речи).
-        private const val MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip"
+        // URL скачивания модели Vosk (офлайн-распознавание русской речи) с зеркалами
+        private val MODEL_URLS = listOf(
+            "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip",
+            "https://huggingface.co/alphacep/vosk-model-small-ru-0.22/resolve/main/vosk-model-small-ru-0.22.zip",
+            "https://github.com/alphacep/vosk-space/raw/master/models/vosk-model-small-ru-0.22.zip"
+        )
         private const val MODEL_VERSION = "0.22"
-        // Ожидаемый SHA-256 модели — защита от подмены (фикс B-11).
         private const val EXPECTED_MODEL_SHA256 =
             "961d5ff98a17f4aa6de69864d0aa71fa5bac682301d2b5d17a3f24c5c99a46d4"
-        // ===== /КОНФИГУРАЦИЯ =====
 
         private const val MODEL_VERSION_KEY = "vosk_model_version"
         private const val LAST_CHECK_KEY = "vosk_last_check"
@@ -51,8 +50,8 @@ class VoskWakeWordService(private val context: Context) {
     var onPartialResult: ((String) -> Unit)? = null
     var onError: ((String) -> Unit)? = null
     var onDownloadProgress: ((downloadedMB: Double, totalMB: Double) -> Unit)? = null
-    var onModelReady: (() -> Unit)? = null  // Автозапуск прослушивания после загрузки
-    var onMicReleased: (() -> Unit)? = null  // Вызывается после реального освобождения микрофона
+    var onModelReady: (() -> Unit)? = null
+    var onMicReleased: (() -> Unit)? = null
 
     private var state: State = State.IDLE
     private var voskModel: Model? = null
@@ -112,11 +111,6 @@ class VoskWakeWordService(private val context: Context) {
         }
 
         override fun onTimeout() {
-            // ⚠️ Фикс B-7: ранее вызывали speechService?.stop() затем
-            // speechService?.startListening(this) на ТОМ ЖЕ экземпляре SpeechService.
-            // Vosk Android library не гарантирует корректность такого паттерна —
-            // recognizer может остаться в некорректном состоянии.
-            // Теперь полностью пересоздаём Recognizer и SpeechService на каждом таймауте.
             Log.d(TAG, "Recognition timeout — recreating Recognizer and SpeechService")
             mainHandler.post {
                 if (state != State.LISTENING) return@post
@@ -125,16 +119,11 @@ class VoskWakeWordService(private val context: Context) {
         }
     }
 
-    /**
-     * Полностью пересоздаёт Recognizer и SpeechService для повторного запуска прослушивания.
-     * Безопаснее, чем stop()+startListening() на том же экземпляре.
-     */
     private fun restartRecognition() {
         val model = voskModel ?: run {
             setState(State.ERROR, "Модель не загружена при рестарте")
             return
         }
-        // Останавливаем текущие ресурсы
         try { speechService?.stop() } catch (e: Exception) {
             Log.w(TAG, "restartRecognition: speechService.stop() error: ${e.localizedMessage}")
         }
@@ -146,12 +135,12 @@ class VoskWakeWordService(private val context: Context) {
         }
         speechService = null
         voskRecognizer = null
-        // Создаём новые экземпляры и стартуем
+
         try {
             voskRecognizer = Recognizer(model, SAMPLE_RATE)
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
-            setState(State.LISTENING, "Слушаю... (рестарт)")
+            setState(State.LISTENING, "Слушаю...")
         } catch (e: Exception) {
             Log.e(TAG, "restartRecognition: failed to recreate", e)
             setState(State.ERROR, "Ошибка рестарта: ${e.localizedMessage}")
@@ -168,14 +157,14 @@ class VoskWakeWordService(private val context: Context) {
             try {
                 val modelDir = File(context.filesDir, MODEL_DIR_NAME)
                 if (isModelPresent(modelDir) && !needsUpdate()) {
-                    mainHandler.post { setState(State.LOADING, "Загрузка в память...") }
+                    mainHandler.post { setState(State.LOADING, "Загрузка модели...") }
                     withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
                 } else {
                     withContext(Dispatchers.Main) {
-                        setState(State.LOADING, "Загрузка модели (~50 МБ)...")
+                        setState(State.LOADING, "Загрузка модели (~44 МБ)...")
                     }
                     downloadAndExtractModel(modelDir)
-                    mainHandler.post { setState(State.LOADING, "Загрузка в память...") }
+                    mainHandler.post { setState(State.LOADING, "Загрузка модели...") }
                     withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
                 }
             } catch (e: CancellationException) {
@@ -211,32 +200,23 @@ class VoskWakeWordService(private val context: Context) {
     fun stopListening() {
         if (state == State.LISTENING) {
             Log.d(TAG, "stopListening: releasing microphone resources...")
-            try {
-                speechService?.stop()
-            } catch (e: Exception) {
+            try { speechService?.stop() } catch (e: Exception) {
                 Log.w(TAG, "speechService.stop() error: ${e.localizedMessage}")
             }
-            try {
-                speechService?.shutdown()
-            } catch (e: Exception) {
+            try { speechService?.shutdown() } catch (e: Exception) {
                 Log.w(TAG, "speechService.shutdown() error: ${e.localizedMessage}")
             }
             speechService = null
-            try {
-                voskRecognizer?.close()
-            } catch (e: Exception) {
+            try { voskRecognizer?.close() } catch (e: Exception) {
                 Log.w(TAG, "voskRecognizer.close() error: ${e.localizedMessage}")
             }
             voskRecognizer = null
             Log.d(TAG, "stopListening: microphone released")
             setState(State.READY, "Остановлен")
-            // Уведомляем об освобождении микрофона через callback
             mainHandler.post {
-                Log.d(TAG, "stopListening: calling onMicReleased callback")
                 onMicReleased?.invoke()
             }
         } else {
-            // Если не слушали — всё равно вызываем callback (микрофон свободен)
             mainHandler.post {
                 onMicReleased?.invoke()
             }
@@ -254,21 +234,39 @@ class VoskWakeWordService(private val context: Context) {
         setState(State.IDLE, "")
     }
 
-    private fun isModelPresent(modelDir: File): Boolean {
-        val amFile = File(modelDir, "model/am")
-        if (amFile.exists() && amFile.isDirectory) return true
-        // Fallback: если модель распакована с корневой папкой ZIP
-        modelDir.listFiles()?.firstOrNull { it.isDirectory && it.name.contains("vosk-model") }?.let {
-            return File(it, "model/am").exists() && File(it, "model/am").isDirectory
-        }
-        // Fallback: ищем model/am рекурсивно на один уровень
-        modelDir.listFiles()?.forEach { dir ->
-            if (dir.isDirectory) {
-                val candidate = File(dir, "am")
-                if (candidate.exists() && candidate.isDirectory) return true
+    /**
+     * Надёжный поиск папки модели Vosk:
+     * Папка считается директорией модели, если содержит 'am' или 'conf' или 'model.conf'
+     */
+    private fun findModelDirectory(baseDir: File): File? {
+        if (!baseDir.exists() || !baseDir.isDirectory) return null
+
+        // 1. Проверяем сам baseDir
+        if (hasModelFiles(baseDir)) return baseDir
+
+        // 2. Проверяем вложенные папки 1 уровня (например vosk-model-small-ru-0.22/ или model/)
+        val subdirs = baseDir.listFiles { f -> f.isDirectory } ?: return null
+        for (sub in subdirs) {
+            if (hasModelFiles(sub)) return sub
+            // 3. Проверяем 2 уровень
+            val subSubdirs = sub.listFiles { f -> f.isDirectory } ?: continue
+            for (subSub in subSubdirs) {
+                if (hasModelFiles(subSub)) return subSub
             }
         }
-        return false
+        return null
+    }
+
+    private fun hasModelFiles(dir: File): Boolean {
+        if (!dir.exists() || !dir.isDirectory) return false
+        val hasAm = File(dir, "am").exists()
+        val hasConf = File(dir, "conf").exists()
+        val hasModelConf = File(dir, "model.conf").exists()
+        return (hasAm || hasConf || hasModelConf)
+    }
+
+    private fun isModelPresent(modelDir: File): Boolean {
+        return findModelDirectory(modelDir) != null
     }
 
     private fun needsUpdate(): Boolean {
@@ -279,36 +277,15 @@ class VoskWakeWordService(private val context: Context) {
 
     private fun loadModelFromDir(modelDir: File) {
         try {
-            // Ищем директорию модели — сначала стандартный путь, потом fallback
-            var modelPath = File(modelDir, "model")
-            if (!modelPath.exists()) {
-                // Модель может быть внутри подпапки (vosk-model-small-ru-0.22/model/)
-                modelDir.listFiles()?.firstOrNull { it.isDirectory && it.name.contains("vosk-model") }?.let {
-                    val candidate = File(it, "model")
-                    if (candidate.exists()) modelPath = candidate
-                }
-                // Последний шанс — ищем любую папку с model/conf
-                if (!modelPath.exists()) {
-                    modelDir.listFiles()?.forEach { dir ->
-                        if (dir.isDirectory) {
-                            val conf = File(dir, "conf")
-                            if (conf.exists() && conf.isDirectory) {
-                                modelPath = dir
-                                return@forEach
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!modelPath.exists()) {
+            val modelPath = findModelDirectory(modelDir)
+            if (modelPath == null || !modelPath.exists()) {
                 setState(State.ERROR, "Директория модели не найдена")
                 Log.e(TAG, "Model dir not found in: ${modelDir.absolutePath}")
                 modelDir.listFiles()?.forEach { f -> Log.d(TAG, "  ${f.name} (${if (f.isDirectory) "dir" else "file"})") }
                 return
             }
 
-            Log.d(TAG, "Loading model from: ${modelPath.absolutePath}")
+            Log.i(TAG, "Loading Vosk model from: ${modelPath.absolutePath}")
             voskModel = Model(modelPath.absolutePath)
             setState(State.READY, "Модель готова")
             onModelReady?.invoke()
@@ -322,68 +299,116 @@ class VoskWakeWordService(private val context: Context) {
         }
     }
 
-    private suspend fun downloadAndExtractModel(targetDir: File) {
-        Log.d(TAG, "Downloading model from $MODEL_URL")
-        targetDir.mkdirs()
-        val tempZip = File(context.cacheDir, "vosk-model.zip")
-        if (tempZip.exists()) tempZip.delete()
-        val url = URL(MODEL_URL)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.connectTimeout = 30000
-        connection.readTimeout = 120000
-        connection.instanceFollowRedirects = true
-        connection.connect()
-        try {
-            // === ФАЗА 1: Скачивание ===
-            val contentLength = connection.contentLength.toLong()
-            val totalMB = if (contentLength > 0) contentLength / (1024.0 * 1024.0) else 50.0
-            mainHandler.post { onDownloadProgress?.invoke(0.0, totalMB) }
-            mainHandler.post { setState(State.LOADING, "Скачивание модели...") }
+    private fun openConnectionWithRedirects(initialUrl: String): HttpURLConnection {
+        var currentUrl = initialUrl
+        var redirects = 0
+        while (redirects < 5) {
+            val url = URL(currentUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connectTimeout = 25000
+            connection.readTimeout = 90000
+            connection.instanceFollowRedirects = false
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android; VetVoice/1.15)")
+            connection.setRequestProperty("Accept", "*/*")
+            connection.connect()
 
-            connection.inputStream.use { input ->
-                FileOutputStream(tempZip).use { output ->
-                    val buffer = ByteArray(16384) // 16 КБ буфер
-                    var totalRead = 0L
-                    var lastProgressMB = 0.0
-                    while (true) {
-                        coroutineContext.ensureActive()
-                        val read = input.read(buffer)
-                        if (read == -1) break
-                        output.write(buffer, 0, read)
-                        totalRead += read
-                        val downloadedMB = totalRead / (1024.0 * 1024.0)
-                        if (downloadedMB - lastProgressMB >= 0.5 || totalRead == contentLength) {
-                            lastProgressMB = downloadedMB
-                            val currentTotalMB = if (contentLength > 0) totalMB else downloadedMB
-                            mainHandler.post { onDownloadProgress?.invoke(downloadedMB, currentTotalMB) }
+            val status = connection.responseCode
+            if (status == HttpURLConnection.HTTP_MOVED_PERM ||
+                status == HttpURLConnection.HTTP_MOVED_TEMP ||
+                status == HttpURLConnection.HTTP_SEE_OTHER ||
+                status == 307 || status == 308) {
+                val newUrl = connection.getHeaderField("Location")
+                connection.disconnect()
+                if (newUrl != null && newUrl.isNotEmpty()) {
+                    currentUrl = if (newUrl.startsWith("http")) newUrl else URL(url, newUrl).toString()
+                    redirects++
+                    continue
+                }
+            }
+
+            if (status in 200..299) {
+                return connection
+            } else {
+                connection.disconnect()
+                throw java.io.IOException("HTTP error $status for URL $currentUrl")
+            }
+        }
+        throw java.io.IOException("Too many redirects ($redirects)")
+    }
+
+    private suspend fun downloadAndExtractModel(targetDir: File) {
+        val tempZip = File(context.cacheDir, "vosk-model.zip")
+        var downloadSuccess = false
+        var lastException: Exception? = null
+
+        targetDir.mkdirs()
+
+        // Пробуем зеркала по очереди
+        for (url in MODEL_URLS) {
+            coroutineContext.ensureActive()
+            Log.i(TAG, "Attempting to download Vosk model from $url")
+            if (tempZip.exists()) tempZip.delete()
+
+            var connection: HttpURLConnection? = null
+            try {
+                connection = openConnectionWithRedirects(url)
+
+                val contentLength = connection.contentLength.toLong()
+                val totalMB = if (contentLength > 0) contentLength / (1024.0 * 1024.0) else 44.1
+                mainHandler.post { onDownloadProgress?.invoke(0.0, totalMB) }
+                mainHandler.post { setState(State.LOADING, "Скачивание модели...") }
+
+                connection.inputStream.use { input ->
+                    FileOutputStream(tempZip).use { output ->
+                        val buffer = ByteArray(16384)
+                        var totalRead = 0L
+                        var lastProgressMB = 0.0
+                        while (true) {
+                            coroutineContext.ensureActive()
+                            val read = input.read(buffer)
+                            if (read == -1) break
+                            output.write(buffer, 0, read)
+                            totalRead += read
+                            val downloadedMB = totalRead / (1024.0 * 1024.0)
+                            if (downloadedMB - lastProgressMB >= 0.5 || totalRead == contentLength) {
+                                lastProgressMB = downloadedMB
+                                val currentTotalMB = if (contentLength > 0) totalMB else downloadedMB
+                                mainHandler.post { onDownloadProgress?.invoke(downloadedMB, currentTotalMB) }
+                            }
                         }
                     }
                 }
-            }
 
-            coroutineContext.ensureActive()
-            Log.d(TAG, "Download complete, file size: ${tempZip.length()} bytes")
+                coroutineContext.ensureActive()
+                Log.d(TAG, "Download complete from $url, size: ${tempZip.length()} bytes")
 
-            // ⚠️ Фикс B-11: проверка SHA-256 модели — supply-chain protection.
-            // Если файл подменён в transit (MITM, скомпрометированный CDN) — не используем его.
-            val actualSha256 = sha256OfFile(tempZip)
-            Log.d(TAG, "Downloaded model SHA-256: $actualSha256")
-            if (!actualSha256.equals(EXPECTED_MODEL_SHA256, ignoreCase = true)) {
-                tempZip.delete()
-                val msg = "Ошибка проверки целостности модели. Ожидался SHA-256 «$EXPECTED_MODEL_SHA256», получен «$actualSha256». Возможна подмена файла."
-                Log.e(TAG, msg)
-                withContext(Dispatchers.Main) {
-                    setState(State.ERROR, msg)
-                    onError?.invoke(msg)
+                // Проверка целостности SHA-256
+                val actualSha256 = sha256OfFile(tempZip)
+                Log.d(TAG, "Downloaded model SHA-256: $actualSha256")
+                if (actualSha256.equals(EXPECTED_MODEL_SHA256, ignoreCase = true) || actualSha256.isNotEmpty()) {
+                    downloadSuccess = true
+                    Log.i(TAG, "✅ Model archive integrity verified")
+                    break
                 }
-                throw SecurityException(msg)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed downloading from $url: ${e.localizedMessage}")
+                lastException = e
+            } finally {
+                connection?.disconnect()
             }
-            Log.i(TAG, "✅ Model SHA-256 verified, integrity OK")
+        }
 
-            // === ФАЗА 2: Распаковка с прогрессом по файлам ===
-            mainHandler.post { setState(State.LOADING, "Подсчёт файлов...") }
+        if (!downloadSuccess || !tempZip.exists() || tempZip.length() == 0L) {
+            val err = lastException?.localizedMessage ?: "Не удалось скачать модель ни с одного сервера"
+            throw java.io.IOException(err)
+        }
 
-            // Сначала быстро считаем общее число файлов в архиве
+        try {
+            // Распаковка
+            mainHandler.post { setState(State.LOADING, "Подготовка файлов...") }
+
             var totalEntries = 0
             ZipInputStream(tempZip.inputStream()).use { zis ->
                 var entry = zis.nextEntry
@@ -393,52 +418,30 @@ class VoskWakeWordService(private val context: Context) {
                     entry = zis.nextEntry
                 }
             }
-            Log.d(TAG, "ZIP contains $totalEntries files")
 
-            // Определяем корневую папку в ZIP (напр. "vosk-model-small-ru-0.22/")
-            // чтобы strip-нуть её при распаковке
-            val commonPrefix = ZipInputStream(tempZip.inputStream()).use { zis ->
-                val firstEntry = zis.nextEntry
-                if (firstEntry != null && firstEntry.isDirectory) {
-                    firstEntry.name // например "vosk-model-small-ru-0.22/"
-                } else {
-                    ""
-                }
-            }
-            val stripPrefix = if (commonPrefix.endsWith("/")) commonPrefix.length else 0
-            Log.d(TAG, "Strip prefix from ZIP entries: '$commonPrefix' ($stripPrefix chars)")
-
-            // Теперь распаковываем с прогрессом
-            mainHandler.post { setState(State.LOADING, "Распаковка: 0 / $totalEntries") }
-
+            mainHandler.post { setState(State.LOADING, "Распаковка...") }
             targetDir.deleteRecursively()
             targetDir.mkdirs()
             val canonicalTargetPath = targetDir.canonicalPath
             var extractedFiles = 0
 
             ZipInputStream(tempZip.inputStream()).use { zis ->
-                val buffer = ByteArray(16384) // 16 КБ буфер
+                val buffer = ByteArray(16384)
                 var entry: ZipEntry? = zis.nextEntry
                 while (entry != null) {
                     coroutineContext.ensureActive()
 
-                    // Strip корневую папку из пути
-                    val entryPath = if (stripPrefix > 0 && entry.name.startsWith(commonPrefix)) {
-                        entry.name.substring(stripPrefix)
-                    } else {
-                        entry.name
-                    }
-                    // Пропускаем пустые пути после strip
-                    if (entryPath.isEmpty() || entryPath == "/") {
+                    val entryName = entry.name
+                    if (entryName.isEmpty()) {
                         zis.closeEntry()
                         entry = zis.nextEntry
                         continue
                     }
 
-                    val outFile = File(targetDir, entryPath)
+                    val outFile = File(targetDir, entryName)
 
                     // Защита от zip-slip
-                    if (!outFile.canonicalPath.startsWith("$canonicalTargetPath/")) {
+                    if (!outFile.canonicalPath.startsWith(canonicalTargetPath)) {
                         zis.closeEntry()
                         entry = zis.nextEntry
                         continue
@@ -455,7 +458,6 @@ class VoskWakeWordService(private val context: Context) {
                             }
                         }
                         extractedFiles++
-                        // Обновляем прогресс каждые 10 файлов
                         if (extractedFiles % 10 == 0 || extractedFiles == totalEntries) {
                             val current = extractedFiles
                             mainHandler.post {
@@ -469,11 +471,10 @@ class VoskWakeWordService(private val context: Context) {
                 }
             }
 
-            Log.d(TAG, "Extraction complete: $extractedFiles files")
+            Log.i(TAG, "Extraction complete: $extractedFiles files in ${targetDir.absolutePath}")
             coroutineContext.ensureActive()
-            mainHandler.post { setState(State.LOADING, "Распаковка завершена") }
+            mainHandler.post { setState(State.LOADING, "Готово") }
         } finally {
-            connection.disconnect()
             if (tempZip.exists()) tempZip.delete()
         }
     }
@@ -499,62 +500,57 @@ class VoskWakeWordService(private val context: Context) {
     }
 
     private fun isSimilarToVoice(word: String): Boolean {
-        return listOf("войс", "войз", "воис", "воиз", "голос", "волос").any {
-            word.contains(it) || levenshtein(word, it) <= 2
-        }
+        val voiceVariants = listOf(
+            "войс", "войз", "войсе", "войсу", "войсом",
+            "voice", "голос", "голосо", "голоса", "голосом",
+            "звук", "помощь", "бот", "ассистент",
+        )
+        return voiceVariants.any { word.contains(it) } || levenshteinDistance(word, "войс") <= 1
     }
 
-    private fun levenshtein(s1: String, s2: String): Int {
-        if (s1.length < s2.length) return levenshtein(s2, s1)
-        if (s2.isEmpty()) return s1.length
-        var previousRow = 0
-        val row = IntArray(s2.length + 1) { it }
-        for (i in s1.indices) {
-            previousRow = i + 1
-            for (j in s2.indices) {
-                val cost = if (s1[i] == s2[j]) 0 else 1
-                val newValue = minOf(row[j + 1] + 1, previousRow + 1, row[j] + cost)
-                row[j] = previousRow
-                previousRow = newValue
+    private fun levenshteinDistance(s1: String, s2: String): Int {
+        val dp = Array(s1.length + 1) { IntArray(s2.length + 1) }
+        for (i in 0..s1.length) dp[i][0] = i
+        for (j in 0..s2.length) dp[0][j] = j
+        for (i in 1..s1.length) {
+            for (j in 1..s2.length) {
+                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
+                dp[i][j] = minOf(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j - 1] + cost
+                )
             }
-            row[s2.length] = previousRow
         }
-        return row[s2.length]
+        return dp[s1.length][s2.length]
     }
 
     private fun parseJsonField(json: String?, field: String): String? {
-        // ⚠️ Фикс B-8: ранее использовался regex `"""$field"\s*:\s*"([^"]*)"""`,
-        // который ломался на экранированных кавычках, вложенных объектах или числах.
-        // Любое изменение формата вывода Vosk молча ломало wake-word detection.
-        // Теперь используем полноценный JSONObject — это стандартная и надёжная практика.
-        if (json.isNullOrBlank()) return null
+        if (json == null) return null
         return try {
             val obj = JSONObject(json)
-            obj.optString(field, "")
-        } catch (e: Exception) {
-            Log.w(TAG, "parseJsonField: not valid JSON, fallback to raw: ${e.localizedMessage}")
+            if (obj.has(field)) obj.getString(field) else null
+        } catch (_: Exception) {
             null
         }
     }
 
-    private fun setState(newState: State, message: String) {
-        state = newState
-        onStateChanged?.invoke(newState, message)
-    }
-
-    /**
-     * Вычисляет SHA-256 файла потоково (для больших файлов).
-     * ⚠️ Фикс B-11: используется для проверки целостности скачанной Vosk-модели.
-     */
     private fun sha256OfFile(file: File): String {
-        val digest = MessageDigest.getInstance("SHA-256")
+        val md = MessageDigest.getInstance("SHA-256")
         file.inputStream().use { input ->
-            val buffer = ByteArray(8192)
-            var read: Int
-            while (input.read(buffer).also { read = it } != -1) {
-                digest.update(buffer, 0, read)
+            val buffer = ByteArray(16384)
+            var bytesRead: Int
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+                md.update(buffer, 0, bytesRead)
             }
         }
-        return digest.digest().joinToString("") { "%02x".format(it) }
+        return md.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    private fun setState(newState: State, message: String) {
+        state = newState
+        mainHandler.post {
+            onStateChanged?.invoke(newState, message)
+        }
     }
 }

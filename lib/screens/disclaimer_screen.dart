@@ -1,13 +1,9 @@
-// DisclaimerScreen — модальный дисклеймер при первом запуске.
-//
-// Показывается один раз. После нажатия «Понятно» — сохраняет флаг
-// в SharedPreferences и больше не появляется.
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
 import 'home_screen.dart';
 
+/// DisclaimerScreen — модальный дисклеймер при первом запуске
 class DisclaimerScreen extends StatefulWidget {
   const DisclaimerScreen({super.key});
 
@@ -18,66 +14,84 @@ class DisclaimerScreen extends StatefulWidget {
 class _DisclaimerScreenState extends State<DisclaimerScreen> {
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor(context),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('⚠️', style: TextStyle(fontSize: 64)),
-              const SizedBox(height: 24),
-              Text(
-                'Внимание!',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.warningOrange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                  border: Border.all(
-                      color: AppTheme.warningOrange.withOpacity(0.3)),
-                ),
-                child: const Text(
-                  'Приложение носит справочный характер.\n\n'
-                  'Дозировки и противопоказания основаны на '
-                  'общедоступных источниках (государственный реестр ЛС, '
-                  'инструкции производителей).\n\n'
-                  'Окончательное решение о применении препарата '
-                  'и его дозировке принимает ветеринарный врач '
-                  'на основании клинической картины.\n\n'
-                  'Разработчик не несёт ответственности за '
-                  'последствия неправильного применения препаратов.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                    color: AppTheme.textPrimary,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.warningOrange.withOpacity(isDark ? 0.25 : 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.medical_information_rounded,
+                    color: AppTheme.warningOrange,
+                    size: 48,
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('disclaimer_accepted', true);
-                    if (mounted) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HomeScreen(),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text('Понятно, продолжить'),
+                const SizedBox(height: 20),
+                Text(
+                  'Внимание ветеринарного специалиста',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimaryColor(context),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardColor(context),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    border: Border.all(color: AppTheme.warningOrange.withOpacity(0.35)),
+                    boxShadow: AppTheme.cardShadow(context),
+                  ),
+                  child: Text(
+                    'Приложение носит вспомогательный справочный характер.\n\n'
+                    'Дозировки, кратности и противопоказания основаны на '
+                    'официальном Государственном реестре ЛС и инструкциях производителей.\n\n'
+                    'Окончательное решение о схеме лечения, совместимости препаратов '
+                    'и дозировке принимает ветеринарный врач на основании клинического статуса пациента.\n\n'
+                    'Разработчик не несёт ответственности за нецелевое или ошибочное применение лекарственных средств.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.5,
+                      color: AppTheme.textSecondaryColor(context),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('disclaimer_accepted', true);
+                      if (mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HomeScreen(),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Понятно, приступить к работе'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,19 +1,10 @@
-// FavoritesScreen — экран избранных препаратов.
-//
-// Показывает список избранных препаратов с возможностью быстро
-// перейти к расчёту дозы или убрать из избранного.
-//
-// Зависимости:
-//   - FavoritesService (lib/services/favorites_service.dart)
-//   - VetProvider (lib/providers/vet_provider.dart)
-//   - AppTheme (lib/utils/app_theme.dart)
-
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_theme.dart';
 
+/// FavoritesScreen — экран избранных препаратов
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
 
@@ -42,30 +33,33 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   void _loadFavorites() {
     final allDrugs = _vetProvider.calcDatabase?.drugs ?? [];
     final favIds = _favService.favorites.toSet();
-    setState(() {
-      _favoriteDrugs = allDrugs.where((d) => favIds.contains(d.id)).toList();
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _favoriteDrugs = allDrugs.where((d) => favIds.contains(d.id)).toList();
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor(context),
       appBar: AppBar(
-        title: const Text('⭐ Избранное'),
+        title: const Text('Избранное'),
         actions: [
           if (_favoriteDrugs.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep),
+              icon: Icon(Icons.delete_sweep_rounded, color: AppTheme.textSecondaryColor(context)),
               tooltip: 'Очистить избранное',
               onPressed: () async {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
+                    backgroundColor: AppTheme.cardColor(ctx),
                     title: const Text('Очистить избранное?'),
                     content: Text(
-                      'Будет удалено ${_favoriteDrugs.length} '
-                      'препаратов из избранного.',
+                      'Будет удалено ${_favoriteDrugs.length} препаратов из списка избранного.',
                     ),
                     actions: [
                       TextButton(
@@ -74,7 +68,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Очистить'),
+                        child: const Text('Очистить', style: TextStyle(color: AppTheme.errorRed)),
                       ),
                     ],
                   ),
@@ -88,7 +82,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.safeGreen))
           : _favoriteDrugs.isEmpty
               ? _buildEmptyState()
               : _buildFavoritesList(),
@@ -100,17 +94,28 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('⭐', style: TextStyle(fontSize: 64)),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.warningOrange.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.star_border_rounded, size: 48, color: AppTheme.warningOrange),
+          ),
           const SizedBox(height: 16),
           Text(
-            'Избранное пустое',
-            style: Theme.of(context).textTheme.headlineMedium,
+            'Список избранного пуст',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimaryColor(context),
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
-            'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
+            'Нажмите ⭐ на карточке любого препарата,\nчтобы сохранить его для быстрого доступа',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(fontSize: 13, color: AppTheme.textTertiaryColor(context), height: 1.4),
           ),
         ],
       ),
@@ -118,9 +123,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildFavoritesList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       itemCount: _favoriteDrugs.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final drug = _favoriteDrugs[index];
         return _FavoriteDrugCard(
@@ -130,7 +136,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             _loadFavorites();
           },
           onTap: () {
-            // Возвращаемся на главный экран с этим препаратом
             Navigator.pop(context, drug);
           },
         );
@@ -154,17 +159,23 @@ class _FavoriteDrugCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final catColor = AppTheme.getCategoryColor(drug.category);
     final catIcon = AppTheme.getCategoryIcon(drug.category);
+    final isDark = AppTheme.isDark(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: Padding(
+        child: Container(
           padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          decoration: BoxDecoration(
+            color: AppTheme.cardColor(context),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            border: Border.all(color: AppTheme.borderColor(context)),
+            boxShadow: AppTheme.cardShadow(context),
+          ),
           child: Row(
             children: [
-              // Цветовая полоска категории
               Container(
                 width: 4,
                 height: 48,
@@ -174,19 +185,18 @@ class _FavoriteDrugCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Иконка категории
               Text(catIcon, style: const TextStyle(fontSize: 24)),
               const SizedBox(width: 12),
-              // Название + МНН
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       drug.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimaryColor(context),
                       ),
                     ),
                     if (drug.inn.isNotEmpty)
@@ -194,7 +204,7 @@ class _FavoriteDrugCard extends StatelessWidget {
                         drug.inn,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: AppTheme.textSecondaryColor(context),
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,
@@ -202,12 +212,9 @@ class _FavoriteDrugCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                       decoration: BoxDecoration(
-                        color: catColor.withOpacity(0.15),
+                        color: catColor.withOpacity(isDark ? 0.25 : 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -215,16 +222,15 @@ class _FavoriteDrugCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           color: catColor,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // Кнопка убрать из избранного
               IconButton(
-                icon: const Icon(Icons.star, color: AppTheme.warningOrange),
+                icon: const Icon(Icons.star_rounded, color: AppTheme.warningOrange),
                 onPressed: onRemove,
                 tooltip: 'Убрать из избранного',
               ),

@@ -1,18 +1,6 @@
-// VaccineCard — UI-виджет для отображения вакцины.
-//
-// Используется вместо обычной карточки калькулятора, когда
-// drug.formType == 'vaccine' && drug.vaccineSpecific != null.
-//
-// Логика:
-//   - НЕ показывает поле ввода веса (вакцины — разовая доза, не мг/кг)
-//   - Показывает разовую дозу, путь введения, схему вакцинации
-//   - Позволяет рассчитать количество флаконов для N животных
-//   - Показывает тип вакцины с цветовой кодировкой
-//
-// Зависимости: models/vaccine_specific.dart
-
 import 'package:flutter/material.dart';
 import '../models/vaccine_specific.dart';
+import '../utils/app_theme.dart';
 
 class VaccineCard extends StatefulWidget {
   final String drugName;
@@ -55,21 +43,39 @@ class _VaccineCardState extends State<VaccineCard> {
   @override
   Widget build(BuildContext context) {
     final v = widget.vaccine;
+    final isDark = AppTheme.isDark(context);
     final vtypeColor = Color(v.vaccineType.colorHex);
 
-    return Card(
-      elevation: 4,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor(context),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.borderColor(context)),
+        boxShadow: AppTheme.cardShadow(context),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.paddingLarge),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // === Заголовок ===
+            // Заголовок
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  v.vaccineType.icon,
-                  style: const TextStyle(fontSize: 32),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: vtypeColor.withOpacity(isDark ? 0.25 : 0.12),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  ),
+                  child: Center(
+                    child: Text(
+                      v.vaccineType.icon.isNotEmpty ? v.vaccineType.icon : '💉',
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -78,29 +84,27 @@ class _VaccineCardState extends State<VaccineCard> {
                     children: [
                       Text(
                         widget.drugName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimaryColor(context),
                         ),
                       ),
                       if (v.vaccineType.displayName.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: vtypeColor.withOpacity(0.15),
+                            color: vtypeColor.withOpacity(isDark ? 0.25 : 0.12),
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: vtypeColor, width: 1),
+                            border: Border.all(color: vtypeColor.withOpacity(0.4), width: 1),
                           ),
                           child: Text(
                             v.vaccineType.displayName,
                             style: TextStyle(
                               color: vtypeColor,
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -110,246 +114,187 @@ class _VaccineCardState extends State<VaccineCard> {
               ],
             ),
 
-            const SizedBox(height: 8),
-
-            // МНН
-            if (widget.drugInn.isNotEmpty)
+            if (widget.drugInn.isNotEmpty) ...[
+              const SizedBox(height: 8),
               Text(
                 widget.drugInn,
                 style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[700],
+                  fontSize: 12,
+                  color: AppTheme.textSecondaryColor(context),
                   fontStyle: FontStyle.italic,
                 ),
               ),
+            ],
 
-            const Divider(height: 24),
+            const SizedBox(height: 16),
+            Divider(color: AppTheme.dividerColor(context), height: 1),
+            const SizedBox(height: 16),
 
-            // === Разовая доза ===
-            _InfoRow(
-              icon: '💊',
+            // Разовая доза
+            _buildInfoRow(
+              context,
+              icon: Icons.medication_rounded,
               label: 'Разовая доза',
               value: v.formattedSingleDose,
-              valueColor: Colors.blue[700],
+              valueColor: AppTheme.maleBlue,
             ),
 
             // Путь введения
-            if (v.route.isNotEmpty)
-              _InfoRow(
-                icon: '📍',
+            if (v.route.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _buildInfoRow(
+                context,
+                icon: Icons.alt_route_rounded,
                 label: 'Путь введения',
                 value: v.route,
               ),
+            ],
 
-            // Схема вакцинации
-            if (v.schedule.isNotEmpty)
-              _InfoRow(
-                icon: '📅',
+            // Схема
+            if (v.schedule.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _buildInfoRow(
+                context,
+                icon: Icons.event_repeat_rounded,
                 label: 'Схема',
                 value: v.schedule,
               ),
+            ],
 
-            // Для кого
-            if (v.animal.isNotEmpty)
-              _InfoRow(
-                icon: '🐾',
-                label: 'Для кого',
-                value: v.animal,
+            // Иммунитет
+            if (v.immunityDuration.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _buildInfoRow(
+                context,
+                icon: Icons.shield_outlined,
+                label: 'Иммунитет',
+                value: v.immunityDuration,
               ),
+            ],
 
-            const Divider(height: 24),
-
-            // === Калькулятор флаконов ===
-            if (v.dosesPerVial != null || v.dosesPerVialOptions.isNotEmpty)
-              _VialCalculator(
-                vaccine: v,
-                animalsController: _animalsController,
-                selectedVialOption: _selectedVialOption,
-                onVialOptionChanged: (option) {
-                  setState(() {
-                    _selectedVialOption = option;
-                  });
-                },
+            // Калькулятор флаконов
+            if (v.hasDosesPerVial) ...[
+              const SizedBox(height: 16),
+              Divider(color: AppTheme.dividerColor(context), height: 1),
+              const SizedBox(height: 14),
+              Text(
+                'Расчёт флаконов на поголовье',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimaryColor(context),
+                ),
               ),
-
-            // Заметки
-            if (v.notes.isNotEmpty) ...[
-              const Divider(height: 24),
-              _InfoRow(
-                icon: '📝',
-                label: 'Заметки',
-                value: v.notes,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _animalsController,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(fontSize: 14, color: AppTheme.textPrimaryColor(context)),
+                      decoration: const InputDecoration(
+                        labelText: 'Количество голов',
+                        suffixText: 'гол.',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  if (v.dosesPerVialOptions.length > 1) ...[
+                    const SizedBox(width: 10),
+                    DropdownButton<int>(
+                      value: _selectedVialOption,
+                      dropdownColor: AppTheme.cardColor(context),
+                      items: v.dosesPerVialOptions
+                          .map((opt) => DropdownMenuItem(
+                                value: opt,
+                                child: Text('$opt доз/фл', style: TextStyle(color: AppTheme.textPrimaryColor(context))),
+                              ))
+                          .toList(),
+                      onChanged: (val) => setState(() => _selectedVialOption = val),
+                    ),
+                  ],
+                ],
               ),
+              const SizedBox(height: 10),
+              _buildVialsResult(context, v),
             ],
           ],
         ),
       ),
     );
   }
-}
 
-class _InfoRow extends StatelessWidget {
-  final String icon;
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-              ),
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppTheme.textSecondaryColor(context)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 100,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppTheme.textSecondaryColor(context),
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: valueColor,
-              ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: valueColor ?? AppTheme.textPrimaryColor(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVialsResult(BuildContext context, VaccineSpecific v) {
+    final count = int.tryParse(_animalsController.text) ?? 1;
+    final dosesPerVial = _selectedVialOption ?? v.dosesPerVial ?? 1;
+    final vials = (count / dosesPerVial).ceil();
+    final totalDoses = vials * dosesPerVial;
+    final leftover = totalDoses - count;
+    final isDark = AppTheme.isDark(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppTheme.safeGreen.withOpacity(isDark ? 0.2 : 0.1),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        border: Border.all(color: AppTheme.safeGreen.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Необходимо флаконов:',
+            style: TextStyle(fontSize: 13, color: AppTheme.textPrimaryColor(context)),
+          ),
+          Text(
+            '$vials шт. ${leftover > 0 ? "(остаток $leftover доз)" : ""}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _VialCalculator extends StatelessWidget {
-  final VaccineSpecific vaccine;
-  final TextEditingController animalsController;
-  final int? selectedVialOption;
-  final ValueChanged<int> onVialOptionChanged;
-
-  const _VialCalculator({
-    required this.vaccine,
-    required this.animalsController,
-    required this.selectedVialOption,
-    required this.onVialOptionChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '📦 Калькулятор флаконов',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Количество животных
-        Row(
-          children: [
-            const Text('Животных: '),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 80,
-              child: TextField(
-                controller: animalsController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (_) {
-                  // trigger rebuild
-                  (context as Element).markNeedsBuild();
-                },
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 8),
-
-        // Выбор фасовки
-        if (vaccine.dosesPerVialOptions.length > 1)
-          Wrap(
-            spacing: 6,
-            children: vaccine.dosesPerVialOptions.map((option) {
-              final selected = option == selectedVialOption;
-              return ChoiceChip(
-                label: Text('$option доз'),
-                selected: selected,
-                onSelected: (_) => onVialOptionChanged(option),
-              );
-            }).toList(),
-          ),
-
-        const SizedBox(height: 12),
-
-        // Результат расчёта
-        Builder(builder: (context) {
-          final animals = int.tryParse(animalsController.text) ?? 0;
-          if (animals <= 0 || selectedVialOption == null) {
-            return const SizedBox.shrink();
-          }
-          final vials = (animals / selectedVialOption!).ceil();
-          final volume = vaccine.calculateVolumeForAnimals(animals);
-
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue[200]!),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '💉 Нужно: $vials флакон(а) по $selectedVialOption доз',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue[900],
-                  ),
-                ),
-                if (volume != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Объём: ${volume.toStringAsFixed(volume >= 10 ? 1 : 2)} мл',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
-      ],
     );
   }
 }
