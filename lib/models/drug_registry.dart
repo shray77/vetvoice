@@ -187,6 +187,19 @@ class DrugRegistry {
         .toList();
   }
 
+  /// Найти один препарат по названию или МНН
+  RegistryDrug? findByName(String query) {
+    if (query.isEmpty) return null;
+    final lower = query.toLowerCase().trim();
+    try {
+      return drugs.firstWhere(
+        (d) => d.searchIndex.contains(lower),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Получить препараты по фармгруппе
   List<RegistryDrug> getByPharmacologicalGroup(String group) {
     return drugs
