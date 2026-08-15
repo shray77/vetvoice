@@ -433,8 +433,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _onDrugSelected(dynamic drug) {
     if (drug is CalcDrug) {
       _vetProvider.selectDrug(drug);
-    } else if (drug is Drug) {
-      _vetProvider.selectDrug(drug);
     } else if (drug is RegistryDrug) {
       _vetProvider.selectRegistryDrug(drug);
     }

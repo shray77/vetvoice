@@ -122,6 +122,9 @@ class CalcDrug {
   /// Дозировки для конкретных животных
   final Map<String, AnimalSpecificDose> animalSpecific;
   
+  /// Подходит ли для калькулятора (скрыть шампуни, ошейники и т.д.)
+  final bool calculatorApplicable;
+
   /// 🆕 Специфичные для вакцин поля (если form_type == 'vaccine')
   final VaccineSpecific? vaccineSpecific;
 

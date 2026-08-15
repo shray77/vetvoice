@@ -223,6 +223,8 @@ class VetProvider extends ChangeNotifier {
   double get weight => _weight;
   String get searchQuery => _searchQuery;
 
+  AgeCategory get ageCategory => selectedAnimal?.getAgeCategory(_ageMonths) ?? AgeCategory.adult;
+
   InteractionDatabase? get interactionDatabase => _interactionDatabase;
   AntidoteDatabase? get antidoteDatabase => _antidoteDatabase;
   EmergencyDatabase? get emergencyDatabase => _emergencyDatabase;
@@ -292,7 +294,7 @@ class VetProvider extends ChangeNotifier {
     return all;
   }
 
-  /// Найти CalcDrug по названию (для протоколов лечения)
+  /// Найти CalcDrug по названию
   CalcDrug? findCalcDrugByName(String name) {
     if (_calcDatabase == null) return null;
     final lower = name.toLowerCase().trim();
@@ -303,6 +305,28 @@ class VetProvider extends ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Найти любой препарат (CalcDrug или RegistryDrug) по названию
+  dynamic findDrugByName(String name) {
+    final calc = findCalcDrugByName(name);
+    if (calc != null) return calc;
+    if (_registry != null) {
+      return _registry!.findByName(name);
+    }
+    return null;
+  }
+
+  /// Текст для озвучки результата через TTS
+  String getResultSpeechText() {
+    if (_result.hasError) return _result.error;
+    if (!_result.hasResult) return '';
+    if (_result.isFixedDose) {
+      return '${_result.drugName}: ${_result.fixedDoseText}.';
+    }
+    final vol = _result.formattedVolume;
+    final method = _result.method.isNotEmpty ? _result.method : '';
+    return '${_result.drugName}: $vol. $method.'.trim();
   }
 
   /// Препараты для выбранного животного с быстрым поиском
@@ -483,7 +507,9 @@ class VetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setMethod(AdministrationMethod method) {
+  void setAgeMonths(int months) => setAge(months);
+
+  void setMethod(AdministrationMethod? method) {
     _selectedMethod = method;
     _recalculate();
     notifyListeners();
@@ -613,6 +639,10 @@ class VetProvider extends ChangeNotifier {
       }
     }
 
+    final doseVal = animalDosage.doseMgKg > 0 ? animalDosage.doseMgKg : animalDosage.doseValue;
+    final doseUnit = animalDosage.doseType.isNotEmpty ? animalDosage.doseType : 'мг/кг';
+    final route = animalDosage.route.isNotEmpty ? animalDosage.route : 'См. инструкцию';
+
     final calcDrug = CalcDrug(
       id: drug.id,
       name: drug.tradeName,
@@ -622,14 +652,14 @@ class VetProvider extends ChangeNotifier {
       unit: 'мл',
       concentration: concentration,
       concentrationUnit: concentrationUnit,
-      dosePerKg: animalDosage.dosePerKg,
-      doseMin: animalDosage.doseMin,
-      doseMax: animalDosage.doseMax,
-      doseUnit: animalDosage.doseUnit,
+      dosePerKg: doseVal,
+      doseMin: doseVal,
+      doseMax: doseVal,
+      doseUnit: doseUnit,
       animals: substanceDosage.availableAnimals,
-      method: animalDosage.method.isNotEmpty ? animalDosage.method : 'См. инструкцию',
+      method: route,
       frequency: animalDosage.frequency,
-      courseDays: animalDosage.courseDays,
+      courseDays: '',
       withdrawalDays: 0,
       contraindications: const CalcContraindications(),
       category: drug.pharmacologicalGroup,
@@ -679,7 +709,7 @@ class VetProvider extends ChangeNotifier {
       );
     }
 
-    if (calc.type == DoseType.notApplicable) {
+    if (calc.type == DoseType.unknown) {
       return DoseResult(
         error: calc.note,
         drugName: drug.name,
