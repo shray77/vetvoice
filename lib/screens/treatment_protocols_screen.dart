@@ -130,10 +130,26 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String? _selectedCategory;
+  String? _selectedSpecies;
+
+  static const List<(String, String)> _allSpeciesList = [
+    ('Собака', '🐕'),
+    ('Кошка', '🐈'),
+    ('КРС', '🐄'),
+    ('Лошадь', '🐎'),
+    ('Свиньи', '🐖'),
+    ('МРС', '🐑'),
+    ('Птица', '🦜'),
+    ('Грызуны', '🐹'),
+  ];
 
   @override
   void initState() {
     super.initState();
+    final curAnimal = widget.vetProvider.selectedAnimal?.name;
+    if (curAnimal != null && curAnimal.isNotEmpty) {
+      _selectedSpecies = curAnimal;
+    }
     _loadProtocols();
   }
 
@@ -146,7 +162,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
       _allProtocols = list
           .map((p) => TreatmentProtocol.fromJson(p as Map<String, dynamic>))
           .toList();
-      _filtered = _allProtocols;
+      _applyFilters();
     } catch (e) {
       debugPrint('TreatmentProtocols load error: $e');
     }
@@ -169,6 +185,14 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
       _filtered = _allProtocols.where((p) {
         if (_selectedCategory != null && p.category != _selectedCategory) {
           return false;
+        }
+        if (_selectedSpecies != null && _selectedSpecies!.isNotEmpty) {
+          final sLower = _selectedSpecies!.toLowerCase();
+          final matchesSpecies = p.species.any((s) {
+            final item = s.toLowerCase();
+            return item.contains(sLower) || sLower.contains(item);
+          });
+          if (!matchesSpecies) return false;
         }
         if (query.isEmpty) return true;
         return p.diagnosis.toLowerCase().contains(query) ||
@@ -211,7 +235,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Поиск диагноза, кода, животного...',
+                      hintText: 'Поиск диагноза, кода, препарата...',
                       prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -223,26 +247,53 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                             )
                           : null,
                     ),
-                    onChanged: (_) {
-                      setState(() {});
-                      _applyFilters();
-                    },
+                    onChanged: (_) => _applyFilters(),
                   ),
                 ),
 
-                // Фильтр по категориям
+                // Фильтр по видам животных (с предвыбором активного животного)
                 SizedBox(
                   height: 38,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      _buildFilterChip('Все', _selectedCategory == null, () {
+                      _buildFilterChip('🐾 Все виды', _selectedSpecies == null, () {
+                        setState(() => _selectedSpecies = null);
+                        _applyFilters();
+                      }),
+                      ..._allSpeciesList.map((pair) {
+                        final (name, icon) = pair;
+                        final isSel = _selectedSpecies?.toLowerCase() == name.toLowerCase();
+                        return _buildFilterChip(
+                          '$icon $name',
+                          isSel,
+                          () {
+                            setState(() {
+                              _selectedSpecies = isSel ? null : name;
+                            });
+                            _applyFilters();
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // Фильтр по категориям
+                SizedBox(
+                  height: 34,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _buildSubFilterChip('Все категории', _selectedCategory == null, () {
                         setState(() => _selectedCategory = null);
                         _applyFilters();
                       }),
                       ..._categories.map((cat) {
-                        return _buildFilterChip(
+                        return _buildSubFilterChip(
                           _categoryLabel(cat),
                           _selectedCategory == cat,
                           () {
@@ -265,7 +316,8 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Найдено протоколов: ${_filtered.length}',
+                        'Найдено протоколов: ${_filtered.length}'
+                        '${_selectedSpecies != null ? ' для $_selectedSpecies' : ''}',
                         style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context), fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -282,8 +334,9 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                           itemCount: _filtered.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
+                            final protocol = _filtered[index];
                             return _ProtocolCard(
-                              protocol: _filtered[index],
+                              protocol: protocol,
                               vetProvider: widget.vetProvider,
                               onDrugSelected: widget.onDrugSelected,
                             );
@@ -297,22 +350,21 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
 
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
     final isDark = AppTheme.isDark(context);
-
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 6),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12)
-                : AppTheme.cardColor(context),
+                ? AppTheme.safeGreen.withOpacity(isDark ? 0.3 : 0.15)
+                : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight),
             borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
             border: Border.all(
               color: isSelected ? AppTheme.safeGreen : AppTheme.borderColor(context),
+              width: isSelected ? 1.5 : 1,
             ),
           ),
           child: Text(
@@ -328,20 +380,52 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
     );
   }
 
+  Widget _buildSubFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    final isDark = AppTheme.isDark(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.maleBlue.withOpacity(isDark ? 0.25 : 0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppTheme.maleBlue : AppTheme.dividerColor(context),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected ? AppTheme.maleBlue : AppTheme.textSecondaryColor(context),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.menu_book_rounded, size: 48, color: AppTheme.textTertiaryColor(context)),
-          const SizedBox(height: 16),
+          Icon(Icons.search_off_rounded, size: 48, color: AppTheme.textTertiaryColor(context)),
+          const SizedBox(height: 12),
           Text(
-            'Протоколов не найдено',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimaryColor(context),
-            ),
+            'Протоколы не найдены',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Попробуйте изменить вид животного или поисковый запрос',
+            style: TextStyle(fontSize: 12, color: AppTheme.textTertiaryColor(context)),
           ),
         ],
       ),
@@ -365,12 +449,11 @@ class _ProtocolCard extends StatefulWidget {
 }
 
 class _ProtocolCardState extends State<_ProtocolCard> {
-  bool _expanded = false;
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     final p = widget.protocol;
-    final sevColor = p.severityColor;
     final isDark = AppTheme.isDark(context);
 
     return Container(
@@ -381,93 +464,117 @@ class _ProtocolCardState extends State<_ProtocolCard> {
         boxShadow: AppTheme.cardShadow(context),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Заголовок
           InkWell(
-            onTap: () => setState(() => _expanded = !_expanded),
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
             child: Padding(
               padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 4,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: sevColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          p.diagnosis,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimaryColor(context),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              p.diagnosis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textPrimaryColor(context),
+                              ),
+                            ),
                             if (p.code.isNotEmpty)
-                              _buildBadge(p.code, AppTheme.maleBlue, isDark),
-                            _buildBadge(p.severityLabel, sevColor, isDark),
-                            if (p.species.isNotEmpty)
-                              _buildBadge(p.species.take(3).join(', '), AppTheme.textSecondaryColor(context), isDark),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  p.code,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.textSecondaryColor(context),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: p.severityColor.withOpacity(isDark ? 0.25 : 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          p.severityLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: p.severityColor,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: AppTheme.textSecondaryColor(context),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      if (p.categoryName.isNotEmpty)
+                        _buildTag(p.categoryName, AppTheme.safeGreen, isDark),
+                      if (p.species.isNotEmpty)
+                        _buildTag(p.species.join(', '), AppTheme.maleBlue, isDark),
+                      if (p.pathogenType.isNotEmpty)
+                        _buildTag(p.pathogenType, AppTheme.warningOrange, isDark),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Препаратов в схеме: ${p.allDrugs.length}',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context), fontWeight: FontWeight.w600),
+                      ),
+                      Icon(
+                        _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        color: AppTheme.safeGreen,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
 
-          // Раскрытое содержимое
-          if (_expanded)
+          // Раскрытая схема
+          if (_isExpanded) ...[
+            Divider(color: AppTheme.dividerColor(context), height: 1),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(AppTheme.paddingMedium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Divider(color: AppTheme.dividerColor(context), height: 1),
-                  const SizedBox(height: 12),
-                  if (p.pathogenType.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        'Тип возбудителя: ${p.pathogenType}',
-                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
-                      ),
-                    ),
-                  ...p.allDrugs.map((d) => _ProtocolDrugItem(
-                        drug: d,
-                        vetProvider: widget.vetProvider,
-                        onDrugSelected: widget.onDrugSelected,
-                      )),
+                  ...p.allDrugs.map((d) => _buildDrugRow(context, d)),
                 ],
               ),
             ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildBadge(String text, Color color, bool isDark) {
+  Widget _buildTag(String text, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
         color: color.withOpacity(isDark ? 0.25 : 0.1),
         borderRadius: BorderRadius.circular(4),
@@ -478,100 +585,114 @@ class _ProtocolCardState extends State<_ProtocolCard> {
       ),
     );
   }
-}
 
-class _ProtocolDrugItem extends StatelessWidget {
-  final Map<String, dynamic> drug;
-  final VetProvider vetProvider;
-  final void Function(CalcDrug)? onDrugSelected;
+  Widget _buildDrugRow(BuildContext context, Map<String, dynamic> d) {
+    final name = d['name'] as String? ?? '';
+    final inn = d['inn'] as String? ?? '';
+    final dose = d['dose'] as String? ?? '';
+    final route = d['route'] as String? ?? '';
+    final freq = d['frequency'] as String? ?? '';
+    final duration = d['duration'] as String? ?? '';
+    final note = d['note'] as String? ?? '';
+    final section = d['section'] as String? ?? '';
 
-  const _ProtocolDrugItem({
-    required this.drug,
-    required this.vetProvider,
-    this.onDrugSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final name = drug['name'] as String? ?? '';
-    final inn = drug['inn'] as String? ?? '';
-    final dosage = drug['dosage'] as String? ?? '';
-    final section = drug['section'] as String? ?? '';
+    final calcDrug = widget.vetProvider.findCalcDrugByName(inn.isNotEmpty ? inn : name);
     final isDark = AppTheme.isDark(context);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        border: Border.all(color: AppTheme.borderColor(context)),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: AppTheme.maleBlue.withOpacity(isDark ? 0.25 : 0.12),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        section,
-                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppTheme.maleBlue),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        name,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimaryColor(context),
+                    if (section.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: Text(
+                          section.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                            color: AppTheme.safeGreen,
+                          ),
                         ),
                       ),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimaryColor(context),
+                      ),
                     ),
+                    if (inn.isNotEmpty && inn != name)
+                      Text(
+                        inn,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: AppTheme.textSecondaryColor(context),
+                        ),
+                      ),
                   ],
                 ),
-                if (inn.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      inn,
-                      style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppTheme.textSecondaryColor(context)),
-                    ),
+              ),
+              if (calcDrug != null && widget.onDrugSelected != null)
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
                   ),
-                if (dosage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Дозировка: $dosage',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.safeGreen),
-                    ),
-                  ),
-              ],
-            ),
+                  icon: const Icon(Icons.calculate_rounded, size: 16, color: AppTheme.safeGreen),
+                  label: const Text('Рассчитать', style: TextStyle(fontSize: 12, color: AppTheme.safeGreen)),
+                  onPressed: () {
+                    widget.onDrugSelected!(calcDrug);
+                    Navigator.pop(context);
+                  },
+                ),
+            ],
           ),
-          if (onDrugSelected != null)
-            TextButton(
-              onPressed: () {
-                final found = vetProvider.findCalcDrugByName(name) ??
-                    (inn.isNotEmpty ? vetProvider.findCalcDrugByName(inn) : null);
-                if (found != null) {
-                  onDrugSelected!(found);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Выбрать', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              if (dose.isNotEmpty) _buildDetailChip('Доза: $dose'),
+              if (route.isNotEmpty) _buildDetailChip('Путь: $route'),
+              if (freq.isNotEmpty) _buildDetailChip('Частота: $freq'),
+              if (duration.isNotEmpty) _buildDetailChip('Курс: $duration'),
+            ],
+          ),
+          if (note.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                '💡 $note',
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiaryColor(context)),
+              ),
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDetailChip(String text) {
+    return Text(
+      text,
+      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
     );
   }
 }

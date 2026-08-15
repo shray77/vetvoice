@@ -446,9 +446,15 @@ class _ResultCardState extends State<ResultCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Корректировка дозы:',
-                            style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
+                          Row(
+                            children: [
+                              Icon(Icons.tune_rounded, size: 14, color: AppTheme.textSecondaryColor(context)),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Диапазон (${widget.result.doseMin.toStringAsFixed(1)}–${widget.result.doseMax.toStringAsFixed(1)} ${widget.result.doseUnit}):',
+                                style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
+                              ),
+                            ],
                           ),
                           Text(
                             '${_selectedDose.toStringAsFixed(1)} ${widget.result.doseUnit}',
