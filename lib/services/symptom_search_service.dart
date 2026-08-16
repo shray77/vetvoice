@@ -1,31 +1,13 @@
-// SymptomSearchService — поиск препаратов по показаниям/симптомам.
-//
-// Использует обратный индекс: для каждого ключевого слова из indications
-// хранится список drug_id. При поиске — пересекаем множества.
-//
-// Источник данных: drugs_calc.json → drug.indications
-//
-// Использование:
-//   final svc = SymptomSearchService();
-//   await svc.init();
-//   final results = svc.search('рвота у собаки');
-//   // results: [{ drug: CalcDrug, score: 3, matched_terms: ['рвота', 'собак'] }]
-//
-// Алгоритм поиска:
-//   1. Нормализуем запрос: lower-case, удаление пунктуации
-//   2. Токенизация: разбиваем на слова, убираем стоп-слова
-//   3. Для каждого токена ищем в обратном индексе
-//   4. Сортируем по количеству совпадений (score)
-//   5. Возвращаем top-N результатов
-
 import 'dart:convert';
+import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/calc_drug.dart';
+import '../providers/vet_provider.dart';
 
 class SearchResult {
   final CalcDrug drug;
-  final int score;             // количество совпавших токенов
+  final int score;
   final List<String> matchedTerms;
 
   const SearchResult({
@@ -35,10 +17,14 @@ class SearchResult {
   });
 }
 
+/// Сервис полнотекстового и семантического поиска препаратов по симптомам, показаниям и синдромам
 class SymptomSearchService {
+  static final SymptomSearchService _instance = SymptomSearchService._internal();
+  factory SymptomSearchService() => _instance;
+  SymptomSearchService._internal();
+
   static const String _assetPath = 'assets/data/drugs_calc.json';
 
-  // Стоп-слова — не индексируем
   static const Set<String> _stopWords = {
     'и', 'или', 'не', 'на', 'в', 'с', 'по', 'для', 'при', 'к', 'от',
     'до', 'из', 'у', 'о', 'об', 'за', 'что', 'это', 'как', 'так',
@@ -46,120 +32,270 @@ class SymptomSearchService {
     'at', 'by', 'with', 'from', 'as',
   };
 
-  final Map<String, Set<int>> _index = {};  // token -> {drug_id, ...}
-  final Map<int, CalcDrug> _drugs = {};     // drug_id -> CalcDrug
+  // Русские окончания для стемминга
+  static const List<String> _russianEndings = [
+    'ами', 'ями', 'ого', 'его', 'ому', 'ему', 'ыми', 'ими',
+    'ых', 'их', 'ой', 'ей', 'ам', 'ям', 'ов', 'ев', 'ах', 'ях',
+    'ия', 'ии', 'ию', 'ие', 'ые', 'ое', 'ая', 'яя', 'ую', 'юю',
+    'ат', 'ят', 'ет', 'ит', 'ть', 'ти', 'ся', 'сь',
+    'а', 'я', 'у', 'ю', 'е', 'о', 'ы', 'и', 'ь',
+  ];
+
+  // Синонимы и связанные термины в ветеринарии
+  static const Map<String, List<String>> _synonyms = {
+    'рвот': ['тошнот', 'рвотн', 'маропитант', 'церукал', 'метоклопрамид', 'гастрит'],
+    'тошнот': ['рвот', 'рвотн'],
+    'понос': ['диаре', 'энтерит', 'жидк стул', 'колит', 'гастроэнтерит'],
+    'диаре': ['понос', 'энтерит', 'колит', 'гастроэнтерит'],
+    'мастит': ['вымя', 'маститн', 'молочн желез'],
+    'отит': ['ушн', 'ух', 'слухов проход'],
+    'ух': ['отит', 'ушн'],
+    'зуд': ['дерматит', 'аллерги', 'чешет', 'алопеци', 'кожи', 'экзем'],
+    'блох': ['клещ', 'эктопаразит', 'инсектоакарицид', 'акарицид', 'инсектицид', 'фипронил'],
+    'клещ': ['блох', 'эктопаразит', 'инсектоакарицид', 'акарицид', 'пироплазмоз', 'бабезиоз'],
+    'глист': ['гельминт', 'нематод', 'цестод', 'дегельминтизац', 'паразит', 'аскарид'],
+    'гельминт': ['глист', 'нематод', 'цестод', 'дегельминтизац'],
+    'глаз': ['конъюнктивит', 'кератит', 'глазн', 'слезотечен', 'блефарит'],
+    'конъюнктивит': ['глаз', 'кератит', 'глазн'],
+    'сустав': ['артрит', 'артроз', 'хромот', 'нпвс', 'бол', 'синовит'],
+    'бол': ['обезболиван', 'анальгези', 'нпвс', 'спазм', 'воспален', 'мелоксикам'],
+    'температур': ['лихорадк', 'жар', 'гипертерми', 'жаропонижающ'],
+    'лихорадк': ['температур', 'жар', 'гипертерми'],
+    'кашел': ['бронхит', 'пневмони', 'трахеит', 'легк', 'дыхательн'],
+    'пневмони': ['кашел', 'бронхит', 'легк', 'антибиотик'],
+    'ран': ['язв', 'порез', 'заживлен', 'антисептик', 'травм', 'шов'],
+    'сердц': ['кардио', 'сердечн', 'миокард', 'ветмедин', 'пимобендан', 'хсн'],
+    'почк': ['нефрит', 'почечн', 'хпн', 'цистит', 'урологич'],
+    'цистит': ['почк', 'мочеиспускан', 'мочев', 'урологич'],
+    'печен': ['гепатит', 'печеночн', 'гепатопротектор'],
+  };
+
+  static const Map<String, String> _speciesKeywords = {
+    'собак': 'Собаки',
+    'пёс': 'Собаки',
+    'пес': 'Собаки',
+    'щен': 'Собаки',
+    'кошк': 'Кошки',
+    'кот': 'Кошки',
+    'котят': 'Кошки',
+    'коров': 'КРС',
+    'бык': 'КРС',
+    'теленок': 'КРС',
+    'телёнок': 'КРС',
+    'крс': 'КРС',
+    'свин': 'Свиньи',
+    'порос': 'Свиньи',
+    'хряк': 'Свиньи',
+    'овц': 'Овцы',
+    'баран': 'Овцы',
+    'ягнен': 'Овцы',
+    'коз': 'Овцы',
+    'лошад': 'Лошади',
+    'кон': 'Лошади',
+    'жереб': 'Лошади',
+    'птиц': 'Птица',
+    'кур': 'Птица',
+    'цыплен': 'Птица',
+    'кролик': 'Кролики',
+  };
+
+  final Map<String, Set<int>> _index = {};
+  final Map<int, CalcDrug> _drugs = {};
   bool _isLoaded = false;
 
   bool get isLoaded => _isLoaded;
   int get indexedDrugs => _drugs.length;
 
-  /// Загрузить базу и построить индекс.
+  /// Инициализация индекса (из VetProvider или файла)
   Future<void> init() async {
-    if (_isLoaded) return;
+    if (_isLoaded && _drugs.isNotEmpty) return;
+
     try {
+      // 1. Пробуем взять уже загруженные данные из VetProvider (0 мс задержки)
+      final provider = VetProvider();
+      if (provider.allCalcDrugs.isNotEmpty) {
+        _buildIndexFromDrugs(provider.allCalcDrugs);
+        _isLoaded = true;
+        debugPrint('✅ SymptomSearch: быстрый старт из VetProvider (${_drugs.length} преп., ${_index.length} токенов)');
+        return;
+      }
+
+      // 2. Иначе парсим в фоне через Isolate
       final jsonString = await rootBundle.loadString(_assetPath);
-      final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      final drugsList = data['drugs_calc'] as List<dynamic>? ?? [];
+      final rawList = await Isolate.run(() {
+        final data = jsonDecode(jsonString) as Map<String, dynamic>;
+        return (data['drugs_calc'] as List<dynamic>? ?? []);
+      });
 
-      for (final drugJson in drugsList) {
-        try {
-          final drug = CalcDrug.fromJson(drugJson as Map<String, dynamic>);
-          _drugs[drug.id] = drug;
-
-          // Индексируем indications + name + inn + category
-          final text = '${drug.indications} ${drug.name} ${drug.inn} '
-              '${drug.category}';
-          final tokens = _tokenize(text);
-          for (final token in tokens) {
-            _index.putIfAbsent(token, () => {}).add(drug.id);
-          }
-        } catch (e) {
-          debugPrint('SymptomSearch: skip drug #$drugJson: $e');
+      final drugs = <CalcDrug>[];
+      for (final item in rawList) {
+        if (item is Map<String, dynamic>) {
+          try {
+            drugs.add(CalcDrug.fromJson(item));
+          } catch (_) {}
         }
       }
+
+      _buildIndexFromDrugs(drugs);
       _isLoaded = true;
-      debugPrint('SymptomSearch: ${_drugs.length} drugs, '
-          '${_index.length} unique tokens');
+      debugPrint('✅ SymptomSearch: фоновая загрузка (${_drugs.length} преп., ${_index.length} токенов)');
     } catch (e) {
-      debugPrint('SymptomSearch init error: $e');
+      debugPrint('❌ SymptomSearch init error: $e');
     }
   }
 
-  /// Токенизация текста: lower-case, удаление пунктуации, фильтр стоп-слов.
-  List<String> _tokenize(String text) {
-    final lower = text.toLowerCase();
-    // Удаляем пунктуацию, оставляем буквы/цифры/пробелы
-    final cleaned = lower.replaceAll(RegExp(r'[^\w\s\-]'), ' ');
-    final tokens = cleaned.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
-    // Фильтр стоп-слов и слишком коротких
-    return tokens
-        .where((t) => t.length >= 3 && !_stopWords.contains(t))
-        .toList();
+  void _buildIndexFromDrugs(List<CalcDrug> drugs) {
+    _drugs.clear();
+    _index.clear();
+
+    for (final drug in drugs) {
+      _drugs[drug.id] = drug;
+
+      final text = '${drug.name} ${drug.inn} ${drug.indications} ${drug.category} '
+          '${drug.subcategory ?? ""} ${drug.animals.join(" ")}';
+      final tokens = _tokenize(text);
+
+      for (final token in tokens) {
+        _index.putIfAbsent(token, () => {}).add(drug.id);
+      }
+    }
   }
 
-  /// Поиск препаратов по запросу.
-  ///
-  /// Возвращает список, отсортированный по убыванию score.
-  /// [limit] — максимальное число результатов (по умолчанию 20).
-  List<SearchResult> search(String query, {int limit = 20}) {
-    if (!_isLoaded || query.trim().isEmpty) return [];
+  /// Стемминг русского слова (усечение окончаний)
+  static String _stem(String word) {
+    word = word.toLowerCase().trim();
+    if (word.length <= 3) return word;
+    for (final ending in _russianEndings) {
+      if (word.endsWith(ending) && (word.length - ending.length) >= 3) {
+        return word.substring(0, word.length - ending.length);
+      }
+    }
+    return word;
+  }
 
-    final tokens = _tokenize(query);
-    if (tokens.isEmpty) return [];
+  /// Корректная токенизация с поддержкой русского языка
+  List<String> _tokenize(String text) {
+    final lower = text.toLowerCase();
+    // Сохраняем кириллицу, латиницу, цифры и дефис
+    final cleaned = lower.replaceAll(RegExp(r'[^a-zа-яё0-9\s\-]'), ' ');
+    final rawTokens = cleaned.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
 
-    // Подсчёт совпадений для каждого препарата
-    final Map<int, int> scores = {};        // drug_id -> score
-    final Map<int, Set<String>> matched = {}; // drug_id -> matched terms
+    final result = <String>{};
+    for (final t in rawTokens) {
+      if (t.length >= 3 && !_stopWords.contains(t)) {
+        result.add(_stem(t));
+      }
+    }
+    return result.toList();
+  }
 
-    for (final token in tokens) {
-      // Точное совпадение
-      final ids = _index[token];
-      if (ids != null) {
-        for (final id in ids) {
-          scores[id] = (scores[id] ?? 0) + 2;  // точное = 2 очка
+  /// Полнотекстовый и синонимический поиск по симптомам
+  List<SearchResult> search(String query, {String? animalFilter, int limit = 30}) {
+    if (!_isLoaded && _drugs.isEmpty) {
+      final provider = VetProvider();
+      if (provider.allCalcDrugs.isNotEmpty) {
+        _buildIndexFromDrugs(provider.allCalcDrugs);
+        _isLoaded = true;
+      }
+    }
+
+    if (query.trim().isEmpty) return [];
+
+    final rawTokens = _tokenize(query);
+    if (rawTokens.isEmpty) return [];
+
+    // Определяем вид животного из запроса или фильтра
+    String? targetAnimal = animalFilter;
+    for (final token in rawTokens) {
+      if (_speciesKeywords.containsKey(token)) {
+        targetAnimal = _speciesKeywords[token];
+        break;
+      }
+    }
+
+    // Расширяем токены синонимами
+    final queryTokens = <String>{...rawTokens};
+    for (final token in rawTokens) {
+      if (_synonyms.containsKey(token)) {
+        queryTokens.addAll(_synonyms[token]!);
+      }
+      _synonyms.forEach((key, synList) {
+        if (key.startsWith(token) || token.startsWith(key)) {
+          queryTokens.addAll(synList);
+        }
+      });
+    }
+
+    final Map<int, int> scores = {};
+    final Map<int, Set<String>> matched = {};
+
+    for (final token in queryTokens) {
+      final isOriginalToken = rawTokens.contains(token);
+      final weightMultiplier = isOriginalToken ? 3 : 1;
+
+      // 1. Точное совпадение основы
+      final exactIds = _index[token];
+      if (exactIds != null) {
+        for (final id in exactIds) {
+          scores[id] = (scores[id] ?? 0) + (3 * weightMultiplier);
           matched.putIfAbsent(id, () => {}).add(token);
         }
       }
-      // Частичное совпадение (начинается с токена)
+
+      // 2. Префиксное совпадение
       _index.forEach((key, ids) {
-        if (key.startsWith(token) && key != token) {
+        if (key != token && (key.startsWith(token) || token.startsWith(key))) {
           for (final id in ids) {
-            scores[id] = (scores[id] ?? 0) + 1;  // частичное = 1 очко
-            matched.putIfAbsent(id, () => {}).add(token);
+            scores[id] = (scores[id] ?? 0) + (1 * weightMultiplier);
+            matched.putIfAbsent(id, () => {}).add(key);
           }
         }
       });
     }
 
-    // Сортируем по score (убывание)
+    // Бонус за соответствие животному
+    if (targetAnimal != null && targetAnimal.isNotEmpty) {
+      for (final id in scores.keys.toList()) {
+        final drug = _drugs[id];
+        if (drug != null && drug.isForAnimal(targetAnimal)) {
+          scores[id] = (scores[id] ?? 0) + 5;
+        }
+      }
+    }
+
+    // Сортировка по очкам
     final sortedIds = scores.keys.toList()
-      ..sort((a, b) => scores[b]!.compareTo(scores[a]!));
+      ..sort((a, b) {
+        final scoreCmp = scores[b]!.compareTo(scores[a]!);
+        if (scoreCmp != 0) return scoreCmp;
+        // При равных очках предпочтение препаратам с дозировкой
+        final drugA = _drugs[a]!;
+        final drugB = _drugs[b]!;
+        return (drugB.dosePerKg > 0 ? 1 : 0).compareTo(drugA.dosePerKg > 0 ? 1 : 0);
+      });
 
     return sortedIds.take(limit).map((id) {
       return SearchResult(
         drug: _drugs[id]!,
         score: scores[id]!,
-        matchedTerms: matched[id]!.toList(),
+        matchedTerms: matched[id]!.take(4).toList(),
       );
     }).toList();
   }
 
-  /// Получить популярные поисковые запросы (для подсказок).
+  /// Популярные частые запросы для ветеринаров
   List<String> get popularQueries => [
     'рвота у собаки',
     'понос у кошки',
-    'глисты у кота',
-    'блохи у собаки',
-    'кашель у собаки',
-    'ушная инфекция',
-    'глазные капли',
-    'обезболивающее',
-    'антибиотик широкого спектра',
-    'противовоспалительное',
-    'температура у коровы',
-    'мастит у коровы',
-    'копытная гниль',
-    'вакцина от бешенства',
-    'дегельминтизация',
+    'мастит у коров',
+    'отит у собак',
+    'зуд и аллергия',
+    'блохи и клещи',
+    'глисты у щенка',
+    'конъюнктивит',
+    'артрит и хромота',
+    'пневмония и кашель',
+    'обезболивание после операции',
+    'интоксикация и отравление',
   ];
 }

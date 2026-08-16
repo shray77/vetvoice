@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
+import '../providers/vet_provider.dart';
 import '../services/symptom_search_service.dart';
 import '../utils/app_theme.dart';
 
-/// SymptomSearchScreen — поиск препаратов по симптомам и показаниям
+/// SymptomSearchScreen — поиск препаратов по симптомам, показаниям и синдромам
 class SymptomSearchScreen extends StatefulWidget {
   final void Function(CalcDrug)? onDrugSelected;
 
@@ -52,8 +53,9 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
       });
       return;
     }
+    final activeAnimal = VetProvider().selectedAnimal?.name;
     setState(() {
-      _results = _searchService.search(query, limit: 30);
+      _results = _searchService.search(query, animalFilter: activeAnimal, limit: 40);
       _hasSearched = true;
     });
   }
@@ -61,6 +63,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = AppTheme.isDark(context);
+    final activeAnimal = VetProvider().selectedAnimal;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor(context),
@@ -71,6 +74,28 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.safeGreen))
           : Column(
               children: [
+                // Активное животное (если выбрано)
+                if (activeAnimal != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    color: AppTheme.safeGreen.withOpacity(isDark ? 0.12 : 0.08),
+                    child: Row(
+                      children: [
+                        Text(activeAnimal.icon, style: const TextStyle(fontSize: 16)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Приоритет для: ${activeAnimal.name}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // Поле поиска
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -84,7 +109,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                       color: AppTheme.textPrimaryColor(context),
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Что у пациента? Напр. "рвота у собаки"',
+                      hintText: 'Что у пациента? Напр. "рвота", "мастит"',
                       prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
                       suffixIcon: _controller.text.isNotEmpty
                           ? IconButton(
@@ -99,7 +124,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                     onSubmitted: _performSearch,
                     onChanged: (value) {
                       setState(() {});
-                      Future.delayed(const Duration(milliseconds: 250), () {
+                      Future.delayed(const Duration(milliseconds: 200), () {
                         if (_controller.text == value) {
                           _performSearch(value);
                         }
@@ -188,11 +213,10 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                '• Вводите симптомы («рвота», «диарея», «зуд»)\n'
-                '• Заболевания («пиодермия», '
-                '«мастит», «отит»)\n'
-                '• Действующие вещества и МНН\n'
-                '• Результаты ранжируются по релевантности и терапевтической силе',
+                '• Симптомы («рвота», «понос / диарея», «зуд», «температура»)\n'
+                '• Заболевания («мастит», «отит», «пиодермия», «пневмония»)\n'
+                '• Паразиты («блохи», «клещи», «глисты / гельминты»)\n'
+                '• Автоматический учет падежей, склонений и синонимов',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppTheme.textPrimaryColor(context),
@@ -249,10 +273,11 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           result: r,
           rank: index + 1,
           onTap: () {
+            VetProvider().selectDrug(r.drug);
             if (widget.onDrugSelected != null) {
               widget.onDrugSelected!(r.drug);
-              Navigator.pop(context);
             }
+            Navigator.pop(context);
           },
         );
       },
@@ -294,7 +319,7 @@ class _SearchResultCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ранг / Значок категории
+              // Значок категории
               Container(
                 width: 38,
                 height: 38,
@@ -395,6 +420,20 @@ class _SearchResultCard extends StatelessWidget {
                             )),
                       ],
                     ),
+                    if (drug.indications.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          drug.indications,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textSecondaryColor(context),
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     if (drug.dosePerKg > 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 6),
