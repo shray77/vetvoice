@@ -3,26 +3,26 @@ import '../utils/app_theme.dart';
 
 /// Способ введения препарата
 enum AdministrationMethod {
-  intramuscular('Внутримышечно', 'в/м', Icons.vaccines_rounded),
-  subcutaneous('Подкожно', 'п/к', Icons.water_drop_rounded),
-  intravenous('Внутривенно', 'в/в', Icons.bloodtype_rounded),
-  oral('Перорально', 'per os', Icons.medication_rounded),
-  external('Наружно', 'наружно', Icons.healing_rounded),
-  inhalation('Ингаляционно', 'ингаляц.', Icons.air_rounded),
-  intrauterine('Внутриматочно', 'в/мат.', Icons.science_rounded),
-  intramammary('Интрацистернально', 'в/цист.', Icons.opacity_rounded);
+  intramuscular('Внутримышечно', 'в/м', Icons.vaccines),
+  subcutaneous('Подкожно', 'п/к', Icons.water_drop),
+  intravenous('Внутривенно', 'в/в', Icons.bloodtype),
+  oral('Перорально', 'per os', Icons.medication),
+  external('Наружно', 'наружно', Icons.healing),
+  inhalation('Ингаляционно', 'ингаляц.', Icons.air),
+  intrauterine('Внутриматочно', 'в/мат.', Icons.science),
+  intramammary('Интрацистернально', 'в/цист.', Icons.water);
 
   final String displayName;
   final String shortName;
   final IconData icon;
 
   const AdministrationMethod(this.displayName, this.shortName, this.icon);
-
+  
   /// Парсит строку метода и возвращает список доступных методов
   static List<AdministrationMethod> parseFromString(String methodString) {
     final methods = <AdministrationMethod>[];
     final lower = methodString.toLowerCase();
-
+    
     if (lower.contains('внутримышечн') || lower.contains('в/м')) {
       methods.add(AdministrationMethod.intramuscular);
     }
@@ -47,11 +47,11 @@ enum AdministrationMethod {
     if (lower.contains('интрацистернальн') || lower.contains('в/цист')) {
       methods.add(AdministrationMethod.intramammary);
     }
-
+    
     return methods;
   }
-
-  /// Возвращает метод по названию
+  
+  /// Возвращает метод по названию (для выбора по умолчанию)
   static AdministrationMethod? findInString(String methodString) {
     final methods = parseFromString(methodString);
     return methods.isNotEmpty ? methods.first : null;
@@ -60,9 +60,13 @@ enum AdministrationMethod {
 
 /// Виджет выбора способа введения препарата
 class MethodSelector extends StatelessWidget {
+  /// Строка с доступными методами из препарата
   final String availableMethodsString;
+  /// Выбранный метод (null = автоматический выбор)
   final AdministrationMethod? selectedMethod;
+  /// Колбэк при выборе метода
   final ValueChanged<AdministrationMethod?>? onMethodChanged;
+  /// Показать опцию "Автоматический выбор"
   final bool showAutoOption;
 
   const MethodSelector({
@@ -75,58 +79,48 @@ class MethodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Парсим доступные методы из строки
     final availableMethods = AdministrationMethod.parseFromString(availableMethodsString);
-
+    
+    // Если только один метод или нет методов - не показываем селектор
     if (availableMethods.length <= 1 && !showAutoOption) {
       return const SizedBox.shrink();
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor(context),
+        color: AppTheme.backgroundGray,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.borderColor(context)),
+        border: Border.all(color: AppTheme.dividerGray),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<AdministrationMethod?>(
           value: selectedMethod,
           isExpanded: true,
-          icon: Icon(Icons.arrow_drop_down, color: AppTheme.textSecondaryColor(context)),
-          dropdownColor: AppTheme.cardColor(context),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           hint: Row(
             children: [
-              Icon(Icons.vaccines_rounded, size: 18, color: AppTheme.textSecondaryColor(context)),
+              Icon(Icons.vaccines_outlined, size: 18, color: AppTheme.textSecondary),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  availableMethodsString.isNotEmpty
-                      ? availableMethodsString
-                      : 'Автоматический выбор',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimaryColor(context),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              Text(
+                availableMethodsString,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
           ),
           items: [
             if (showAutoOption)
-              DropdownMenuItem<AdministrationMethod?>(
+              const DropdownMenuItem<AdministrationMethod?>(
                 value: null,
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome, size: 18, color: AppTheme.safeGreen),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Автоматически: ${availableMethodsString.isNotEmpty ? availableMethodsString : "по инструкции"}',
-                      style: TextStyle(color: AppTheme.textPrimaryColor(context), fontSize: 13),
-                    ),
+                    Icon(Icons.auto_fix_high, size: 18, color: AppTheme.textTertiary),
+                    SizedBox(width: 8),
+                    Text('Автоматический выбор'),
                   ],
                 ),
               ),
@@ -134,12 +128,9 @@ class MethodSelector extends StatelessWidget {
                   value: m,
                   child: Row(
                     children: [
-                      Icon(m.icon, size: 18, color: AppTheme.maleBlue),
+                      Icon(m.icon, size: 18, color: AppTheme.textSecondary),
                       const SizedBox(width: 8),
-                      Text(
-                        m.displayName,
-                        style: TextStyle(color: AppTheme.textPrimaryColor(context), fontSize: 13),
-                      ),
+                      Text(m.displayName),
                     ],
                   ),
                 )),
@@ -151,7 +142,7 @@ class MethodSelector extends StatelessWidget {
   }
 }
 
-/// Компактный чип для отображения выбранного метода
+/// Компактный виджет для отображения выбранного метода
 class MethodChip extends StatelessWidget {
   final AdministrationMethod method;
   final VoidCallback? onTap;
@@ -164,15 +155,12 @@ class MethodChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
-
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.maleBlue.withOpacity(isDark ? 0.2 : 0.1),
+          color: AppTheme.maleBlue.withOpacity(0.1),
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(
             color: AppTheme.maleBlue.withOpacity(0.3),
@@ -181,13 +169,13 @@ class MethodChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(method.icon, size: 14, color: AppTheme.maleBlue),
+            Icon(method.icon, size: 16, color: AppTheme.maleBlue),
             const SizedBox(width: 6),
             Text(
               method.displayName,
               style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: AppTheme.maleBlue,
               ),
             ),

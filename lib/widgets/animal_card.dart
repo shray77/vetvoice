@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../models/animal.dart';
+import '../models/drug.dart';
 import '../utils/app_theme.dart';
 
-/// Карточка выбора животного (современный Apple Health Style)
+/// Карточка выбора животного
 class AnimalCard extends StatelessWidget {
   final Animal animal;
   final bool isSelected;
@@ -18,88 +17,61 @@ class AnimalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
-    final cardBg = isSelected
-        ? (isDark
-            ? AppTheme.safeGreen.withOpacity(0.18)
-            : AppTheme.safeGreenSoft)
-        : AppTheme.cardColor(context);
-
-    final borderColor = isSelected
-        ? AppTheme.safeGreen
-        : AppTheme.borderColor(context);
-
-    final textColor = isSelected
-        ? (isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark)
-        : AppTheme.textPrimaryColor(context);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            border: Border.all(
-              color: borderColor,
-              width: isSelected ? 2.0 : 1.0,
-            ),
-            boxShadow: isSelected
-                ? AppTheme.greenGlow(0.2)
-                : AppTheme.cardShadow(context),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.safeGreen.withOpacity(0.1) : AppTheme.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          border: Border.all(
+            color: isSelected ? AppTheme.safeGreen : AppTheme.backgroundGray,
+            width: isSelected ? 2 : 1,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppTheme.safeGreen.withOpacity(0.2)
-                      : (isDark
-                          ? AppTheme.darkSurfaceLight
-                          : AppTheme.surfaceLight),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                ),
-                child: Center(
-                  child: Text(
-                    _getAnimalEmoji(animal.id),
-                    style: const TextStyle(
-                      fontSize: 26,
-                      height: 1.0,
-                    ),
+          boxShadow: isSelected ? AppTheme.greenGlow : AppTheme.softShadow,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Эмодзи животного
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.safeGreen.withOpacity(0.15)
+                    : AppTheme.backgroundGray,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              ),
+              child: Center(
+                child: Text(
+                  _getAnimalEmoji(animal.id),
+                  style: TextStyle(
+                    fontSize: 30,
+                    height: 1.0,
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                animal.name,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: textColor,
-                  letterSpacing: -0.2,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            // Название
+            Text(
+              animal.name,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? AppTheme.safeGreen : AppTheme.textPrimary,
               ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
   }
 
+  /// Возвращает эмодзи для животного по id
   String _getAnimalEmoji(String id) {
     switch (id) {
       case 'dog':

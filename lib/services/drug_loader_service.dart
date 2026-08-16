@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../models/animal.dart';
+import '../models/drug.dart';
 import '../models/drug_registry.dart';
 import '../models/calc_drug.dart';
 import '../models/dosage_database.dart';
@@ -21,6 +18,7 @@ import '../models/verified_dosage.dart';
 
 /// Результат загрузки баз
 class LoadResult {
+  final DrugDatabase? database;
   final DrugRegistry? registry;
   final CalcDrugDatabase? calcDatabase;
   final DosageDatabase? dosageDatabase;
@@ -28,6 +26,7 @@ class LoadResult {
   final AntidoteDatabase? antidoteDatabase;
   final EmergencyDatabase? emergencyDatabase;
   final SideEffectsDatabase? sideEffectsDatabase;
+  // === Новые подключённые базы ===
   final WithdrawalDatabase? withdrawalDatabase;
   final DoseAdjustmentDatabase? doseAdjustmentDatabase;
   final UnofficialProtocolDatabase? unofficialDatabase;
@@ -37,6 +36,7 @@ class LoadResult {
   final String source;
 
   const LoadResult({
+    this.database,
     this.registry,
     this.calcDatabase,
     this.dosageDatabase,
@@ -52,9 +52,9 @@ class LoadResult {
     required this.fromNetwork,
     required this.source,
   });
-
-  int get totalDrugs => registry?.totalDrugs ?? calcDatabase?.drugs.length ?? 0;
-  int get calcDrugsCount => calcDatabase?.drugs.length ?? 0;
+  
+  int get totalDrugs => registry?.totalDrugs ?? calcDatabase?.drugs.length ?? database?.drugs.length ?? 0;
+  int get calcDrugsCount => calcDatabase?.drugs.length ?? database?.drugs.length ?? 0;
   int get dosageCount => dosageDatabase?.dosages.length ?? 0;
   int get interactionCount => interactionDatabase?.interactions.length ?? 0;
   int get antidoteCount => antidoteDatabase?.poisonings.length ?? 0;
@@ -65,94 +65,195 @@ class LoadResult {
   int get fluidSolutionsCount => fluidTherapyDatabase?.solutions.length ?? 0;
 }
 
-/// Сервис надёжного локального хранения и фоновой загрузки баз препаратов
+/// Сервис для загрузки баз препаратов
 class DrugLoaderService {
-  static const String _githubBase =
-      'https://raw.githubusercontent.com/shray77/vetvoice/main/assets/data';
-  static const String _lastUpdateCheckKey = 'vetvoice_last_update_check';
+  static const String _gitlabBase =
+      'https://gitlab.com/shray77/vetvoice/-/raw/main/assets/data';
+  static const String _advancedDir = '$_gitlabBase/advanced';
 
-  /// Загрузка базы: Local-First принцип.
-  /// Мгновенно загружается локальная база (из persistent cache или assets),
-  /// парсинг выполняется в фоновом Isolate без фризов UI.
+  static String get _gitlabRegistryUrl => '$_gitlabBase/drugs_registry.json';
+  static String get _gitlabCalcUrl => '$_gitlabBase/drugs_calc.json';
+  static String get _gitlabDrugsUrl => '$_gitlabBase/drugs.json';
+  static String get _gitlabDosageUrl => '$_gitlabBase/dosage_database.json';
+  static String get _gitlabInteractionsUrl => '$_advancedDir/drug_interactions.json';
+  static String get _gitlabAntidotesUrl => '$_advancedDir/antidotes.json';
+  static String get _gitlabEmergencyUrl => '$_advancedDir/emergency_protocols.json';
+  static String get _gitlabSideEffectsUrl => '$_advancedDir/side_effects.json';
+  static String get _gitlabTreatmentProtocolsUrl => '$_advancedDir/treatment_protocols.json';
+  // Новые URL для ранее мёртвых файлов
+  static String get _gitlabWithdrawalUrl => '$_advancedDir/withdrawal_by_product.json';
+  static String get _gitlabDoseAdjUrl => '$_advancedDir/dose_adjustments.json';
+  static String get _gitlabFluidUrl => '$_advancedDir/fluid_therapy.json';
+
+  static const Duration _networkTimeout = Duration(seconds: 20);
+
+  /// Загружает все базы
   static Future<LoadResult> loadDatabase() async {
-    final cachedResult = await _loadFromLocalCache();
-    if (cachedResult != null &&
-        cachedResult.calcDatabase != null &&
-        cachedResult.calcDatabase!.drugs.isNotEmpty) {
-      debugPrint('📦 База загружена из дискового кэша (${cachedResult.totalDrugs} преп.)');
-      _checkForUpdatesInBackground();
-      return cachedResult;
+    try {
+      final networkResult = await _loadFromNetwork();
+      if (networkResult != null) {
+        if (networkResult.calcDatabase != null && 
+            networkResult.calcDatabase!.animals.isEmpty) {
+          debugPrint('⚠️ Сетевая база без животных! Подгружаем из assets...');
+          try {
+            final localAnimals = await _loadLocalAnimals();
+            if (localAnimals.isNotEmpty) {
+              final patchedCalc = CalcDrugDatabase(
+                version: networkResult.calcDatabase!.version,
+                source: networkResult.calcDatabase!.source,
+                lastUpdated: networkResult.calcDatabase!.lastUpdated,
+                drugs: networkResult.calcDatabase!.drugs,
+                animals: localAnimals,
+              );
+              debugPrint('✅ Животные подгружены из assets: ${localAnimals.length} шт.');
+              return LoadResult(
+                database: networkResult.database,
+                registry: networkResult.registry,
+                calcDatabase: patchedCalc,
+                dosageDatabase: networkResult.dosageDatabase,
+                interactionDatabase: networkResult.interactionDatabase,
+                antidoteDatabase: networkResult.antidoteDatabase,
+                emergencyDatabase: networkResult.emergencyDatabase,
+                sideEffectsDatabase: networkResult.sideEffectsDatabase,
+                withdrawalDatabase: networkResult.withdrawalDatabase,
+                doseAdjustmentDatabase: networkResult.doseAdjustmentDatabase,
+                unofficialDatabase: networkResult.unofficialDatabase,
+                fluidTherapyDatabase: networkResult.fluidTherapyDatabase,
+                verifiedDosageDatabase: networkResult.verifiedDosageDatabase,
+                fromNetwork: true,
+                source: '${networkResult.source} + локальные животные',
+              );
+            }
+          } catch (e) {
+            debugPrint('⚠️ Ошибка загрузки животных из assets: $e');
+          }
+        }
+        debugPrint('✅ Базы загружены из GitLab');
+        return networkResult;
+      }
+    } catch (e) {
+      debugPrint('⚠️ Ошибка сети: $e');
     }
 
-    debugPrint('📦 Загрузка базы из встроенных assets...');
-    final assetResult = await _loadFromAssets();
-    _checkForUpdatesInBackground();
-    return assetResult;
+    debugPrint('📦 Загрузка из assets (offline)');
+    return await _loadFromAssets();
   }
 
-  /// Загрузка из локального дискового кэша в ApplicationDocumentsDirectory
-  static Future<LoadResult?> _loadFromLocalCache() async {
+  /// Загружает список животных из локального assets
+  static Future<List<Animal>> _loadLocalAnimals() async {
     try {
-      final cacheDir = await _getCacheDirectory();
-      if (!cacheDir.existsSync()) return null;
-
-      final calcFile = File('${cacheDir.path}/drugs_calc.json');
-      if (!calcFile.existsSync()) return null;
-
-      final calcStr = await calcFile.readAsString();
-      var calcDatabase = await Isolate.run(() => CalcDrugDatabase.fromJson(
-            jsonDecode(calcStr) as Map<String, dynamic>,
-          ));
-
-      // Если в кэше потерялись животные — дополняем из assets
-      if (calcDatabase.animals.isEmpty) {
-        final localAnimals = await _loadLocalAnimals();
-        if (localAnimals.isNotEmpty) {
-          calcDatabase = CalcDrugDatabase(
-            version: calcDatabase.version,
-            source: calcDatabase.source,
-            lastUpdated: calcDatabase.lastUpdated,
-            drugs: calcDatabase.drugs,
-            animals: localAnimals,
-          );
+      final str = await rootBundle.loadString('assets/data/drugs_calc.json');
+      final json = jsonDecode(str) as Map<String, dynamic>;
+      final animalsRaw = json['animals'] as List<dynamic>?;
+      if (animalsRaw == null) return [];
+      final animals = <Animal>[];
+      for (int i = 0; i < animalsRaw.length; i++) {
+        try {
+          animals.add(Animal.fromJson(animalsRaw[i] as Map<String, dynamic>));
+        } catch (e) {
+          debugPrint('⚠️ Ошибка парсинга животного #$i: $e');
         }
       }
-
-      DrugRegistry? registry;
-      final regFile = File('${cacheDir.path}/drugs_registry.json');
-      if (regFile.existsSync()) {
-        final regStr = await regFile.readAsString();
-        registry = await Isolate.run(() => DrugRegistry.fromJson(
-              jsonDecode(regStr) as Map<String, dynamic>,
-            ));
-      }
-
-      final assetResult = await _loadFromAssets();
-
-      return LoadResult(
-        registry: registry ?? assetResult.registry,
-        calcDatabase: calcDatabase,
-        dosageDatabase: assetResult.dosageDatabase,
-        interactionDatabase: assetResult.interactionDatabase,
-        antidoteDatabase: assetResult.antidoteDatabase,
-        emergencyDatabase: assetResult.emergencyDatabase,
-        sideEffectsDatabase: assetResult.sideEffectsDatabase,
-        withdrawalDatabase: assetResult.withdrawalDatabase,
-        doseAdjustmentDatabase: assetResult.doseAdjustmentDatabase,
-        unofficialDatabase: assetResult.unofficialDatabase,
-        fluidTherapyDatabase: assetResult.fluidTherapyDatabase,
-        verifiedDosageDatabase: assetResult.verifiedDosageDatabase,
-        fromNetwork: false,
-        source: 'Локальная база (${calcDatabase.drugs.length} препаратов)',
-      );
+      return animals;
     } catch (e) {
-      debugPrint('⚠️ Ошибка чтения кэша: $e');
-      return null;
+      debugPrint('⚠️ Ошибка загрузки животных: $e');
+      return [];
     }
   }
 
-  /// Загрузка из встроенных ресурсов APK/Assets
+  /// Загружает JSON-файл по HTTP
+  static Future<T?> _fetchJson<T>(HttpClient client, String url, T Function(Map<String, dynamic>) fromJson) async {
+    try {
+      final req = await client.getUrl(Uri.parse(url));
+      final res = await req.close();
+      if (res.statusCode == 200) {
+        final body = await res.transform(utf8.decoder).join();
+        return fromJson(jsonDecode(body) as Map<String, dynamic>);
+      }
+    } catch (e) {
+      debugPrint('⚠️ Ошибка загрузки $url: $e');
+    }
+    return null;
+  }
+
+  static Future<LoadResult?> _loadFromNetwork() async {
+    final client = HttpClient();
+    client.connectionTimeout = _networkTimeout;
+    try {
+      DrugRegistry? registry;
+      CalcDrugDatabase? calcDatabase;
+      DrugDatabase? database;
+      DosageDatabase? dosageDatabase;
+      InteractionDatabase? interactionDatabase;
+      AntidoteDatabase? antidoteDatabase;
+      EmergencyDatabase? emergencyDatabase;
+      SideEffectsDatabase? sideEffectsDatabase;
+      WithdrawalDatabase? withdrawalDatabase;
+      DoseAdjustmentDatabase? doseAdjustmentDatabase;
+      FluidTherapyDatabase? fluidTherapyDatabase;
+
+      // Основные базы
+      registry = await _fetchJson(client, _gitlabRegistryUrl, DrugRegistry.fromJson);
+      if (registry != null) debugPrint('✅ Реестр: ${registry.totalDrugs} препаратов');
+
+      calcDatabase = await _fetchJson(client, _gitlabCalcUrl, CalcDrugDatabase.fromJson);
+      if (calcDatabase != null) debugPrint('✅ База расчётов: ${calcDatabase.drugs.length} препаратов');
+
+      database = await _fetchJson(client, _gitlabDrugsUrl, DrugDatabase.fromJson);
+
+      dosageDatabase = await _fetchJson(client, _gitlabDosageUrl, DosageDatabase.fromJson);
+      if (dosageDatabase != null) debugPrint('✅ База дозировок: ${dosageDatabase.dosages.length} МНН');
+
+      // Advanced базы
+      interactionDatabase = await _fetchJson(client, _gitlabInteractionsUrl, InteractionDatabase.fromJson);
+      if (interactionDatabase != null) debugPrint('✅ Взаимодействия: ${interactionDatabase.interactions.length} пар');
+
+      antidoteDatabase = await _fetchJson(client, _gitlabAntidotesUrl, AntidoteDatabase.fromJson);
+      if (antidoteDatabase != null) debugPrint('✅ Антидоты: ${antidoteDatabase.poisonings.length} токсинов');
+
+      emergencyDatabase = await _fetchJson(client, _gitlabEmergencyUrl, EmergencyDatabase.fromJson);
+      if (emergencyDatabase != null) debugPrint('✅ Emergency: ${emergencyDatabase.protocols.length} протоколов');
+
+      sideEffectsDatabase = await _fetchJson(client, _gitlabSideEffectsUrl, SideEffectsDatabase.fromJson);
+      if (sideEffectsDatabase != null) debugPrint('✅ Побочные эффекты: ${sideEffectsDatabase.drugs.length} препаратов');
+
+      // === Ранее мёртвые файлы — теперь подключены ===
+      withdrawalDatabase = await _fetchJson(client, _gitlabWithdrawalUrl, WithdrawalDatabase.fromJson);
+      if (withdrawalDatabase != null) debugPrint('✅ Сроки ожидания: ${withdrawalDatabase.drugs.length} препаратов');
+
+      doseAdjustmentDatabase = await _fetchJson(client, _gitlabDoseAdjUrl, DoseAdjustmentDatabase.fromJson);
+      if (doseAdjustmentDatabase != null) debugPrint('✅ Корректировки доз загружены');
+
+      fluidTherapyDatabase = await _fetchJson(client, _gitlabFluidUrl, FluidTherapyDatabase.fromJson);
+      if (fluidTherapyDatabase != null) debugPrint('✅ Инфузионная терапия: ${fluidTherapyDatabase.solutions.length} растворов');
+
+      if (registry != null || calcDatabase != null || database != null) {
+        return LoadResult(
+          database: database,
+          registry: registry,
+          calcDatabase: calcDatabase,
+          dosageDatabase: dosageDatabase,
+          interactionDatabase: interactionDatabase,
+          antidoteDatabase: antidoteDatabase,
+          emergencyDatabase: emergencyDatabase,
+          sideEffectsDatabase: sideEffectsDatabase,
+          withdrawalDatabase: withdrawalDatabase,
+          doseAdjustmentDatabase: doseAdjustmentDatabase,
+          fluidTherapyDatabase: fluidTherapyDatabase,
+          fromNetwork: true,
+          source: 'Онлайн (${registry?.totalDrugs ?? 0} препаратов, ${interactionDatabase?.interactions.length ?? 0} взаимодействий)',
+        );
+      }
+    } catch (e) {
+      debugPrint('Network error: $e');
+    } finally {
+      client.close(force: true);
+    }
+    return null;
+  }
+
   static Future<LoadResult> _loadFromAssets() async {
+    DrugDatabase? database;
     DrugRegistry? registry;
     CalcDrugDatabase? calcDatabase;
     DosageDatabase? dosageDatabase;
@@ -168,113 +269,103 @@ class DrugLoaderService {
 
     try {
       final str = await rootBundle.loadString('assets/data/drugs_calc.json');
-      calcDatabase = await Isolate.run(() => CalcDrugDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      calcDatabase = CalcDrugDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error drugs_calc.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/drugs_registry.json');
-      registry = await Isolate.run(() => DrugRegistry.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      registry = DrugRegistry.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error drugs_registry.json: $e');
     }
 
     try {
+      final str = await rootBundle.loadString('assets/data/drugs.json');
+      database = DrugDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint('Error drugs.json: $e');
+    }
+
+    try {
       final str = await rootBundle.loadString('assets/data/dosage_database.json');
-      dosageDatabase = await Isolate.run(() => DosageDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      dosageDatabase = DosageDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error dosage_database.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/drug_interactions.json');
-      interactionDatabase = await Isolate.run(() => InteractionDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      interactionDatabase = InteractionDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error drug_interactions.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/antidotes.json');
-      antidoteDatabase = await Isolate.run(() => AntidoteDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      antidoteDatabase = AntidoteDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error antidotes.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/emergency_protocols.json');
-      emergencyDatabase = await Isolate.run(() => EmergencyDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      emergencyDatabase = EmergencyDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error emergency_protocols.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/side_effects.json');
-      sideEffectsDatabase = await Isolate.run(() => SideEffectsDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      sideEffectsDatabase = SideEffectsDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error side_effects.json: $e');
     }
 
+    // === Ранее мёртвые файлы — теперь загружаются из assets ===
     try {
       final str = await rootBundle.loadString('assets/data/advanced/withdrawal_by_product.json');
-      withdrawalDatabase = await Isolate.run(() => WithdrawalDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      withdrawalDatabase = WithdrawalDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+      debugPrint('✅ Сроки ожидания (assets): ${withdrawalDatabase!.drugs.length} препаратов');
     } catch (e) {
       debugPrint('Error withdrawal_by_product.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/dose_adjustments.json');
-      doseAdjustmentDatabase = await Isolate.run(() => DoseAdjustmentDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      doseAdjustmentDatabase = DoseAdjustmentDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+      debugPrint('✅ Корректировки доз (assets) загружены');
     } catch (e) {
       debugPrint('Error dose_adjustments.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/unofficial_protocols.json');
-      unofficialDatabase = await Isolate.run(() => UnofficialProtocolDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      unofficialDatabase = UnofficialProtocolDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+      debugPrint('✅ Неофициальные протоколы (assets): ${unofficialDatabase!.records.length} записей');
     } catch (e) {
       debugPrint('Error unofficial_protocols.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/advanced/fluid_therapy.json');
-      fluidTherapyDatabase = await Isolate.run(() => FluidTherapyDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      fluidTherapyDatabase = FluidTherapyDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+      debugPrint('✅ Инфузионная терапия (assets): ${fluidTherapyDatabase!.solutions.length} растворов');
     } catch (e) {
       debugPrint('Error fluid_therapy.json: $e');
     }
 
     try {
       final str = await rootBundle.loadString('assets/data/verified_dosages.json');
-      verifiedDosageDatabase = await Isolate.run(() => VerifiedDosageDatabase.fromJson(
-            jsonDecode(str) as Map<String, dynamic>,
-          ));
+      verifiedDosageDatabase = VerifiedDosageDatabase.fromJson(jsonDecode(str) as Map<String, dynamic>);
+      debugPrint('✅ Верифицированные дозировки (assets): ${verifiedDosageDatabase!.dosages.length} препаратов');
     } catch (e) {
       debugPrint('Error verified_dosages.json: $e');
     }
 
     return LoadResult(
+      database: database,
       registry: registry,
       calcDatabase: calcDatabase,
       dosageDatabase: dosageDatabase,
@@ -288,85 +379,26 @@ class DrugLoaderService {
       fluidTherapyDatabase: fluidTherapyDatabase,
       verifiedDosageDatabase: verifiedDosageDatabase,
       fromNetwork: false,
-      source: 'Офлайн (${calcDatabase?.drugs.length ?? registry?.totalDrugs ?? 0} препаратов)',
+      source: 'Офлайн (${registry?.totalDrugs ?? calcDatabase?.drugs.length ?? 0} препаратов)',
     );
   }
 
-  /// Атомарная фоновая проверка и сохранение обновлений базы
-  static Future<void> _checkForUpdatesInBackground() async {
+  static String get updateUrl => _gitlabCalcUrl;
+
+  static Future<bool> isNetworkAvailable() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastCheck = prefs.getInt(_lastUpdateCheckKey) ?? 0;
-      final now = DateTime.now().millisecondsSinceEpoch;
-
-      if (now - lastCheck < 24 * 60 * 60 * 1000) {
-        return;
-      }
-
-      final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
-      try {
-        final req = await client.getUrl(Uri.parse('$_githubBase/drugs_calc.json'));
-        final res = await req.close();
-        if (res.statusCode == 200) {
-          final body = await res.transform(utf8.decoder).join();
-          final parsed = await Isolate.run(() {
-            final json = jsonDecode(body) as Map<String, dynamic>;
-            final drugs = json['drugs'] as List<dynamic>?;
-            return (drugs != null && drugs.isNotEmpty) ? true : false;
-          });
-
-          if (parsed) {
-            final cacheDir = await _getCacheDirectory();
-            await cacheDir.create(recursive: true);
-
-            // Атомарная запись через временный файл
-            final tmpFile = File('${cacheDir.path}/drugs_calc.json.tmp');
-            await tmpFile.writeAsString(body, flush: true);
-            final targetFile = File('${cacheDir.path}/drugs_calc.json');
-            await tmpFile.rename(targetFile.path);
-
-            debugPrint('✅ Атомарное обновление базы сохранено');
-          }
-        }
-        await prefs.setInt(_lastUpdateCheckKey, now);
-      } finally {
-        client.close(force: true);
-      }
-    } catch (e) {
-      debugPrint('ℹ️ Фоновая проверка обновлений пропущена: $e');
+      final result = await InternetAddress.lookup('gitlab.com');
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
     }
   }
 
-  static Future<Directory> _getCacheDirectory() async {
-    final docDir = await getApplicationDocumentsDirectory();
-    return Directory('${docDir.path}/vetvoice_data');
-  }
-
-  static Future<List<Animal>> _loadLocalAnimals() async {
-    try {
-      final str = await rootBundle.loadString('assets/data/drugs_calc.json');
-      return await Isolate.run(() {
-        final json = jsonDecode(str) as Map<String, dynamic>;
-        final animalsRaw = json['animals'] as List<dynamic>?;
-        if (animalsRaw == null) return <Animal>[];
-        final animals = <Animal>[];
-        for (final a in animalsRaw) {
-          if (a is Map<String, dynamic>) {
-            animals.add(Animal.fromJson(a));
-          }
-        }
-        return animals;
-      });
-    } catch (e) {
-      debugPrint('⚠️ Ошибка загрузки животных: $e');
-      return [];
-    }
-  }
-
+  /// Загружает JSON из assets
   static Future<Map<String, dynamic>?> loadJsonAsset(String path) async {
     try {
       final str = await rootBundle.loadString(path);
-      return await Isolate.run(() => jsonDecode(str) as Map<String, dynamic>);
+      return jsonDecode(str) as Map<String, dynamic>;
     } catch (e) {
       debugPrint('Error loading $path: $e');
       return null;

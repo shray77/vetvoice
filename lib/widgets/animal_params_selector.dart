@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/animal.dart';
+import '../models/drug.dart';
 import '../utils/app_theme.dart';
 
 /// Виджет для выбора пола животного
@@ -17,74 +17,52 @@ class GenderSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _buildGenderButton(context, Gender.male, 'Самец', '♂', AppTheme.maleBlue),
+        _buildGenderButton(Gender.male, 'Самец', '♂'),
         const SizedBox(width: 12),
-        _buildGenderButton(context, Gender.female, 'Самка', '♀', AppTheme.femalePink),
+        _buildGenderButton(Gender.female, 'Самка', '♀'),
       ],
     );
   }
 
-  Widget _buildGenderButton(
-    BuildContext context,
-    Gender gender,
-    String label,
-    String icon,
-    Color activeColor,
-  ) {
+  Widget _buildGenderButton(Gender gender, String label, String icon) {
     final isSelected = selectedGender == gender;
-    final isDark = AppTheme.isDark(context);
-
-    final bg = isSelected
-        ? (isDark ? activeColor.withOpacity(0.2) : activeColor.withOpacity(0.12))
-        : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight);
-
-    final border = isSelected
-        ? activeColor
-        : AppTheme.borderColor(context);
-
-    final textCol = isSelected
-        ? activeColor
-        : AppTheme.textPrimaryColor(context);
-
+    
     return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => onGenderChanged(gender),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: Border.all(
-                color: border,
-                width: isSelected ? 2 : 1,
+      child: GestureDetector(
+        onTap: () => onGenderChanged(gender),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected 
+                ? (gender == Gender.male ? AppTheme.maleBlue : AppTheme.femalePink)
+                : AppTheme.backgroundGray,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            border: Border.all(
+              color: isSelected 
+                  ? (gender == Gender.male ? AppTheme.maleBlue : AppTheme.femalePink)
+                  : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                icon,
+                style: TextStyle(
+                  fontSize: 28,
+                  color: isSelected ? AppTheme.white : AppTheme.textSecondary,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  icon,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: textCol,
-                  ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? AppTheme.white : AppTheme.textPrimary,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: textCol,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -110,65 +88,51 @@ class PregnancySelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(Icons.child_care_rounded, size: 16, color: AppTheme.textSecondaryColor(context)),
-            const SizedBox(width: 6),
-            Text(
-              pregnancyTerm,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textSecondaryColor(context),
-              ),
-            ),
-          ],
+        Text(
+          pregnancyTerm,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.textSecondary,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: PregnancyPeriod.values.map((period) {
-            return _buildPeriodChip(context, period);
+            return _buildPeriodChip(period);
           }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildPeriodChip(BuildContext context, PregnancyPeriod period) {
+  Widget _buildPeriodChip(PregnancyPeriod period) {
     final isSelected = selectedPeriod == period;
     final isWarning = period == PregnancyPeriod.late || period == PregnancyPeriod.mid;
-    final isDark = AppTheme.isDark(context);
-    final accent = isWarning ? AppTheme.warningOrange : AppTheme.safeGreen;
-
-    final bg = isSelected
-        ? (isDark ? accent.withOpacity(0.2) : accent.withOpacity(0.12))
-        : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight);
-
-    final border = isSelected ? accent : AppTheme.borderColor(context);
-    final textCol = isSelected ? accent : AppTheme.textPrimaryColor(context);
-
-    return InkWell(
+    
+    return GestureDetector(
       onTap: () => onPeriodChanged(period),
-      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: bg,
+          color: isSelected 
+              ? (isWarning ? AppTheme.warningOrange : AppTheme.safeGreen)
+              : AppTheme.backgroundGray,
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(
-            color: border,
-            width: isSelected ? 1.5 : 1,
+            color: isSelected 
+                ? (isWarning ? AppTheme.warningOrange : AppTheme.safeGreen)
+                : Colors.transparent,
           ),
         ),
         child: Text(
           period.displayName,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: textCol,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? AppTheme.white : AppTheme.textPrimary,
           ),
         ),
       ),
@@ -176,7 +140,7 @@ class PregnancySelector extends StatelessWidget {
   }
 }
 
-/// Виджет для выбора возраста
+/// Виджет для выбора возраста - УДОБНЫЙ!
 class AgeSelector extends StatelessWidget {
   final int ageMonths;
   final ValueChanged<int> onAgeChanged;
@@ -191,9 +155,6 @@ class AgeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catColor = _getCategoryColor();
-    final isDark = AppTheme.isDark(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -201,82 +162,89 @@ class AgeSelector extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Возраст пациента',
+            const Text(
+              'Возраст',
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textSecondaryColor(context),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: catColor.withOpacity(isDark ? 0.2 : 0.12),
+                color: _getCategoryColor().withOpacity(0.15),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                border: Border.all(color: catColor.withOpacity(0.3)),
+                border: Border.all(color: _getCategoryColor().withOpacity(0.3)),
               ),
               child: Text(
                 currentCategory.displayName,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: catColor,
+                  color: _getCategoryColor(),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
-
+        const SizedBox(height: 12),
+        
         // Кнопки категорий возраста
         Row(
           children: [
-            _buildCategoryButton(context, AgeCategory.young, '👶 Молодой', AppTheme.safeGreen),
+            _buildCategoryButton(AgeCategory.young, '👶 Молодой', AppTheme.safeGreen),
             const SizedBox(width: 8),
-            _buildCategoryButton(context, AgeCategory.adult, '🐕 Взрослый', AppTheme.maleBlue),
+            _buildCategoryButton(AgeCategory.adult, '🐕 Взрослый', AppTheme.maleBlue),
             const SizedBox(width: 8),
-            _buildCategoryButton(context, AgeCategory.old, '🦳 Пожилой', AppTheme.warningOrange),
+            _buildCategoryButton(AgeCategory.old, '🦳 Пожилой', AppTheme.warningOrange),
           ],
         ),
-
-        const SizedBox(height: 10),
-
+        
+        const SizedBox(height: 12),
+        
         // Ввод точного возраста с кнопками +/-
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
+            color: AppTheme.backgroundGray,
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildStepButton(context, Icons.remove, () {
+              // Кнопка минус
+              _buildStepButton(Icons.remove, () {
                 final newValue = (ageMonths - 1).clamp(1, 240);
                 onAgeChanged(newValue);
               }),
+              
               const SizedBox(width: 12),
+              
+              // Текущий возраст
               Container(
-                constraints: const BoxConstraints(minWidth: 120),
+                constraints: const BoxConstraints(minWidth: 100),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.cardColor(context),
+                  color: AppTheme.white,
                   borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                  border: Border.all(color: AppTheme.borderColor(context)),
+                  border: Border.all(color: AppTheme.dividerGray),
                 ),
                 child: Text(
                   _formatAge(ageMonths),
-                  style: TextStyle(
-                    fontSize: 15,
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimaryColor(context),
+                    color: AppTheme.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
+              
               const SizedBox(width: 12),
-              _buildStepButton(context, Icons.add, () {
+              
+              // Кнопка плюс
+              _buildStepButton(Icons.add, () {
                 final newValue = (ageMonths + 1).clamp(1, 240);
                 onAgeChanged(newValue);
               }),
@@ -287,22 +255,13 @@ class AgeSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryButton(
-    BuildContext context,
-    AgeCategory category,
-    String label,
-    Color color,
-  ) {
+  Widget _buildCategoryButton(AgeCategory category, String label, Color color) {
     final isSelected = currentCategory == category;
-    final isDark = AppTheme.isDark(context);
-
-    final bg = isSelected
-        ? (isDark ? color.withOpacity(0.25) : color.withOpacity(0.12))
-        : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight);
-
+    
     return Expanded(
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
+          // Устанавливаем примерный возраст для категории
           int defaultAge;
           switch (category) {
             case AgeCategory.young:
@@ -317,24 +276,22 @@ class AgeSelector extends StatelessWidget {
           }
           onAgeChanged(defaultAge);
         },
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: bg,
+            color: isSelected ? color : color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
             border: Border.all(
-              color: isSelected ? color : AppTheme.borderColor(context),
-              width: isSelected ? 1.5 : 1,
+              color: isSelected ? color : color.withOpacity(0.3),
+              width: isSelected ? 2 : 1,
             ),
           ),
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? color : AppTheme.textSecondaryColor(context),
+              color: isSelected ? AppTheme.white : color,
             ),
             textAlign: TextAlign.center,
           ),
@@ -343,22 +300,25 @@ class AgeSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildStepButton(BuildContext context, IconData icon, VoidCallback onTap) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        child: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: AppTheme.cardColor(context),
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-            border: Border.all(color: AppTheme.borderColor(context)),
-          ),
-          child: Icon(icon, size: 20, color: AppTheme.textPrimaryColor(context)),
+  Widget _buildStepButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+          border: Border.all(color: AppTheme.dividerGray),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
+        child: Icon(icon, size: 24, color: AppTheme.textPrimary),
       ),
     );
   }
@@ -418,40 +378,42 @@ class AnimalParamsSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor(context),
+        color: AppTheme.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(color: AppTheme.borderColor(context)),
-        boxShadow: AppTheme.cardShadow(context),
+        border: Border.all(color: AppTheme.dividerGray),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Пол (скрыт для пчёл, рыбы и т.д.)
           if (showGender) ...[
-            Text(
-              'Пол пациента',
+            const Text(
+              'Пол животного',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textSecondaryColor(context),
+                color: AppTheme.textPrimary,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             GenderSelector(
               selectedGender: gender,
               onGenderChanged: onGenderChanged,
             ),
+
+            // Беременность (только для самок)
             if (gender == Gender.female) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               PregnancySelector(
                 selectedPeriod: pregnancyPeriod,
                 onPeriodChanged: onPregnancyChanged,
                 pregnancyTerm: pregnancyTerm,
               ),
             ],
-            const SizedBox(height: 16),
-            Divider(color: AppTheme.dividerColor(context), height: 1),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
           ],
+
+          // Возраст
           AgeSelector(
             ageMonths: ageMonths,
             onAgeChanged: onAgeChanged,

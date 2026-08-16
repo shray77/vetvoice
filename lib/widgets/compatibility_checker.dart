@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
-import '../utils/app_theme.dart';
 
-/// Экран/диалог для интерактивной проверки совместимости двух препаратов
+/// Экран/диалог для проверки совместимости двух препаратов
 class CompatibilityChecker extends StatefulWidget {
   final InteractionDatabase interactionDb;
-  final List<dynamic> allDrugs;
+  final List<dynamic> allDrugs; // CalcDrug или RegistryDrug
   final VoidCallback? onClose;
 
   const CompatibilityChecker({
@@ -20,17 +19,16 @@ class CompatibilityChecker extends StatefulWidget {
 }
 
 class _CompatibilityCheckerState extends State<CompatibilityChecker> {
-  final TextEditingController _drug1Controller = TextEditingController();
-  final TextEditingController _drug2Controller = TextEditingController();
-
+  String _drug1Query = '';
+  String _drug2Query = '';
   String? _selectedDrug1Name;
   String? _selectedDrug2Name;
   String? _selectedDrug1Inn;
   String? _selectedDrug2Inn;
-
   DrugInteraction? _interactionResult;
-  bool _checked = false;
+  bool _searching = false;
 
+  /// Получить имя и МНН препарата
   String _getDrugName(dynamic drug) {
     if (drug is Map) {
       return drug['name'] as String? ?? drug['trade_name'] as String? ?? '';
@@ -68,11 +66,15 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   void _checkCompatibility() {
     if (_selectedDrug1Name == null || _selectedDrug2Name == null) return;
 
+    setState(() => _searching = true);
+
+    // Проверяем по выбранным названиям и МНН
     final queries1 = <String>[];
     final queries2 = <String>[];
 
     if (_selectedDrug1Inn != null && _selectedDrug1Inn!.isNotEmpty) {
       queries1.add(_selectedDrug1Inn!.toLowerCase());
+      // Также добавляем отдельные компоненты из составных МНН
       for (final part in _selectedDrug1Inn!.split(RegExp('[,;]'))) {
         final trimmed = part.trim().toLowerCase();
         if (trimmed.length > 3) queries1.add(trimmed);
@@ -104,305 +106,352 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
 
     setState(() {
       _interactionResult = result;
-      _checked = true;
+      _searching = false;
     });
   }
 
   @override
-  void dispose() {
-    _drug1Controller.dispose();
-    _drug2Controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
-
     return Container(
-      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor(context),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Заголовок
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.warningOrange.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                    ),
-                    child: const Icon(Icons.compare_arrows_rounded, color: AppTheme.warningOrange, size: 22),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Совместимость препаратов',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimaryColor(context),
-                    ),
-                  ),
-                ],
+              const Icon(Icons.compare_arrows, color: Colors.deepPurple),
+              const SizedBox(width: 8),
+              const Text(
+                'Проверка совместимости',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const Spacer(),
               if (widget.onClose != null)
                 IconButton(
+                  icon: const Icon(Icons.close),
                   onPressed: widget.onClose,
-                  icon: Icon(Icons.close, color: AppTheme.textSecondaryColor(context)),
                 ),
             ],
           ),
-
+          const SizedBox(height: 4),
+          Text(
+            'Выберите два препарата для проверки взаимодействий',
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+          ),
           const SizedBox(height: 16),
 
-          // Поле Препарат 1
-          _buildDrugSearchField(
-            context,
+          // Препарат 1
+          _buildDrugSelector(
             label: 'Препарат 1',
-            controller: _drug1Controller,
-            onSelected: (name, inn) {
-              setState(() {
-                _selectedDrug1Name = name;
-                _selectedDrug1Inn = inn;
-                _drug1Controller.text = name;
-                _checked = false;
-              });
-            },
+            query: _drug1Query,
+            selectedName: _selectedDrug1Name,
+            onQueryChanged: (v) => setState(() {
+              _drug1Query = v;
+              if (_selectedDrug1Name != null) {
+                _selectedDrug1Name = null;
+                _selectedDrug1Inn = null;
+                _interactionResult = null;
+              }
+            }),
+            onSelected: (name, inn) => setState(() {
+              _selectedDrug1Name = name;
+              _selectedDrug1Inn = inn;
+              _drug1Query = name;
+              _interactionResult = null;
+            }),
           ),
-
           const SizedBox(height: 12),
 
-          // Поле Препарат 2
-          _buildDrugSearchField(
-            context,
+          // Препарат 2
+          _buildDrugSelector(
             label: 'Препарат 2',
-            controller: _drug2Controller,
-            onSelected: (name, inn) {
-              setState(() {
-                _selectedDrug2Name = name;
-                _selectedDrug2Inn = inn;
-                _drug2Controller.text = name;
-                _checked = false;
-              });
-            },
+            query: _drug2Query,
+            selectedName: _selectedDrug2Name,
+            onQueryChanged: (v) => setState(() {
+              _drug2Query = v;
+              if (_selectedDrug2Name != null) {
+                _selectedDrug2Name = null;
+                _selectedDrug2Inn = null;
+                _interactionResult = null;
+              }
+            }),
+            onSelected: (name, inn) => setState(() {
+              _selectedDrug2Name = name;
+              _selectedDrug2Inn = inn;
+              _drug2Query = name;
+              _interactionResult = null;
+            }),
           ),
-
           const SizedBox(height: 16),
 
           // Кнопка проверки
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: (_selectedDrug1Name != null && _selectedDrug2Name != null)
+              onPressed: (_selectedDrug1Name != null && _selectedDrug2Name != null && !_searching)
                   ? _checkCompatibility
                   : null,
-              icon: const Icon(Icons.search_rounded, size: 20),
+              icon: _searching
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.search),
               label: const Text('Проверить совместимость'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ),
 
-          if (_checked) ...[
-            const SizedBox(height: 18),
-            _buildResultView(context, isDark),
-          ],
+          // Результат
+          if (_interactionResult != null)
+            _buildResult(_interactionResult!)
+          else if (_selectedDrug1Name != null &&
+              _selectedDrug2Name != null &&
+              !_searching &&
+              _interactionResult == null)
+            _buildNoInteraction(),
+
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget _buildDrugSearchField(
-    BuildContext context, {
+  Widget _buildDrugSelector({
     required String label,
-    required TextEditingController controller,
-    required Function(String name, String inn) onSelected,
+    required String query,
+    required String? selectedName,
+    required ValueChanged<String> onQueryChanged,
+    required void Function(String name, String inn) onSelected,
   }) {
+    final results = _searchDrugs(query);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textSecondaryColor(context),
+            color: Colors.grey.shade700,
           ),
         ),
-        const SizedBox(height: 6),
-        Autocomplete<Map<String, String>>(
-          displayStringForOption: (option) => option['name'] ?? '',
-          optionsBuilder: (textEditingValue) {
-            return _searchDrugs(textEditingValue.text);
-          },
-          onSelected: (option) {
-            onSelected(option['name'] ?? '', option['inn'] ?? '');
-          },
-          fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-            if (controller.text.isNotEmpty && textController.text.isEmpty) {
-              textController.text = controller.text;
-            }
-            return TextField(
-              controller: textController,
-              focusNode: focusNode,
-              style: TextStyle(fontSize: 14, color: AppTheme.textPrimaryColor(context)),
-              decoration: InputDecoration(
-                hintText: 'Введите название или МНН...',
-                prefixIcon: Icon(Icons.medication_rounded, size: 18, color: AppTheme.textSecondaryColor(context)),
-              ),
-            );
-          },
-          optionsViewBuilder: (context, onSelectedOption, options) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                color: AppTheme.cardColor(context),
-                child: Container(
-                  width: MediaQuery.of(context).size.width - 64,
-                  constraints: const BoxConstraints(maxHeight: 220),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    itemCount: options.length,
-                    separatorBuilder: (_, __) => Divider(color: AppTheme.dividerColor(context), height: 1),
-                    itemBuilder: (context, index) {
-                      final opt = options.elementAt(index);
-                      return ListTile(
-                        dense: true,
-                        title: Text(
-                          opt['name'] ?? '',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context)),
-                        ),
-                        subtitle: opt['inn']!.isNotEmpty
-                            ? Text(
-                                opt['inn']!,
-                                style: TextStyle(fontSize: 11, color: AppTheme.textTertiaryColor(context)),
-                              )
-                            : null,
-                        onTap: () => onSelectedOption(opt),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            );
-          },
+        const SizedBox(height: 4),
+        TextField(
+          controller: TextEditingController(text: query)..selection = TextSelection.collapsed(offset: query.length),
+          onChanged: onQueryChanged,
+          decoration: InputDecoration(
+            hintText: selectedName ?? 'Начните вводить название...',
+            hintStyle: TextStyle(
+              color: selectedName != null ? Colors.black87 : Colors.grey.shade400,
+            ),
+            prefixIcon: Icon(Icons.medication, size: 20, color: Colors.grey.shade500),
+            suffixIcon: selectedName != null
+                ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () => onQueryChanged(''),
+                  )
+                : null,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+            ),
+          ),
         ),
+        if (results.isNotEmpty && selectedName == null)
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            constraints: const BoxConstraints(maxHeight: 150),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final drug = results[index];
+                return InkWell(
+                  onTap: () => onSelected(drug['name']!, drug['inn']!),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          drug['name']!,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                        if (drug['inn']!.isNotEmpty)
+                          Text(
+                            drug['inn']!,
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildResultView(BuildContext context, bool isDark) {
-    if (_interactionResult == null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.safeGreen.withOpacity(isDark ? 0.2 : 0.1),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          border: Border.all(color: AppTheme.safeGreen.withOpacity(0.35)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: AppTheme.safeGreen, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Взаимодействий не обнаружено',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.safeGreen),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Препараты можно применять параллельно при соблюдении дозировок',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final res = _interactionResult!;
-    final isCrit = res.isCritical;
-    final alertColor = isCrit ? AppTheme.errorRed : AppTheme.warningOrange;
+  Widget _buildResult(DrugInteraction interaction) {
+    final isCritical = interaction.isCritical;
+    final isWarning = interaction.isWarning;
+    final color = isCritical ? Colors.red : (isWarning ? Colors.orange : Colors.blue);
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
-        color: alertColor.withOpacity(isDark ? 0.2 : 0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: alertColor.withOpacity(0.4), width: 1.5),
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(isCrit ? Icons.dangerous_rounded : Icons.warning_amber_rounded, color: alertColor, size: 24),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  isCrit ? 'КРИТИЧЕСКАЯ НЕСОВМЕСТИМОСТЬ' : 'ВНИМАНИЕ ПРИ СОВМЕСТНОМ ПРИЕМЕ',
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isCritical ? Icons.dangerous : (isWarning ? Icons.warning_amber : Icons.info_outline),
+                  color: color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isCritical
+                      ? '🚨 КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ'
+                      : (isWarning ? '⚠️ Взаимодействие обнаружено' : 'ℹ️ Информация'),
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: alertColor,
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
-          if (res.effect.isNotEmpty) ...[
-            Text(
-              res.effect,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context)),
-            ),
-            const SizedBox(height: 4),
-          ],
-          if (res.consequence.isNotEmpty) ...[
-            Text(
-              'Последствия: ${res.consequence}',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(context)),
-            ),
-            const SizedBox(height: 6),
-          ],
-          if (res.recommendation.isNotEmpty) ...[
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.cardColor(context),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.borderColor(context)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.lightbulb_outline, size: 16, color: AppTheme.safeGreen),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      res.recommendation,
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textPrimaryColor(context)),
-                    ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${interaction.drug1} + ${interaction.drug2}',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                ],
-              ),
+                  child: Text(
+                    interaction.effect,
+                    style: TextStyle(fontSize: 13, color: color.shade900),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('→ ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Text(interaction.consequence, style: const TextStyle(fontSize: 13)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.lightbulb_outline, size: 16, color: Colors.green.shade700),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          interaction.recommendation,
+                          style: TextStyle(fontSize: 12, color: Colors.green.shade900),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoInteraction() {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.check_circle, color: Colors.green),
+          SizedBox(width: 8),
+          Text(
+            'Взаимодействий не обнаружено',
+            style: TextStyle(
+              color: Colors.green,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );

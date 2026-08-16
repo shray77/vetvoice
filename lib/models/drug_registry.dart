@@ -20,7 +20,6 @@ class RegistryDrug {
   final String registrationDate;
   final String composition;
   final String packaging;
-  final String searchIndex;
 
   const RegistryDrug({
     required this.id,
@@ -41,25 +40,21 @@ class RegistryDrug {
     required this.registrationDate,
     required this.composition,
     required this.packaging,
-    this.searchIndex = '',
   });
 
   factory RegistryDrug.fromJson(Map<String, dynamic> json) {
-    final tradeName = json['trade_name'] as String? ?? '';
-    final inn = json['inn'] as String? ?? '';
-    final group = json['pharmacological_group'] as String? ?? '';
-
+    // ⚠️ Фикс B-13: null-safe парсинг.
     return RegistryDrug(
       id: (json['id'] as num?)?.toInt() ?? 0,
-      tradeName: tradeName,
-      inn: inn,
+      tradeName: json['trade_name'] as String? ?? '',
+      inn: json['inn'] as String? ?? '',
       form: json['form'] as String? ?? '',
       dosage: json['dosage'] as String? ?? '',
       animals: (json['animals'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      pharmacologicalGroup: group,
+      pharmacologicalGroup: json['pharmacological_group'] as String? ?? '',
       indications: json['indications'] as String? ?? '',
       contraindications: json['contraindications'] as String? ?? '',
       sideEffects: json['side_effects'] as String? ?? '',
@@ -71,7 +66,6 @@ class RegistryDrug {
       registrationDate: json['registration_date'] as String? ?? '',
       composition: json['composition'] as String? ?? '',
       packaging: json['packaging'] as String? ?? '',
-      searchIndex: '$tradeName $inn $group'.toLowerCase(),
     );
   }
 
@@ -185,19 +179,6 @@ class DrugRegistry {
             d.tradeName.toLowerCase().contains(lowerQuery) ||
             d.inn.toLowerCase().contains(lowerQuery))
         .toList();
-  }
-
-  /// Найти один препарат по названию или МНН
-  RegistryDrug? findByName(String query) {
-    if (query.isEmpty) return null;
-    final lower = query.toLowerCase().trim();
-    try {
-      return drugs.firstWhere(
-        (d) => d.searchIndex.contains(lower),
-      );
-    } catch (_) {
-      return null;
-    }
   }
 
   /// Получить препараты по фармгруппе

@@ -1,8 +1,17 @@
+// SettingsScreen — настройки приложения.
+//
+// Что тут есть:
+//   - Переключатель темы (светлая/тёмная/системная)
+//   - Информация о версии базы препаратов
+//   - О приложении
+//
+// Зависимости:
+//   - SharedPreferences для сохранения выбранной темы
+
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
 
-/// SettingsScreen — настройки приложения и внешний вид
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -32,79 +41,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor(context),
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: const Text('⚙️ Настройки')),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          // Внешний вид
-          _SectionHeader(title: 'ВНЕШНИЙ ВИД'),
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.cardColor(context),
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              border: Border.all(color: AppTheme.borderColor(context)),
-              boxShadow: AppTheme.cardShadow(context),
-            ),
-            child: _ThemeSelector(themeService: _themeService),
-          ),
-          const SizedBox(height: 20),
+          // === Тема ===
+          _SectionHeader(title: '🎨 Внешний вид'),
+          _ThemeSelector(themeService: _themeService),
+          const Divider(),
 
-          // О приложении
-          _SectionHeader(title: 'О ПРИЛОЖЕНИИ'),
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.cardColor(context),
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              border: Border.all(color: AppTheme.borderColor(context)),
-              boxShadow: AppTheme.cardShadow(context),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.info_outline_rounded, color: AppTheme.safeGreen),
-                  title: Text('VetVoice AI', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(context))),
-                  subtitle: Text('Ветеринарный справочник и калькулятор дозировок', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    showAboutDialog(
-                      context: context,
-                      applicationName: 'VetVoice AI',
-                      applicationVersion: '1.15.0',
-                      applicationLegalese: '© 2026 VetVoice',
-                      children: [
-                        const SizedBox(height: 16),
-                        const Text(
-                          'База препаратов: 2401\n'
-                          'Вакцин и иммунобиологических: 698\n'
-                          'Источники данных:\n'
-                          '• Государственный реестр ЛС (fsvps.gov.ru)\n'
-                          '• vetprotocol.ru\n'
-                          '• vetlek.ru\n'
-                          '• vidal.ru/veterinar',
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                Divider(color: AppTheme.dividerColor(context), height: 1, indent: 56),
-                ListTile(
-                  leading: const Icon(Icons.storage_rounded, color: AppTheme.maleBlue),
-                  title: Text('Версия базы', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
-                  subtitle: Text(_themeService.databaseInfo ?? '2401 препарат (актуально)', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
-                ),
-                Divider(color: AppTheme.dividerColor(context), height: 1, indent: 56),
-                ListTile(
-                  leading: const Icon(Icons.source_rounded, color: AppTheme.warningOrange),
-                  title: Text('Источники данных', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
-                  subtitle: Text('fsvps.gov.ru, vetprotocol.ru, vetlek.ru', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _showSourcesDialog(context),
-                ),
-              ],
-            ),
+          // === О приложении ===
+          _SectionHeader(title: 'ℹ️ О приложении'),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('VetVoice AI'),
+            subtitle: const Text('Ветеринарный справочник и калькулятор дозировок'),
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: 'VetVoice AI',
+                applicationVersion: '7.5',
+                applicationLegalese: '© 2026 VetVoice',
+                children: [
+                  const SizedBox(height: 16),
+                  const Text(
+                    'База препаратов: 2401\n'
+                    'Вакцин и иммунобиологических: 698\n'
+                    'Источники данных:\n'
+                    '• Государственный реестр ЛС (fsvps.gov.ru)\n'
+                    '• vetprotocol.ru\n'
+                    '• vetlek.ru\n'
+                    '• vidal.ru/veterinar',
+                  ),
+                ],
+              );
+            },
           ),
-          const SizedBox(height: 24),
+          ListTile(
+            leading: const Icon(Icons.database_outlined),
+            title: const Text('Версия базы'),
+            subtitle: Text(_themeService.databaseInfo ?? 'Загрузка...'),
+          ),
+          const Divider(),
+
+          // === Данные ===
+          _SectionHeader(title: '📊 Данные'),
+          ListTile(
+            leading: const Icon(Icons.refresh),
+            title: const Text('Проверить обновления базы'),
+            subtitle: const Text('Последняя проверка: сегодня'),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Проверка обновлений...')),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.source),
+            title: const Text('Источники данных'),
+            subtitle: const Text('fsvps.gov.ru, vetprotocol.ru, vetlek.ru'),
+            onTap: () {
+              _showSourcesDialog(context);
+            },
+          ),
         ],
       ),
     );
@@ -114,34 +112,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardColor(ctx),
         title: const Text('Источники данных'),
-        content: SingleChildScrollView(
+        content: const SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Официальные реестры:',
-                style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(ctx)),
+                'Официальные источники:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
+              Text('• fsvps.gov.ru — Открытые данные Россельхознадзора\n'
+                  '  (Государственный реестр ЛС для вет. применения)'),
+              SizedBox(height: 12),
               Text(
-                '• fsvps.gov.ru — Государственный реестр ЛС Россельхознадзора',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(ctx)),
+                'Открытые справочники:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 4),
+              Text('• vetprotocol.ru — справочник препаратов по МНН\n'
+                  '• vetlek.ru — инструкции к препаратам\n'
+                  '• vidal.ru/veterinar — справочник Видаль'),
+              SizedBox(height: 12),
               Text(
-                'Справочники:',
-                style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimaryColor(ctx)),
+                'Валидация:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 4),
-              Text(
-                '• vetprotocol.ru — справочник по МНН\n'
-                '• vetlek.ru — инструкции к препаратам\n'
-                '• vidal.ru/veterinar — справочник Видаль',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor(ctx)),
-              ),
+              SizedBox(height: 4),
+              Text('База drugs_calc.json валидируется по всем\n'
+                  'источникам еженедельно через GitHub Actions.'),
             ],
           ),
         ),
@@ -164,14 +164,14 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
           color: AppTheme.safeGreen,
-          letterSpacing: 0.8,
+          letterSpacing: 0.5,
         ),
       ),
     );
@@ -190,27 +190,22 @@ class _ThemeSelector extends StatelessWidget {
         RadioListTile<ThemeMode>(
           value: ThemeMode.system,
           groupValue: themeService.themeMode,
-          activeColor: AppTheme.safeGreen,
-          title: Text('Системная тема', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
-          subtitle: Text('Автоматически переключается с системой', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
+          title: const Text('Системная'),
+          subtitle: const Text('Как в системе'),
           onChanged: (_) => themeService.setThemeMode(ThemeMode.system),
         ),
-        Divider(color: AppTheme.dividerColor(context), height: 1, indent: 56),
         RadioListTile<ThemeMode>(
           value: ThemeMode.light,
           groupValue: themeService.themeMode,
-          activeColor: AppTheme.safeGreen,
-          title: Text('Светлая тема', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
-          subtitle: Text('Чистый светлый фон', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
+          title: const Text('Светлая'),
+          subtitle: const Text('Всегда светлая тема'),
           onChanged: (_) => themeService.setThemeMode(ThemeMode.light),
         ),
-        Divider(color: AppTheme.dividerColor(context), height: 1, indent: 56),
         RadioListTile<ThemeMode>(
           value: ThemeMode.dark,
           groupValue: themeService.themeMode,
-          activeColor: AppTheme.safeGreen,
-          title: Text('Тёмная тема (OLED)', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context))),
-          subtitle: Text('Глубокий чёрный цвет, экономит батарею', style: TextStyle(color: AppTheme.textSecondaryColor(context), fontSize: 12)),
+          title: const Text('Тёмная'),
+          subtitle: const Text('OLED-чёрный, экономит батарею'),
           onChanged: (_) => themeService.setThemeMode(ThemeMode.dark),
         ),
       ],

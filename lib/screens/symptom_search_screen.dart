@@ -1,9 +1,24 @@
+// SymptomSearchScreen — поиск препаратов по симптомам/показаниям.
+//
+// Killer feature для диагностики: ветврач вводит «рвота у собаки» —
+// получает список препаратов с противорвотным действием.
+//
+// Логика:
+//   - Строит обратный индекс по drug.indications + name + inn + category
+//   - При вводе — пересекает множества, сортирует по релевантности
+//   - Показывает топ-20 результатов с цветными карточками
+//   - Подсказки популярных запросов
+//
+// Зависимости:
+//   - SymptomSearchService (lib/services/symptom_search_service.dart)
+//   - AppTheme (lib/utils/app_theme.dart)
+//   - CalcDrug (lib/models/calc_drug.dart)
+
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../services/symptom_search_service.dart';
 import '../utils/app_theme.dart';
 
-/// SymptomSearchScreen — поиск препаратов по симптомам и показаниям
 class SymptomSearchScreen extends StatefulWidget {
   final void Function(CalcDrug)? onDrugSelected;
 
@@ -30,11 +45,9 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
 
   Future<void> _initSearch() async {
     await _searchService.init();
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -60,46 +73,61 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
-
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor(context),
       appBar: AppBar(
-        title: const Text('Поиск по симптомам'),
+        title: const Text('🔍 Поиск по симптомам'),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.safeGreen))
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 // Поле поиска
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   child: TextField(
                     controller: _controller,
                     focusNode: _focusNode,
-                    autofocus: false,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimaryColor(context),
+                    autofocus: true,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Что у пациента? Напр. "рвота у собаки"',
-                      prefixIcon: Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor(context)),
+                      hintText: 'Что у пациента? Например: рвота у собаки',
+                      hintStyle: const TextStyle(
+                          color: AppTheme.textTertiary, fontSize: 14),
+                      prefixIcon:
+                          const Icon(Icons.search, color: AppTheme.safeGreen),
                       suffixIcon: _controller.text.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear_rounded, color: AppTheme.textSecondaryColor(context)),
+                              icon: const Icon(Icons.clear,
+                                  color: AppTheme.textSecondary),
                               onPressed: () {
                                 _controller.clear();
                                 _performSearch('');
                               },
                             )
                           : null,
+                      filled: true,
+                      fillColor: AppTheme.backgroundGray,
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusLarge),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusLarge),
+                        borderSide: const BorderSide(
+                            color: AppTheme.safeGreen, width: 2),
+                      ),
                     ),
                     onSubmitted: _performSearch,
                     onChanged: (value) {
+                      // Триггерим rebuild для suffixIcon
                       setState(() {});
-                      Future.delayed(const Duration(milliseconds: 250), () {
+                      // Дебаунс 300мс
+                      Future.delayed(const Duration(milliseconds: 300), () {
                         if (_controller.text == value) {
                           _performSearch(value);
                         }
@@ -111,93 +139,77 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                 // Результаты или подсказки
                 Expanded(
                   child: !_hasSearched
-                      ? _buildSuggestions(context, isDark)
+                      ? _buildSuggestions()
                       : _results.isEmpty
-                          ? _buildNoResults(context)
-                          : _buildResultsList(context),
+                          ? _buildNoResults()
+                          : _buildResultsList(),
                 ),
               ],
             ),
     );
   }
 
-  Widget _buildSuggestions(BuildContext context, bool isDark) {
+  /// Популярные запросы как подсказки
+  Widget _buildSuggestions() {
     final popular = _searchService.popularQueries;
-
     return ListView(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       children: [
-        Text(
-          'Частые запросы',
+        const Text(
+          '💡 Популярные запросы',
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textSecondaryColor(context),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: popular.map((q) {
-            return InkWell(
-              onTap: () {
+            return ActionChip(
+              label: Text(q),
+              onPressed: () {
                 _controller.text = q;
                 _performSearch(q);
               },
-              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardColor(context),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                  border: Border.all(color: AppTheme.borderColor(context)),
-                ),
-                child: Text(
-                  q,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimaryColor(context),
-                  ),
-                ),
-              ),
+              backgroundColor: AppTheme.safeGreen.withOpacity(0.1),
+              side: BorderSide(
+                  color: AppTheme.safeGreen.withOpacity(0.3), width: 1),
+              labelStyle: const TextStyle(color: AppTheme.safeGreenDark),
             );
           }).toList(),
         ),
         const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
           decoration: BoxDecoration(
-            color: AppTheme.infoBlue.withOpacity(isDark ? 0.15 : 0.08),
+            color: Colors.blue.withOpacity(0.05),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            border: Border.all(color: AppTheme.infoBlue.withOpacity(0.25)),
+            border: Border.all(
+                color: Colors.blue.withOpacity(0.2), width: 1),
           ),
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.lightbulb_outline_rounded, color: AppTheme.infoBlue, size: 20),
+                children: [
+                  Icon(Icons.lightbulb_outline, color: Colors.blue, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Возможности поиска',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.infoBlue),
+                    'Как это работает?',
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
-                '• Вводите симптомы («рвота», «диарея», «зуд»)\n'
-                '• Заболевания («пиодермия», '
-                '«мастит», «отит»)\n'
-                '• Действующие вещества и МНН\n'
-                '• Результаты ранжируются по релевантности и терапевтической силе',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textPrimaryColor(context),
-                  height: 1.4,
-                ),
+                '• Поиск идёт по показаниям, МНН, названию и категории\n'
+                '• Можно вводить симптомы («рвота»), диагнозы («пиодермия»)\n'
+                '• Или действующие вещества («маропитант»)\n'
+                '• Результаты отсортированы по релевантности',
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
               ),
             ],
           ),
@@ -206,43 +218,32 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
     );
   }
 
-  Widget _buildNoResults(BuildContext context) {
+  Widget _buildNoResults() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.textTertiaryColor(context).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.search_off_rounded, size: 40, color: AppTheme.textTertiary),
-          ),
+          const Text('🤷', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 16),
           Text(
             'Ничего не найдено',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimaryColor(context),
-            ),
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            'Попробуйте изменить формулировку запроса',
-            style: TextStyle(fontSize: 13, color: AppTheme.textTertiaryColor(context)),
+            'Попробуйте другие ключевые слова',
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildResultsList(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  Widget _buildResultsList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.paddingMedium, vertical: 8),
       itemCount: _results.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final r = _results[index];
         return _SearchResultCard(
@@ -274,40 +275,56 @@ class _SearchResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final drug = result.drug;
-    final isDark = AppTheme.isDark(context);
     final catColor = AppTheme.getCategoryColor(drug.category);
     final catIcon = AppTheme.getCategoryIcon(drug.category);
 
-    return Material(
-      color: Colors.transparent,
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(AppTheme.paddingMedium),
-          decoration: BoxDecoration(
-            color: AppTheme.cardColor(context),
-            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            border: Border.all(color: AppTheme.borderColor(context)),
-            boxShadow: AppTheme.cardShadow(context),
-          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ранг / Значок категории
+              // Ранг
               Container(
-                width: 38,
-                height: 38,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  color: catColor.withOpacity(isDark ? 0.25 : 0.12),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  color: rank <= 3
+                      ? AppTheme.warningOrange.withOpacity(0.2)
+                      : AppTheme.backgroundGray,
+                  shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Text(catIcon, style: const TextStyle(fontSize: 20)),
+                  child: Text(
+                    '$rank',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: rank <= 3
+                          ? AppTheme.warningOrange
+                          : AppTheme.textSecondary,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
-
+              // Цветовая полоска
+              Container(
+                width: 4,
+                constraints: const BoxConstraints(minHeight: 60),
+                decoration: BoxDecoration(
+                  color: catColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Иконка
+              Text(catIcon, style: const TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
               // Контент
               Expanded(
                 child: Column(
@@ -318,27 +335,28 @@ class _SearchResultCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             drug.name,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimaryColor(context),
+                              fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        // Score badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12),
-                            borderRadius: BorderRadius.circular(6),
+                            color: AppTheme.safeGreen.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             '★ ${result.score}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.safeGreenDark,
                             ),
                           ),
                         ),
@@ -351,7 +369,7 @@ class _SearchResultCard extends StatelessWidget {
                           drug.inn,
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textSecondaryColor(context),
+                            color: Colors.grey[600],
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,
@@ -359,52 +377,68 @@ class _SearchResultCard extends StatelessWidget {
                         ),
                       ),
                     const SizedBox(height: 6),
+                    // Бейдж категории + совпавшие термины
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
-                            color: catColor.withOpacity(isDark ? 0.25 : 0.12),
-                            borderRadius: BorderRadius.circular(4),
+                            color: catColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(3),
                           ),
                           child: Text(
                             drug.category,
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               color: catColor,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                        ...result.matchedTerms.take(3).map((t) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        // Совпавшие термины
+                        ...result.matchedTerms.map((t) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 1),
                               decoration: BoxDecoration(
-                                color: AppTheme.infoBlue.withOpacity(isDark ? 0.2 : 0.1),
-                                borderRadius: BorderRadius.circular(4),
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(3),
+                                border: Border.all(
+                                    color: Colors.blue.withOpacity(0.3),
+                                    width: 0.5),
                               ),
                               child: Text(
                                 t,
                                 style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppTheme.infoBlue,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 9,
+                                  color: Colors.blue,
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             )),
                       ],
                     ),
+                    // Доза (если есть)
                     if (drug.dosePerKg > 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 6),
-                        child: Text(
-                          '${drug.dosePerKg} ${drug.doseUnit} ${drug.method.isNotEmpty ? "• ${drug.method}" : ""}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? AppTheme.safeGreenLight : AppTheme.safeGreenDark,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.medication,
+                                size: 14, color: AppTheme.safeGreen),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${drug.dosePerKg} ${drug.doseUnit} '
+                              '${drug.method.isNotEmpty ? "· ${drug.method}" : ""}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.safeGreenDark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],
