@@ -1,8 +1,16 @@
+// HistoryScreen — экран истории расчётов.
+//
+// Показывает последние 50 расчётов доз с датой, названием препарата,
+// животным, весом и результатом. Поддерживает очистку истории
+// и удаление отдельных записей.
+//
+// Зависимости:
+//   - HistoryService (lib/services/history_service.dart)
+
 import 'package:flutter/material.dart';
 import '../services/history_service.dart';
 import '../utils/app_theme.dart';
 
-/// HistoryScreen — экран истории расчётов дозировок
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -21,28 +29,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> _initData() async {
     await _histService.init();
-    if (mounted) setState(() {});
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor(context),
       appBar: AppBar(
-        title: const Text('История расчётов'),
+        title: const Text('🕒 История расчётов'),
         actions: [
           if (_histService.history.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.delete_sweep_rounded, color: AppTheme.textSecondaryColor(context)),
+              icon: const Icon(Icons.delete_sweep),
               tooltip: 'Очистить историю',
               onPressed: () async {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    backgroundColor: AppTheme.cardColor(ctx),
                     title: const Text('Очистить историю?'),
                     content: Text(
-                      'Будет удалено ${_histService.history.length} записей из истории расчётов.',
+                      'Будет удалено ${_histService.history.length} '
+                      'записей истории.',
                     ),
                     actions: [
                       TextButton(
@@ -51,7 +58,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Очистить', style: TextStyle(color: AppTheme.errorRed)),
+                        child: const Text('Очистить'),
                       ),
                     ],
                   ),
@@ -75,28 +82,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppTheme.safeGreen.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.history_rounded, size: 48, color: AppTheme.safeGreen),
-          ),
+          const Text('🕒', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 16),
           Text(
-            'История расчётов пуста',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimaryColor(context),
-            ),
+            'История пустая',
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            'Здесь появятся ваши расчёты доз\nдля быстрого повторного просмотра',
+            'Здесь появятся ваши расчёты\nпосле первого использования',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppTheme.textTertiaryColor(context), height: 1.4),
+            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -104,23 +100,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildHistoryList() {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppTheme.paddingMedium),
       itemCount: _histService.history.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final entry = _histService.history[index];
         return Dismissible(
-          key: ValueKey('${entry.timestamp}_${entry.drugId}_$index'),
+          key: ValueKey('${entry.timestamp}_${entry.drugId}'),
           direction: DismissDirection.endToStart,
           background: Container(
             alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            decoration: BoxDecoration(
-              color: AppTheme.errorRed,
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            ),
-            child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
+            padding: const EdgeInsets.only(right: 24),
+            color: AppTheme.errorRed,
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
           onDismissed: (_) async {
             await _histService.removeAt(index);
@@ -140,128 +132,138 @@ class _HistoryEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
-
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-      decoration: BoxDecoration(
-        color: AppTheme.cardColor(context),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(color: AppTheme.borderColor(context)),
-        boxShadow: AppTheme.cardShadow(context),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12),
-              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        child: Row(
+          children: [
+            // Иконка-часы
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.safeGreen.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              ),
+              child: const Icon(
+                Icons.access_time,
+                color: AppTheme.safeGreen,
+                size: 24,
+              ),
             ),
-            child: const Icon(
-              Icons.schedule_rounded,
-              color: AppTheme.safeGreen,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        entry.drugName,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimaryColor(context),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Text(
-                      entry.formattedTime,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textTertiaryColor(context),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: [
-                    _buildParamChip(context, '🐾 ${entry.animal}'),
-                    _buildParamChip(context, '⚖️ ${entry.weightKg.toStringAsFixed(1)} кг'),
-                    if (entry.method.isNotEmpty)
-                      _buildParamChip(context, '📍 ${entry.method}'),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.safeGreen.withOpacity(isDark ? 0.2 : 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppTheme.safeGreen.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+            const SizedBox(width: 12),
+            // Основная информация
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(
-                        Icons.medication_rounded,
-                        color: AppTheme.safeGreen,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        entry.formattedResult,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.safeGreen,
-                        ),
-                      ),
-                      if (entry.frequency.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          '• ${entry.frequency}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.textSecondaryColor(context),
+                      Expanded(
+                        child: Text(
+                          entry.drugName,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        entry.formattedTime,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      _Chip(label: '🐾 ${entry.animal}'),
+                      _Chip(label: '⚖️ ${entry.weightKg.toStringAsFixed(1)} кг'),
+                      if (entry.method.isNotEmpty)
+                        _Chip(label: '📍 ${entry.method}'),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  // Результат — выделено
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.safeGreen.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppTheme.safeGreen.withOpacity(0.5),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.medication,
+                          color: AppTheme.safeGreen,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          entry.formattedResult,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.safeGreen,
+                          ),
+                        ),
+                        if (entry.frequency.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '· ${entry.frequency}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildParamChip(BuildContext context, String text) {
+class _Chip extends StatelessWidget {
+  final String label;
+
+  const _Chip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.isDark(context) ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight,
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        text,
-        style: TextStyle(fontSize: 11, color: AppTheme.textSecondaryColor(context), fontWeight: FontWeight.w500),
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: Colors.grey[700],
+        ),
       ),
     );
   }
