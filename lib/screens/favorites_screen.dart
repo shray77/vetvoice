@@ -35,12 +35,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _initData() async {
     await _favService.init();
-    await _vetProvider.loadCalcDatabase();
+    await _vetProvider.initialize();
     _loadFavorites();
   }
 
   void _loadFavorites() {
-    final allDrugs = _vetProvider.calcDatabase?.drugs ?? [];
+    final allDrugs = _vetProvider.allCalcDrugs;
     final favIds = _favService.favorites.toSet();
     setState(() {
       _favoriteDrugs = allDrugs.where((d) => favIds.contains(d.id)).toList();
