@@ -121,10 +121,12 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
+    // Паттерн темизации как в disclaimer_screen/terms_screen:
+    // у AppTheme нет хелпера isDark — яркость берём из Theme.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor(context),
+      backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.backgroundGray,
       appBar: AppBar(title: const Text('Калькулятор инфузий')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
@@ -134,10 +136,10 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingMedium),
               decoration: BoxDecoration(
-                color: AppTheme.cardColor(context),
+                color: (isDark ? AppTheme.darkSurface : AppTheme.white),
                 borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                border: Border.all(color: AppTheme.borderColor(context)),
-                boxShadow: AppTheme.cardShadow(context),
+                border: Border.all(color: (isDark ? AppTheme.darkDivider : AppTheme.dividerGray)),
+                boxShadow: AppTheme.softShadow,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,15 +170,15 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Единица', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondaryColor(context))),
+                            Text('Единица', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary))),
                             const SizedBox(height: 4),
                             DropdownButtonFormField<String>(
                               value: _doseUnit,
                               isDense: true,
-                              dropdownColor: AppTheme.cardColor(context),
+                              dropdownColor: (isDark ? AppTheme.darkSurface : AppTheme.white),
                               decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
                               items: _doseUnits
-                                  .map((u) => DropdownMenuItem(value: u, child: Text(u, style: TextStyle(fontSize: 11, color: AppTheme.textPrimaryColor(context)))))
+                                  .map((u) => DropdownMenuItem(value: u, child: Text(u, style: TextStyle(fontSize: 11, color: (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary)))))
                                   .toList(),
                               onChanged: (v) {
                                 setState(() => _doseUnit = v!);
@@ -208,15 +210,15 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Единица', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondaryColor(context))),
+                            Text('Единица', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary))),
                             const SizedBox(height: 4),
                             DropdownButtonFormField<String>(
                               value: _concentrationUnit,
                               isDense: true,
-                              dropdownColor: AppTheme.cardColor(context),
+                              dropdownColor: (isDark ? AppTheme.darkSurface : AppTheme.white),
                               decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
                               items: _concentrationUnits
-                                  .map((u) => DropdownMenuItem(value: u, child: Text(u, style: TextStyle(fontSize: 11, color: AppTheme.textPrimaryColor(context)))))
+                                  .map((u) => DropdownMenuItem(value: u, child: Text(u, style: TextStyle(fontSize: 11, color: (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary)))))
                                   .toList(),
                               onChanged: (v) {
                                 setState(() => _concentrationUnit = v!);
@@ -240,7 +242,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
 
                   Text(
                     'Капель на 1 мл системы:',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondaryColor(context)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary)),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -260,10 +262,10 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
                           decoration: BoxDecoration(
                             color: isSel
                                 ? AppTheme.safeGreen.withOpacity(isDark ? 0.25 : 0.12)
-                                : (isDark ? AppTheme.darkSurfaceLight : AppTheme.surfaceLight),
+                                : (isDark ? AppTheme.darkSurfaceLight : AppTheme.backgroundGray),
                             borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                             border: Border.all(
-                              color: isSel ? AppTheme.safeGreen : AppTheme.borderColor(context),
+                              color: isSel ? AppTheme.safeGreen : (isDark ? AppTheme.darkDivider : AppTheme.dividerGray),
                             ),
                           ),
                           child: Text(
@@ -271,7 +273,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                              color: isSel ? AppTheme.safeGreen : AppTheme.textPrimaryColor(context),
+                              color: isSel ? AppTheme.safeGreen : (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary),
                             ),
                           ),
                         ),
@@ -290,18 +292,18 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.infoBlue.withOpacity(isDark ? 0.15 : 0.08),
+                  color: AppTheme.maleBlue.withOpacity(isDark ? 0.15 : 0.08),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  border: Border.all(color: AppTheme.infoBlue.withOpacity(0.25)),
+                  border: Border.all(color: AppTheme.maleBlue.withOpacity(0.25)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: AppTheme.infoBlue, size: 20),
+                    const Icon(Icons.info_outline_rounded, color: AppTheme.maleBlue, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Заполните вес, дозу и концентрацию для автоматического расчёта скорости инфузии',
-                        style: TextStyle(fontSize: 12, color: AppTheme.textPrimaryColor(context)),
+                        style: TextStyle(fontSize: 12, color: (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary)),
                       ),
                     ),
                   ],
@@ -319,6 +321,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
     required String hint,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,17 +330,17 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textSecondaryColor(context),
+            color: (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary),
           ),
         ),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimaryColor(context)),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary)),
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, size: 18, color: AppTheme.textSecondaryColor(context)),
+            prefixIcon: Icon(icon, size: 18, color: (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
           onChanged: (_) => _calculate(),
@@ -353,10 +356,10 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? AppTheme.safeGreen.withOpacity(0.18) : AppTheme.safeGreenSoft,
+            color: AppTheme.safeGreen.withOpacity(isDark ? 0.18 : 0.08),
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
             border: Border.all(color: AppTheme.safeGreen.withOpacity(0.35)),
-            boxShadow: AppTheme.cardShadow(context),
+            boxShadow: AppTheme.softShadow,
           ),
           child: Column(
             children: [
@@ -415,9 +418,9 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor(context),
+        color: (isDark ? AppTheme.darkSurface : AppTheme.white),
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        border: Border.all(color: AppTheme.borderColor(context)),
+        border: Border.all(color: (isDark ? AppTheme.darkDivider : AppTheme.dividerGray)),
       ),
       child: Column(
         children: [
@@ -431,14 +434,14 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimaryColor(context),
+                  color: (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary),
                 ),
               ),
             ],
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 10, color: AppTheme.textTertiaryColor(context)),
+            style: TextStyle(fontSize: 10, color: (isDark ? AppTheme.darkTextTertiary : AppTheme.textTertiary)),
           ),
         ],
       ),
