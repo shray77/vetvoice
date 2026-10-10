@@ -56,18 +56,16 @@ jobs:
 
           # Fast-forward покрывает оба мирных случая:
           #   GitLab позади → «Already up to date», GitLab строго впереди → ff.
-          # Дивергенция ниже: merge с приоритетом GitHub (-X ours) — GitHub живой
-          # мастер (CI-фиксы, юр-слой, API-правки), их синк затирать не должен.
           if git merge --ff-only gitlab/main; then
             echo "✅ Fast-forward успешен"
           else
-            # Дивергенция: настоящий merge, конфликты решаем в пользу GitHub.
-            # Раньше здесь было «git checkout gitlab/main -- .» — это затирало
-            # фикс-ы GitHub (юр-гейт, VetProvider, иконки) и краснило CI.
-            echo "⚠️ Дивергенция — merge с приоритетом GitHub (-X ours)"
-            git merge --no-ff -X ours gitlab/main \
-              -m "🔄 Sync from GitLab (merge, GitHub priority on conflicts)" \
-              || { echo "❌ Merge не удался — пропускаю синк, файлы GitHub не тронуты"; exit 1; }
+            # Истории GitLab и GitHub независимые («unrelated histories», GitLab-репо
+            # заводился со своей историей), поэтому авто-merge невозможен и опасен:
+            # раньше fallback «git checkout gitlab/main -- .» затирал фикс-ы GitHub
+            # (юр-гейт, VetProvider, иконки) и краснил CI. Теперь — пропуск.
+            # GitHub — живой мастер. Чтобы возобновить зеркалирование, выровняй
+            # GitLab: git push в GitLab текущего main (тогда ff снова заработает).
+            echo "::warning::GitLab разошёлся с GitHub (unrelated histories) — авто-синк пропущен, файлы GitHub не тронуты. GitHub = мастер; для возобновления зеркала выровняй GitLab по GitHub."
           fi
 
       - name: 📤 Push to GitHub
