@@ -2,28 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
 import 'home_screen.dart';
+import 'terms_screen.dart';
 
-/// DisclaimerScreen — модальный дисклеймер при первом запуске
-class DisclaimerScreen extends StatefulWidget {
+/// DisclaimerScreen — юридический гейт при первом запуске.
+///
+/// Показывается до любого функционала, пока пользователь не примет условия
+/// (флаг `disclaimer_accepted` в SharedPreferences ставится в main.dart и тут).
+/// Полный текст условий — TermsScreen (кнопка под карточкой).
+class DisclaimerScreen extends StatelessWidget {
   const DisclaimerScreen({super.key});
 
   @override
-  State<DisclaimerScreen> createState() => _DisclaimerScreenState();
-}
-
-class _DisclaimerScreenState extends State<DisclaimerScreen> {
-  @override
   Widget build(BuildContext context) {
-    final isDark = AppTheme.isDark(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? AppTheme.darkBackground : AppTheme.backgroundGray;
+    final card = isDark ? AppTheme.darkSurface : AppTheme.white;
+    final textPrimary = isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary;
+    final textSecondary = isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary;
+    final borderColor = AppTheme.warningOrange.withOpacity(isDark ? 0.45 : 0.35);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor(context),
+      backgroundColor: bg,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -44,51 +50,69 @@ class _DisclaimerScreenState extends State<DisclaimerScreen> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimaryColor(context),
+                    color: textPrimary,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardColor(context),
+                    color: card,
                     borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    border: Border.all(color: AppTheme.warningOrange.withOpacity(0.35)),
-                    boxShadow: AppTheme.cardShadow(context),
+                    border: Border.all(color: borderColor),
                   ),
                   child: Text(
-                    'Приложение носит вспомогательный справочный характер.\n\n'
-                    'Дозировки, кратности и противопоказания основаны на '
-                    'официальном Государственном реестре ЛС и инструкциях производителей.\n\n'
-                    'Окончательное решение о схеме лечения, совместимости препаратов '
-                    'и дозировке принимает ветеринарный врач на основании клинического статуса пациента.\n\n'
-                    'Разработчик не несёт ответственности за нецелевое или ошибочное применение лекарственных средств.',
-                    textAlign: TextAlign.center,
+                    'Приложение — информационно-справочный сервис, предоставляется '
+                    '«как есть», без гарантий полноты, точности и актуальности.\n\n'
+                    'Материалы приложения не являются ветеринарной консультацией, '
+                    'диагнозом или назначением. Консультируйтесь с ветеринарным врачом, '
+                    'даже если вы сами ветеринарный врач.\n\n'
+                    'Любые автоматические расчёты, математические модели и калькуляторы '
+                    'дозировок предоставлены исключительно для ознакомления и проверки '
+                    'гипотез: ошибка возможна и в самом калькуляторе — из-за опечатки '
+                    'в формуле или данных. Перепроверяйте все результаты вычислений '
+                    'вручную по официальным инструкциям к препаратам перед любым '
+                    'клиническим применением.\n\n'
+                    'Разработчик не несёт ответственности за вред животным, людям или '
+                    'имуществу, возникший в результате использования или неиспользования '
+                    'приложения, — в максимальной степени, допускаемой применимым правом.',
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: AppTheme.textSecondaryColor(context),
+                      color: textSecondary,
                     ),
                   ),
                 ),
-                const SizedBox(height: 28),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool('disclaimer_accepted', true);
-                      if (mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const HomeScreen(),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text('Понятно, приступить к работе'),
+                const SizedBox(height: 8),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TermsScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.gavel_outlined, size: 18),
+                  label: const Text(
+                    'Полные условия использования и дисклеймер',
+                    style: TextStyle(fontSize: 13),
                   ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('disclaimer_accepted', true);
+                    if (context.mounted) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      );
+                    }
+                  },
+                  child: const Text('Понятно, приступить к работе'),
                 ),
               ],
             ),

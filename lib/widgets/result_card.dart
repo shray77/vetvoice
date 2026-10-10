@@ -315,7 +315,28 @@ class _ResultCardState extends State<ResultCard> {
                   ],
                 ),
               ),
-              
+
+              // ⚖️ Юр-предупреждение: расчёт не заменяет инструкцию
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.calculate_outlined,
+                      size: 14, color: Colors.grey.shade600),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'Расчёт ознакомительный: перепроверьте дозу и объём вручную '
+                      'по официальной инструкции к препарату.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               // Метод и частота
               const SizedBox(height: 12),
               Row(

@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
+import 'terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -60,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context: context,
                 applicationName: 'VetVoice AI',
                 applicationVersion: '7.5',
-                applicationLegalese: '© 2026 VetVoice',
+                applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),
                   const Text(
@@ -80,6 +81,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.database_outlined),
             title: const Text('Версия базы'),
             subtitle: Text(_themeService.databaseInfo ?? 'Загрузка...'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.gavel_outlined),
+            title: const Text('Условия использования и дисклеймер'),
+            subtitle: const Text('«Как есть» · не ветеринарная консультация · перепроверяйте расчёты'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TermsScreen()),
+              );
+            },
           ),
           const Divider(),
 
