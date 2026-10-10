@@ -371,7 +371,9 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   void _showAddDrugDialog() {
-    final allDrugs = widget.vetProvider.allDrugs;
+    // allDrugs у провайдера — List<dynamic> (CalcDrug + RegistryDrug):
+    // для проверки совместимостей берём только расчётные препараты.
+    final allDrugs = widget.vetProvider.allDrugs.whereType<CalcDrug>().toList();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

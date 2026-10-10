@@ -78,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.database_outlined),
+            leading: const Icon(Icons.storage_outlined),
             title: const Text('Версия базы'),
             subtitle: Text(_themeService.databaseInfo ?? 'Загрузка...'),
           ),
