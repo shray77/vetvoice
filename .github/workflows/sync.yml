@@ -35,7 +35,7 @@ jobs:
         run: |
           # GitLab репо публичный — токен не нужен
           git remote add gitlab https://gitlab.com/shray77/vetvoice.git || true
-          git fetch gitlab main --depth=50
+          git fetch gitlab main
 
       - name: 🔄 Sync main from GitLab
         run: |
@@ -54,14 +54,10 @@ jobs:
             exit 0
           fi
 
-          # GitLab позади GitHub (все коммиты GitLab уже в main) — синкать нечего.
-          # GitHub — живой мастер: CI-фиксы, юр-слой и API-правки живут здесь.
-          if git merge-base --is-ancestor "$REMOTE" "$LOCAL"; then
-            echo "ℹ️ GitLab позади GitHub — GitHub мастер, файлы GitHub не трогаем"
-            exit 0
-          fi
-
-          # Пробуем fast-forward merge (GitHub строго позади GitLab)
+          # Fast-forward покрывает оба мирных случая:
+          #   GitLab позади → «Already up to date», GitLab строго впереди → ff.
+          # Дивергенция ниже: merge с приоритетом GitHub (-X ours) — GitHub живой
+          # мастер (CI-фиксы, юр-слой, API-правки), их синк затирать не должен.
           if git merge --ff-only gitlab/main; then
             echo "✅ Fast-forward успешен"
           else
