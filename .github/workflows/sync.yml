@@ -54,16 +54,24 @@ jobs:
             exit 0
           fi
 
-          # Пробуем fast-forward merge
+          # GitLab позади GitHub (все коммиты GitLab уже в main) — синкать нечего.
+          # GitHub — живой мастер: CI-фиксы, юр-слой и API-правки живут здесь.
+          if git merge-base --is-ancestor "$REMOTE" "$LOCAL"; then
+            echo "ℹ️ GitLab позади GitHub — GitHub мастер, файлы GitHub не трогаем"
+            exit 0
+          fi
+
+          # Пробуем fast-forward merge (GitHub строго позади GitLab)
           if git merge --ff-only gitlab/main; then
             echo "✅ Fast-forward успешен"
           else
-            echo "⚠️ Fast-forward не возможен — берём только файлы GitLab"
-            # Стратегия: копируем все файлы из GitLab, кроме .github/
-            git checkout gitlab/main -- .
-            git checkout HEAD -- .github/  # восстанавливаем .github
-            git add -A
-            git commit -m "🔄 Sync from GitLab (resolve conflicts, keep .github/)"
+            # Дивергенция: настоящий merge, конфликты решаем в пользу GitHub.
+            # Раньше здесь было «git checkout gitlab/main -- .» — это затирало
+            # фикс-ы GitHub (юр-гейт, VetProvider, иконки) и краснило CI.
+            echo "⚠️ Дивергенция — merge с приоритетом GitHub (-X ours)"
+            git merge --no-ff -X ours gitlab/main \
+              -m "🔄 Sync from GitLab (merge, GitHub priority on conflicts)" \
+              || { echo "❌ Merge не удался — пропускаю синк, файлы GitHub не тронуты"; exit 1; }
           fi
 
       - name: 📤 Push to GitHub
