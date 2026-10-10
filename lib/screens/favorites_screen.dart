@@ -35,9 +35,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _initData() async {
     await _favService.init();
-    // initialize() — публичный метод провайдера (как в home_screen):
-    // грузит calc-базу, реестр и все справочники.
-    await _vetProvider.initialize();
+    await _vetProvider.loadCalcDatabase();
     _loadFavorites();
   }
 

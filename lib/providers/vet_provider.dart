@@ -253,10 +253,6 @@ class VetProvider {
   SideEffectsDatabase? get sideEffectsDatabase => _sideEffectsDatabase;
   TreatmentProtocolDatabase? get treatmentProtocolDatabase => _treatmentProtocolDatabase;
   List<String> get selectedDrugHistory => _selectedDrugHistory;
-
-  /// Публичный доступ к базе расчётных препаратов (для favorites и др.).
-  /// Загружается в initialize(); до него — null.
-  CalcDrugDatabase? get calcDatabase => _calcDatabase;
   
   int get totalDrugs => _registry?.totalDrugs ?? _calcDatabase?.drugs.length ?? 0;
   int get calcDrugsCount => _calcDatabase?.drugs.length ?? 0;
