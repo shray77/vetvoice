@@ -69,4 +69,12 @@ class ThemeService extends ChangeNotifier {
     await _prefs?.setString(_dbInfoKey, info);
     notifyListeners();
   }
+
+  /// v1.16.2: смена системной яркости при ThemeMode.system.
+  /// VetVoiceAppState.didChangePlatformBrightness вызывает этот метод,
+  /// чтобы AnimatedBuilder в main.dart перестроил MaterialApp и глобальный
+  /// флаг AppTheme.applyBrightness перечитался.
+  void notifyPlatformBrightness() {
+    notifyListeners();
+  }
 }

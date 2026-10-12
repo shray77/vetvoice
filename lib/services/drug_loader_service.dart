@@ -225,6 +225,20 @@ class DrugLoaderService {
     }
   }
 
+  /// v1.16.2: decode + parse произвольного JSON в background-isolate.
+  /// Используется для болезней/протоколов лечения (vet_provider) и любых
+  /// внешних потребителей — тяжёлый fromJson больше не считает на главном
+  /// изоляте. Вернёт null при ошибке (вызывающий решает, что делать).
+  static Future<T?> parseInIsolate<T>(
+      String raw, T Function(Map<String, dynamic>) fromJson) async {
+    try {
+      return await compute(_parseIsolateEntry<T>, (raw, fromJson));
+    } catch (e) {
+      debugPrint('⚠️ [DrugLoader] parseInIsolate: $e');
+      return null;
+    }
+  }
+
   // ============================================================
   // Основной конвейер загрузки
   // ============================================================
@@ -265,11 +279,21 @@ class DrugLoaderService {
   }
 
   /// Собирает LoadResult из сырых JSON-строк (assetPath → содержимое).
+  ///
+  /// v1.16.2: decode+parse КАЖДОЙ базы — в background-isolate (батчами по 4).
+  /// Раньше jsonDecode уходил в изолят только для больших файлов, а fromJson
+  /// ВСЕГДА считался на главном изоляте: суммарно 3-5 с тормозили UI на
+  /// каждом старте («секунд 5 пишет что идет загрузка баз»), даже когда
+  /// базы были в дисковом кеше.
   static Future<LoadResult> _buildResult(
     Map<String, String> raws, {
     required bool online,
     String? source,
   }) async {
+    // Сырьё доступно вторичным потребителям (SymptomSearchService) без
+    // повторного чтения — в т.ч. при старте из дискового кеша.
+    _lastRaws = raws;
+
     DrugDatabase? database;
     DrugRegistry? registry;
     CalcDrugDatabase? calcDatabase;
@@ -284,54 +308,65 @@ class DrugLoaderService {
     FluidTherapyDatabase? fluidTherapyDatabase;
     VerifiedDosageDatabase? verifiedDosageDatabase;
 
-    for (final spec in _specs.values) {
-      final raw = raws[spec.assetPath];
-      if (raw == null) continue;
-      try {
-        final map = await _decodeMap(raw, hint: spec.fileName);
-        final parsed = spec.fromJson(map);
-        // Групповой debugPrint — по одному типу
-        if (parsed is DrugRegistry) {
-          registry = parsed;
-          debugPrint('✅ Реестр: ${registry.totalDrugs} препаратов');
-        } else if (parsed is CalcDrugDatabase) {
-          calcDatabase = parsed;
-          debugPrint('✅ База расчётов: ${calcDatabase.drugs.length} препаратов');
-        } else if (parsed is DrugDatabase) {
-          database = parsed;
-        } else if (parsed is DosageDatabase) {
-          dosageDatabase = parsed;
-          debugPrint('✅ База дозировок: ${dosageDatabase.dosages.length} МНН');
-        } else if (parsed is InteractionDatabase) {
-          interactionDatabase = parsed;
-          debugPrint('✅ Взаимодействия: ${interactionDatabase.interactions.length} пар');
-        } else if (parsed is AntidoteDatabase) {
-          antidoteDatabase = parsed;
-          debugPrint('✅ Антидоты: ${antidoteDatabase.poisonings.length} токсинов');
-        } else if (parsed is EmergencyDatabase) {
-          emergencyDatabase = parsed;
-          debugPrint('✅ Emergency: ${emergencyDatabase.protocols.length} протоколов');
-        } else if (parsed is SideEffectsDatabase) {
-          sideEffectsDatabase = parsed;
-          debugPrint('✅ Побочные эффекты: ${sideEffectsDatabase.drugs.length} препаратов');
-        } else if (parsed is WithdrawalDatabase) {
-          withdrawalDatabase = parsed;
-          debugPrint('✅ Сроки ожидания: ${withdrawalDatabase.drugs.length} препаратов');
-        } else if (parsed is DoseAdjustmentDatabase) {
-          doseAdjustmentDatabase = parsed;
-          debugPrint('✅ Корректировки доз загружены');
-        } else if (parsed is UnofficialProtocolDatabase) {
-          unofficialDatabase = parsed;
-          debugPrint('✅ Неофициальные протоколы: ${unofficialDatabase.records.length} записей');
-        } else if (parsed is FluidTherapyDatabase) {
-          fluidTherapyDatabase = parsed;
-          debugPrint('✅ Инфузионная терапия: ${fluidTherapyDatabase.solutions.length} растворов');
-        } else if (parsed is VerifiedDosageDatabase) {
-          verifiedDosageDatabase = parsed;
-          debugPrint('✅ Верифицированные дозировки: ${verifiedDosageDatabase.dosages.length} препаратов');
+    final specs =
+        _specs.values.where((s) => raws.containsKey(s.assetPath)).toList();
+    final parsedList = <Object?>[];
+    const batchSize = 4; // не плодим 13 изолятов разом на low-end устройствах
+    for (int i = 0; i < specs.length; i += batchSize) {
+      final batch =
+          specs.sublist(i, (i + batchSize).clamp(0, specs.length));
+      final part = await Future.wait(batch.map((spec) async {
+        final raw = raws[spec.assetPath]!;
+        try {
+          return await compute(_parseIsolateEntry<Object>, (raw, spec.fromJson));
+        } catch (e) {
+          debugPrint('⚠️ [DrugLoader] Ошибка парсинга ${spec.fileName}: $e');
+          return null;
         }
-      } catch (e) {
-        debugPrint('⚠️ [DrugLoader] Ошибка парсинга ${spec.fileName}: $e');
+      }));
+      parsedList.addAll(part);
+    }
+
+    for (final parsed in parsedList) {
+      if (parsed == null) continue;
+      if (parsed is DrugRegistry) {
+        registry = parsed;
+        debugPrint('✅ Реестр: ${registry.totalDrugs} препаратов');
+      } else if (parsed is CalcDrugDatabase) {
+        calcDatabase = parsed;
+        debugPrint('✅ База расчётов: ${calcDatabase.drugs.length} препаратов');
+      } else if (parsed is DrugDatabase) {
+        database = parsed;
+      } else if (parsed is DosageDatabase) {
+        dosageDatabase = parsed;
+        debugPrint('✅ База дозировок: ${dosageDatabase.dosages.length} МНН');
+      } else if (parsed is InteractionDatabase) {
+        interactionDatabase = parsed;
+        debugPrint('✅ Взаимодействия: ${interactionDatabase.interactions.length} пар');
+      } else if (parsed is AntidoteDatabase) {
+        antidoteDatabase = parsed;
+        debugPrint('✅ Антидоты: ${antidoteDatabase.poisonings.length} токсинов');
+      } else if (parsed is EmergencyDatabase) {
+        emergencyDatabase = parsed;
+        debugPrint('✅ Emergency: ${emergencyDatabase.protocols.length} протоколов');
+      } else if (parsed is SideEffectsDatabase) {
+        sideEffectsDatabase = parsed;
+        debugPrint('✅ Побочные эффекты: ${sideEffectsDatabase.drugs.length} препаратов');
+      } else if (parsed is WithdrawalDatabase) {
+        withdrawalDatabase = parsed;
+        debugPrint('✅ Сроки ожидания: ${withdrawalDatabase.drugs.length} препаратов');
+      } else if (parsed is DoseAdjustmentDatabase) {
+        doseAdjustmentDatabase = parsed;
+        debugPrint('✅ Корректировки доз загружены');
+      } else if (parsed is UnofficialProtocolDatabase) {
+        unofficialDatabase = parsed;
+        debugPrint('✅ Неофициальные протоколы: ${unofficialDatabase.records.length} записей');
+      } else if (parsed is FluidTherapyDatabase) {
+        fluidTherapyDatabase = parsed;
+        debugPrint('✅ Инфузионная терапия: ${fluidTherapyDatabase.solutions.length} растворов');
+      } else if (parsed is VerifiedDosageDatabase) {
+        verifiedDosageDatabase = parsed;
+        debugPrint('✅ Верифицированные дозировки: ${verifiedDosageDatabase.dosages.length} препаратов');
       }
     }
 
@@ -572,6 +607,14 @@ class DrugLoaderService {
       return false;
     }
   }
+}
+
+/// Top-level функция для compute(): jsonDecode + fromJson целиком в
+/// background-isolate. Запись (raw, fromJson) отправляется между изолятами
+/// одной isolate-group — tear-off статической функции модели отправляемый.
+T _parseIsolateEntry<T>((String, T Function(Map<String, dynamic>)) msg) {
+  final (raw, fromJson) = msg;
+  return fromJson(jsonDecode(raw) as Map<String, dynamic>);
 }
 
 /// Top-level функция для compute(): jsonDecode в background-isolate.

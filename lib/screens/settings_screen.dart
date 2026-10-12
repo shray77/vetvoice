@@ -30,7 +30,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _themeService.addListener(_onThemeChanged);
     // v1.16.1: живой статус модели Vosk (скачана / качается / ошибка)
+    // v1.16.2: + подписка onStateChanged — переходы IDLE→LOADING→READY
+    // теперь тоже перерисовывают строку статуса (раньше «зависал»)
     _wakeWordService.onDownloadProgress.listen((_) {
+      if (mounted) setState(() {});
+    });
+    _wakeWordService.onStateChanged.listen((_) {
       if (mounted) setState(() {});
     });
     _wakeWordService.onListeningStateChanged.listen((_) {
@@ -88,12 +93,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           )
                         : const Text('Загрузить')),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'Модель нужна для wake word: скажите «ВетВойс» на главном '
               'экране и голосовой ввод включится без интернета. '
-              'Качается один раз (~50 МБ), дальше работает оффлайн.',
+              'Качается один раз (~46 МБ), дальше работает оффлайн.',
               style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
             ),
           ),
@@ -110,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.16.0',
+                applicationVersion: '1.16.2',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),
@@ -179,8 +184,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 'LOADING':
         if (_wakeWordService.isExtracting) return 'Распаковка модели...';
         if (_wakeWordService.totalMB > 0) {
+          final pct =
+              (_wakeWordService.downloadedMB / _wakeWordService.totalMB * 100)
+                  .clamp(0, 100)
+                  .toStringAsFixed(0);
           return 'Скачивание: ${_wakeWordService.downloadedMB.toStringAsFixed(1)} из '
-              '${_wakeWordService.totalMB.toStringAsFixed(0)} МБ';
+              '${_wakeWordService.totalMB.toStringAsFixed(0)} МБ ($pct%)';
         }
         return _wakeWordService.loadingMessage.isNotEmpty
             ? _wakeWordService.loadingMessage

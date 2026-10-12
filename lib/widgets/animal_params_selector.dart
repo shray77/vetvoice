@@ -90,7 +90,7 @@ class PregnancySelector extends StatelessWidget {
       children: [
         Text(
           pregnancyTerm,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: AppTheme.textSecondary,
@@ -162,7 +162,7 @@ class AgeSelector extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Возраст',
               style: TextStyle(
                 fontSize: 14,
@@ -232,7 +232,7 @@ class AgeSelector extends StatelessWidget {
                 ),
                 child: Text(
                   _formatAge(ageMonths),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
@@ -387,7 +387,7 @@ class AnimalParamsSelector extends StatelessWidget {
         children: [
           // Пол (скрыт для пчёл, рыбы и т.д.)
           if (showGender) ...[
-            const Text(
+            Text(
               'Пол животного',
               style: TextStyle(
                 fontSize: 16,

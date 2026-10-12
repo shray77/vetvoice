@@ -94,13 +94,13 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
                     ),
                     decoration: InputDecoration(
                       hintText: 'Что у пациента? Например: рвота у собаки',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                           color: AppTheme.textTertiary, fontSize: 14),
                       prefixIcon:
                           const Icon(Icons.search, color: AppTheme.safeGreen),
                       suffixIcon: _controller.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear,
+                              icon: Icon(Icons.clear,
                                   color: AppTheme.textSecondary),
                               onPressed: () {
                                 _controller.clear();
@@ -154,7 +154,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
     return ListView(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       children: [
-        const Text(
+        Text(
           '💡 Популярные запросы',
           style: TextStyle(
             fontSize: 16,
@@ -189,7 +189,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
             border: Border.all(
                 color: Colors.blue.withOpacity(0.2), width: 1),
           ),
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(

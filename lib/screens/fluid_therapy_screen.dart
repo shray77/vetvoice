@@ -72,12 +72,12 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
                   fontSize: 11, color: AppTheme.safeGreen, fontWeight: FontWeight.w600)),
               ),
               const SizedBox(width: 8),
-              Expanded(child: Text(s.name, style: const TextStyle(
+              Expanded(child: Text(s.name, style: TextStyle(
                 fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textPrimary))),
             ],
           ),
           const SizedBox(height: 8),
-          Text(s.composition, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+          Text(s.composition, style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 6, runSpacing: 4,
@@ -87,15 +87,15 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
                 color: AppTheme.backgroundGray,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(ind, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+              child: Text(ind, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
             )).toList(),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.speed, size: 14, color: AppTheme.textTertiary),
+              Icon(Icons.speed, size: 14, color: AppTheme.textTertiary),
               const SizedBox(width: 4),
-              Expanded(child: Text('Скорость: ${s.rate}', style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+              Expanded(child: Text('Скорость: ${s.rate}', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
             ],
           ),
         ],
@@ -128,7 +128,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
             ],
           ),
           const SizedBox(height: 12),
-          Text(p.protocol, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.4)),
+          Text(p.protocol, style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.4)),
           if (p.additives.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(spacing: 6, runSpacing: 4,
@@ -136,10 +136,10 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
           ],
           if (p.monitoring.isNotEmpty) ...[
             const Divider(height: 24),
-            const Text('Мониторинг:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+            Text('Мониторинг:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
             const SizedBox(height: 4),
             Wrap(spacing: 6, runSpacing: 4,
-              children: p.monitoring.map((m) => Text('$m ', style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary))).toList()),
+              children: p.monitoring.map((m) => Text('$m ', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))).toList()),
           ],
         ],
       ),
@@ -152,7 +152,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
       children: [
         TextField(
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Вес животного (кг)',
             prefixIcon: Icon(Icons.scale, color: AppTheme.textTertiary),
           ),
@@ -161,7 +161,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
         const SizedBox(height: 24),
         const Text('Поддерживающая доза', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
-        const Text('50 мл/кг/сут', style: TextStyle(fontSize: 13, color: AppTheme.textTertiary)),
+        Text('50 мл/кг/сут', style: TextStyle(fontSize: 13, color: AppTheme.textTertiary)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(16),
@@ -184,7 +184,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(color: AppTheme.warningOrange.withOpacity(0.08), borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
-          child: Text(_calcDeficit(), style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary, height: 1.5)),
+          child: Text(_calcDeficit(), style: TextStyle(fontSize: 15, color: AppTheme.textPrimary, height: 1.5)),
         ),
         const SizedBox(height: 24),
         const Text('Шоковая доза (кристаллоиды)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
@@ -192,7 +192,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(color: AppTheme.errorRed.withOpacity(0.08), borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Собаки: 20-30 мл/кг болюс, повторять до стабилизации', style: TextStyle(fontSize: 14)),
@@ -257,8 +257,8 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
                       Text(a.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
                     ]),
                     const SizedBox(height: 6),
-                    Text('Показание: ${a.indication}', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-                    if (a.concentration.isNotEmpty) Text('Концентрация: ${a.concentration}', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                    Text('Показание: ${a.indication}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                    if (a.concentration.isNotEmpty) Text('Концентрация: ${a.concentration}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
                     if (a.doses.isNotEmpty) Text(a.doses.entries.map((e) => '${e.key}: ${e.value}').join(', '), style: const TextStyle(fontSize: 13, color: AppTheme.safeGreen, fontWeight: FontWeight.w500)),
                     if (a.notes.isNotEmpty) Text(a.notes, style: const TextStyle(fontSize: 12, color: AppTheme.warningOrange, fontStyle: FontStyle.italic)),
                   ],

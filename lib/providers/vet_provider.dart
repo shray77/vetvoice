@@ -457,23 +457,33 @@ class VetProvider {
       // Enhanced drugs удалён — файл drugs_enhanced.json не существовал.
       // Данные из unofficial_protocols.json и verified_dosages.json заменили его.
 
-      // Загружаем болезни
+      // Загружаем болезни (v1.16.2: parse в background-isolate —
+      // diseases.json немаленький, раньше fromJson считал на главном изоляте)
       try {
-        final diseaseData = await DrugLoaderService.loadJsonAsset('assets/data/diseases.json');
-        if (diseaseData != null) {
-          _diseaseDatabase = DiseaseDatabase.fromJson(diseaseData);
-          debugPrint('✅ Loaded ${_diseaseDatabase!.diseases.length} diseases');
+        final diseaseRaw =
+            await DrugLoaderService.getRawJson('assets/data/diseases.json');
+        if (diseaseRaw != null) {
+          _diseaseDatabase = await DrugLoaderService.parseInIsolate(
+              diseaseRaw, DiseaseDatabase.fromJson);
+          if (_diseaseDatabase != null) {
+            debugPrint('✅ Loaded ${_diseaseDatabase!.diseases.length} diseases');
+          }
         }
       } catch (e) {
         debugPrint('⚠️ Diseases not loaded: $e');
       }
 
-      // Загружаем протоколы лечения
+      // Загружаем протоколы лечения (v1.16.2: тоже в изоляте)
       try {
-        final treatmentData = await DrugLoaderService.loadJsonAsset('assets/data/advanced/treatment_protocols.json');
-        if (treatmentData != null) {
-          _treatmentProtocolDatabase = TreatmentProtocolDatabase.fromJson(treatmentData);
-          debugPrint('✅ Loaded ${_treatmentProtocolDatabase!.protocols.length} treatment protocols');
+        final treatmentRaw = await DrugLoaderService.getRawJson(
+            'assets/data/advanced/treatment_protocols.json');
+        if (treatmentRaw != null) {
+          _treatmentProtocolDatabase = await DrugLoaderService.parseInIsolate(
+              treatmentRaw, TreatmentProtocolDatabase.fromJson);
+          if (_treatmentProtocolDatabase != null) {
+            debugPrint(
+                '✅ Loaded ${_treatmentProtocolDatabase!.protocols.length} treatment protocols');
+          }
         }
       } catch (e) {
         debugPrint('⚠️ Treatment protocols not loaded: $e');

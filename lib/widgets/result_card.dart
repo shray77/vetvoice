@@ -125,7 +125,7 @@ class _ResultCardState extends State<ResultCard> {
         children: [
           Icon(Icons.medication_outlined, size: 48, color: AppTheme.textTertiary),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Выберите препарат для расчёта',
             style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
           ),
@@ -310,7 +310,7 @@ class _ResultCardState extends State<ResultCard> {
                       const SizedBox(height: 8),
                       Text(
                         widget.result.note,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textSecondary,
                         ),

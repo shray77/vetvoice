@@ -54,12 +54,18 @@ class WakeWordService {
   final StreamController<bool> _onListeningStateChanged = StreamController<bool>.broadcast();
   final StreamController<String> _onPartialResult = StreamController<String>.broadcast();
   final StreamController<void> _onDownloadProgress = StreamController<void>.broadcast();
+  // v1.16.2: полный стрим смены state (IDLE/LOADING/READY/LISTENING/ERROR).
+  // Раньше UI обновлялся только от onDownloadProgress/onListeningStateChanged —
+  // переходы IDLE→LOADING→READY не перерисовывали статус в настройках
+  // (isListening при этом не меняется), и статус «зависал».
+  final StreamController<String> _onStateChanged = StreamController<String>.broadcast();
 
   Stream<void> get onWakeWord => _onWakeWord.stream;
   Stream<String> get onError => _onError.stream;
   Stream<bool> get onListeningStateChanged => _onListeningStateChanged.stream;
   Stream<String> get onPartialResult => _onPartialResult.stream;
   Stream<void> get onDownloadProgress => _onDownloadProgress.stream;
+  Stream<String> get onStateChanged => _onStateChanged.stream; // v1.16.2
 
   /// Обработка коллбеков из Android-сервиса
   Future<dynamic> _handleMethodCall(MethodCall call) async {
@@ -109,6 +115,9 @@ class WakeWordService {
 
   void _handleStateChanged(String newState, String message) {
     debugPrint('🎤 [Dart] Vosk state: $newState — $message');
+
+    // v1.16.2: уведомляем всех подписчиков о ЛЮБОЙ смене state
+    _onStateChanged.add(newState);
 
     // Обновляем текст этапа загрузки
     if (newState == 'LOADING') {
@@ -181,7 +190,14 @@ class WakeWordService {
   }
 
   /// Инициализация Vosk — проверяет/скачивает модель.
-  /// Повторяет до [maxRetries] раз с exponential backoff при ошибке.
+  ///
+  /// v1.16.2: НЕ блокирует и НЕ ретраит ожиданием загрузки. Скачивание 46 МБ
+  /// занимает минуты; старая логика с exponential backoff (2с/4с) дёргала
+  /// нативный initialize() повторно, тот отменял downloadJob и начинал
+  /// заново — модель не могла докачаться, а старт приложения терял ~7 с.
+  /// Теперь: запустили скачивание → вернулись (false), статус приходит
+  /// через стрим onStateChanged (UI в настройках обновляется живьём).
+  /// Ретраи только для исключений канала (нативный слой ещё не готов).
   Future<bool> initialize({int maxRetries = 3}) async {
     if (_isInitialized) return true;
 
@@ -195,28 +211,16 @@ class WakeWordService {
           return true;
         }
 
-        // Если уже грузится — просто ждём
-        if (currentState == 'LOADING') {
-          _handleStateChanged('LOADING', '');
+        // Уже качается (нативно или запущено ранее) — НЕ трогаем, ждём событий
+        if (currentState == 'LOADING' || _isModelLoading) {
+          _handleStateChanged('LOADING', _loadingMessage);
           return false;
         }
 
         await _channel.invokeMethod('initialize');
 
-        // Ждём немного и проверяем состояние
-        if (attempt < maxRetries - 1) {
-          await Future.delayed(Duration(milliseconds: 500));
-          final checkState = await _channel.invokeMethod<String?>('getState');
-          if (checkState == 'READY' || checkState == 'LISTENING' || _isInitialized) {
-            return true;
-          }
-          // Exponential backoff: 2s, 4s, 8s
-          final delaySeconds = 2 * (1 << attempt);
-          debugPrint('⚠️ [Dart] Vosk not ready, retrying in ${delaySeconds}s...');
-          await Future.delayed(Duration(seconds: delaySeconds));
-        } else {
-          return _isInitialized;
-        }
+        // Скачивание пошло фоном; READY/ERROR придут через onStateChanged
+        return false;
       } catch (e) {
         debugPrint('⚠️ [Dart] Vosk init attempt ${attempt + 1} failed: $e');
         if (attempt < maxRetries - 1) {
@@ -227,7 +231,7 @@ class WakeWordService {
       }
     }
 
-    _errorMessage = 'Не удалось загрузить модель. Попробуйте позже.';
+    _errorMessage = 'Не удалось запустить загрузку модели. Попробуйте позже.';
     debugPrint('❌ [Dart] Vosk init failed after $maxRetries attempts');
     _onError.add(_errorMessage!);
     return false;

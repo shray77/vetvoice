@@ -220,7 +220,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
                             color: AppTheme.backgroundGray,
                             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               'Добавьте 2+ препарата для проверки совместимости',
                               // v1.16: textTertiary был почти невидим на светлом фоне
@@ -329,7 +329,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: Colors.blue.withOpacity(0.2)),
             ),
-            child: const Column(
+            child: Column(
               children: [
                 Row(
                   children: [

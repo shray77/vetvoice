@@ -24,20 +24,22 @@ class AppTheme {
   static const String fontBody = 'Inter'; // текст, UI
   static const String fontDisplay = 'Manrope'; // заголовки, крупные цифры
 
-  // ===== Палитра: светлая =====
-  static const Color white = Color(0xFFFFFFFF);
+  // ===== Палитра: светлая (СЫРЫЕ константы) =====
+  // v1.16.2: прежние имена (white, background, textPrimary, ...) стали
+  // theme-aware геттерами (см. ниже) — они читают AppTheme.isDarkNow,
+  // который выставляется в VetVoiceApp.build. Внутри lightTheme/darkTheme
+  // используются ТОЛЬКО сырые константы (_xxxLight / darkXxx), чтобы
+  // ThemeData не зависел от текущего флага.
+  static const Color _whiteLight = Color(0xFFFFFFFF);
   /// Фон приложения и AppBar (тёплый молочно-зелёный из бренд-дека).
-  static const Color background = Color(0xFFF6F9F3);
-  /// Поверхность карточек.
-  static const Color surface = white;
+  static const Color _backgroundLight = Color(0xFFF6F9F3);
   /// Заливка полей ввода и вторичных контейнеров.
-  static const Color fieldFill = Color(0xFFEDF2E8);
+  static const Color _fieldFillLight = Color(0xFFEDF2E8);
   /// Legacy-имя фона (было #F5F5F7) — теперь бренд-фон.
-  static const Color backgroundGray = background;
 
-  static const Color textPrimary = Color(0xFF0B2415);
-  static const Color textSecondary = Color(0xFF45564B);
-  static const Color textTertiary = Color(0xFF5F7065);
+  static const Color _textPrimaryLight = Color(0xFF0B2415);
+  static const Color _textSecondaryLight = Color(0xFF45564B);
+  static const Color _textTertiaryLight = Color(0xFF5F7065);
 
   // Акцент «Safe Green» (бренд).
   /// Основной акцент: кнопки, иконки, selected-состояния.
@@ -75,8 +77,8 @@ class AppTheme {
   static const Color femalePink = Color(0xFFA8457F);
 
   // Линии.
-  static const Color dividerGray = Color(0xFFD8E2D4);
-  static const Color outlineVariant = Color(0xFFE4ECE0);
+  static const Color _dividerGrayLight = Color(0xFFD8E2D4);
+  static const Color _outlineVariantLight = Color(0xFFE4ECE0);
 
   // ===== Палитра: тёмная (OLED) =====
   static const Color darkBackground = Color(0xFF0A120C);
@@ -97,6 +99,46 @@ class AppTheme {
   static const Color darkWarning = Color(0xFFFFB35C);
   static const Color darkSuccess = Color(0xFF7ED09A);
   static const Color darkInfo = Color(0xFF8FD3F4);
+
+  // ===== Theme-aware геттеры (v1.16.2 — фикс «тёмная тема красит только тогглы») =====
+  //
+  // Экраны держат старый хардкод `AppTheme.textPrimary` / `AppTheme.white` /
+  // `AppTheme.background` — после Фазы 0 они продолжали рисовать светлые
+  // константы поверх тёмного MaterialApp-фона, поэтому тёмная тема
+  // «красила только тогглы». Теперь эти имена — ГЕТТЕРЫ, возвращающие
+  // светлые или тёмные значения в зависимости от AppTheme.isDarkNow.
+  // Флаг выставляется в VetVoiceApp.build (AnimatedBuilder на ThemeService),
+  // поэтому смена темы перестраивает всё дерево и геттеры перечитываются.
+  //
+  // Светлая палитра при этом НЕ изменилась ни на один пиксель:
+  // геттеры возвращают те же значения, что прежние const.
+  static bool _darkNow = false;
+  static bool get isDarkNow => _darkNow;
+
+  /// Вызывается из VetVoiceApp.build до MaterialApp; [dark] = реально
+  /// действующая яркость (учитывает ThemeMode.system).
+  static void applyBrightness(bool dark) => _darkNow = dark;
+
+  /// Поверхность карточек/дропдаунов (в dark — тёмная поверхность).
+  /// «Белый текст на зелёной кнопке» в dark тоже станет darkSurface —
+  /// такие места переведены на Colors.white явно.
+  static Color get white => _darkNow ? darkSurface : _whiteLight;
+  /// Поверхность карточек.
+  static Color get surface => white;
+  /// Фон приложения и AppBar.
+  static Color get background => _darkNow ? darkBackground : _backgroundLight;
+  /// Legacy-имя фона.
+  static Color get backgroundGray => background;
+  /// Заливка полей ввода и вторичных контейнеров.
+  static Color get fieldFill => _darkNow ? darkFieldFill : _fieldFillLight;
+  /// Линии.
+  static Color get dividerGray => _darkNow ? darkDivider : _dividerGrayLight;
+  static Color get outlineVariant =>
+      _darkNow ? const Color(0xFF2A3B2F) : _outlineVariantLight;
+  static Color get textPrimary => _darkNow ? darkTextPrimary : _textPrimaryLight;
+  static Color get textSecondary =>
+      _darkNow ? darkTextSecondary : _textSecondaryLight;
+  static Color get textTertiary => _darkNow ? darkTextTertiary : _textTertiaryLight;
 
   // ===== Цвета категорий препаратов (бренд-совместимые, приглушённые) =====
   // Соответствует category из drugs_calc.json. В Фазе 2 заменяются
@@ -341,70 +383,70 @@ class AppTheme {
       brightness: Brightness.light,
       fontFamily: fontBody,
       primaryColor: safeGreen,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: _backgroundLight,
       highlightColor: Colors.transparent,
       splashColor: safeGreen.withOpacity(0.08),
       visualDensity: VisualDensity.comfortable,
       materialTapTargetSize: MaterialTapTargetSize.padded,
-      dialogBackgroundColor: surface,
+      dialogBackgroundColor: _whiteLight,
       colorScheme: const ColorScheme.light(
         primary: safeGreen,
-        onPrimary: white,
+        onPrimary: _whiteLight,
         primaryContainer: primaryContainer,
         onPrimaryContainer: onPrimaryContainer,
         secondary: brandLime,
-        onSecondary: textPrimary,
+        onSecondary: _textPrimaryLight,
         secondaryContainer: secondaryContainer,
         onSecondaryContainer: onSecondaryContainer,
         tertiary: info,
-        onTertiary: white,
+        onTertiary: _whiteLight,
         tertiaryContainer: infoContainer,
         onTertiaryContainer: Color(0xFF0D3D63),
         error: errorRed,
-        onError: white,
+        onError: _whiteLight,
         errorContainer: errorContainer,
         onErrorContainer: onErrorContainer,
-        surface: surface,
-        onSurface: textPrimary,
-        surfaceContainerLowest: white,
+        surface: _whiteLight,
+        onSurface: _textPrimaryLight,
+        surfaceContainerLowest: _whiteLight,
         surfaceContainerLow: Color(0xFFF0F4EC),
-        surfaceContainer: fieldFill,
+        surfaceContainer: _fieldFillLight,
         surfaceContainerHigh: Color(0xFFE7EEE2),
-        surfaceContainerHighest: fieldFill,
-        onSurfaceVariant: textSecondary,
-        outline: dividerGray,
-        outlineVariant: outlineVariant,
+        surfaceContainerHighest: _fieldFillLight,
+        onSurfaceVariant: _textSecondaryLight,
+        outline: _dividerGrayLight,
+        outlineVariant: _outlineVariantLight,
         shadow: Colors.black,
         scrim: Colors.black,
-        inverseSurface: textPrimary,
+        inverseSurface: _textPrimaryLight,
         onInverseSurface: Color(0xFFE7F2E9),
         inversePrimary: darkPrimary,
         surfaceTint: Colors.transparent,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: textPrimary,
+        backgroundColor: _whiteLight,
+        foregroundColor: _textPrimaryLight,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: textPrimary, size: 24),
+        iconTheme: IconThemeData(color: _textPrimaryLight, size: 24),
         titleTextStyle: TextStyle(
           fontFamily: fontDisplay,
           fontSize: 17,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
       ),
       textTheme: _textTheme(
-        headline: textPrimary,
-        body: textPrimary,
-        secondary: textSecondary,
-        tertiary: textTertiary,
+        headline: _textPrimaryLight,
+        body: _textPrimaryLight,
+        secondary: _textSecondaryLight,
+        tertiary: _textTertiaryLight,
       ),
       chipTheme: const ChipThemeData(
-        backgroundColor: fieldFill,
+        backgroundColor: _fieldFillLight,
         selectedColor: primaryContainer,
         checkmarkColor: onPrimaryContainer,
         disabledColor: Color(0xFFEFF3EC),
@@ -412,7 +454,7 @@ class AppTheme {
           fontFamily: fontBody,
           fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
         labelPadding: EdgeInsets.symmetric(horizontal: 10),
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 11),
@@ -420,32 +462,32 @@ class AppTheme {
         side: BorderSide(color: Colors.transparent),
       ),
       cardTheme: const CardThemeData(
-        color: surface,
+        color: _whiteLight,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
-          side: BorderSide(color: outlineVariant),
+          side: BorderSide(color: _outlineVariantLight),
         ),
       ),
-      dividerTheme: const DividerThemeData(color: dividerGray, thickness: 1),
+      dividerTheme: const DividerThemeData(color: _dividerGrayLight, thickness: 1),
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
-        fillColor: fieldFill,
+        fillColor: _fieldFillLight,
         hintStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 15,
           fontWeight: FontWeight.w400,
-          color: textTertiary,
+          color: _textTertiaryLight,
         ),
         labelStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: textSecondary,
+          color: _textSecondaryLight,
         ),
-        prefixIconColor: textSecondary,
-        suffixIconColor: textSecondary,
+        prefixIconColor: _textSecondaryLight,
+        suffixIconColor: _textSecondaryLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide.none,
@@ -471,7 +513,7 @@ class AppTheme {
       elevatedButtonTheme: const ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(safeGreen),
-          foregroundColor: WidgetStatePropertyAll(white),
+          foregroundColor: WidgetStatePropertyAll(_whiteLight),
           overlayColor: WidgetStatePropertyAll(Color(0x14FFFFFF)),
           elevation: WidgetStatePropertyAll(0),
           minimumSize: WidgetStatePropertyAll(Size(0, 52)),
@@ -506,7 +548,7 @@ class AppTheme {
             ),
           ),
           side: WidgetStatePropertyAll(
-            BorderSide(color: dividerGray, width: 1.2),
+            BorderSide(color: _dividerGrayLight, width: 1.2),
           ),
           textStyle: WidgetStatePropertyAll(
             TextStyle(
@@ -535,13 +577,13 @@ class AppTheme {
       ),
       iconButtonTheme: const IconButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: WidgetStatePropertyAll(textSecondary),
+          foregroundColor: WidgetStatePropertyAll(_textSecondaryLight),
           tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: textPrimary,
+        backgroundColor: _textPrimaryLight,
         contentTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 14,
@@ -554,7 +596,7 @@ class AppTheme {
         elevation: 3,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: surface,
+        backgroundColor: _whiteLight,
         surfaceTintColor: Colors.transparent,
         showDragHandle: false,
         shape: RoundedRectangleBorder(
@@ -562,30 +604,30 @@ class AppTheme {
         ),
       ),
       listTileTheme: const ListTileThemeData(
-        iconColor: textSecondary,
+        iconColor: _textSecondaryLight,
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
         minVerticalPadding: 10,
         titleTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
         subtitleTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 13,
           fontWeight: FontWeight.w400,
-          color: textSecondary,
+          color: _textSecondaryLight,
         ),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? white : fieldFill,
+          (states) => states.contains(WidgetState.selected) ? _whiteLight : _fieldFillLight,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
               ? safeGreen
-              : dividerGray,
+              : _dividerGrayLight,
         ),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
@@ -594,12 +636,12 @@ class AppTheme {
         inactiveTrackColor: Color(0xFFE0E8DC),
         thumbColor: safeGreen,
         overlayColor: Color(0x14009A44),
-        valueIndicatorColor: textPrimary,
+        valueIndicatorColor: _textPrimaryLight,
         valueIndicatorTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: white,
+          color: _whiteLight,
         ),
         trackHeight: 4,
       ),
@@ -607,7 +649,7 @@ class AppTheme {
         fillColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
               ? safeGreen
-              : textTertiary,
+              : _textTertiaryLight,
         ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
@@ -616,23 +658,23 @@ class AppTheme {
         circularTrackColor: Color(0xFFE0E8DC),
       ),
       expansionTileTheme: const ExpansionTileThemeData(
-        iconColor: textSecondary,
-        collapsedIconColor: textSecondary,
-        textColor: textPrimary,
-        collapsedTextColor: textPrimary,
+        iconColor: _textSecondaryLight,
+        collapsedIconColor: _textSecondaryLight,
+        textColor: _textPrimaryLight,
+        collapsedTextColor: _textPrimaryLight,
         backgroundColor: Colors.transparent,
         collapsedBackgroundColor: Colors.transparent,
       ),
       tooltipTheme: const TooltipThemeData(
         decoration: BoxDecoration(
-          color: textPrimary,
+          color: _textPrimaryLight,
           borderRadius: BorderRadius.all(Radius.circular(radiusMicro)),
         ),
         textStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: white,
+          color: _whiteLight,
         ),
         waitDuration: Duration(milliseconds: 400),
       ),
@@ -682,7 +724,7 @@ class AppTheme {
         shadow: Colors.black,
         scrim: Colors.black,
         inverseSurface: darkTextPrimary,
-        onInverseSurface: textPrimary,
+        onInverseSurface: _textPrimaryLight,
         inversePrimary: safeGreen,
         surfaceTint: Colors.transparent,
       ),
@@ -851,7 +893,7 @@ class AppTheme {
           fontFamily: fontBody,
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
@@ -906,7 +948,7 @@ class AppTheme {
           fontFamily: fontBody,
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
         trackHeight: 4,
       ),
@@ -939,7 +981,7 @@ class AppTheme {
           fontFamily: fontBody,
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: textPrimary,
+          color: _textPrimaryLight,
         ),
         waitDuration: Duration(milliseconds: 400),
       ),

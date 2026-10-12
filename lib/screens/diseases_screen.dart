@@ -69,7 +69,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
         actions: [
           Text(
             '${widget.treatmentDatabase?.protocols.length ?? 0} протоколов',
-            style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+            style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
           ),
           const SizedBox(width: 8),
           IconButton(
@@ -93,14 +93,14 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               onSubmitted: (_) => FocusScope.of(context).unfocus(),
               decoration: InputDecoration(
                 hintText: 'Поиск болезни...',
-                prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
+                prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.dividerGray),
+                  borderSide: BorderSide(color: AppTheme.dividerGray),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.dividerGray),
+                  borderSide: BorderSide(color: AppTheme.dividerGray),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -140,7 +140,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               children: [
                 Text(
                   'Найдено: ${filteredDiseases.length}',
-                  style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
                 ),
                 if (_showOnlyDangerous)
                   Container(
@@ -361,14 +361,14 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
           // Код МУ
           Text(
             mu.code,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
           ),
           if (mu.description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 mu.description,
-                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
             ),
           if (mu.note != null && mu.note!.isNotEmpty)
@@ -376,7 +376,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 '📝 ${mu.note!}',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
               ),
             ),
         ],
@@ -423,19 +423,19 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
           if (protocol.pathogenType.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(protocol.pathogenType, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+              child: Text(protocol.pathogenType, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
             ),
           if (protocol.source.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(protocol.source, style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
+              child: Text(protocol.source, style: TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
             ),
 
           const Divider(height: 24),
 
           // Специфическая терапия
           if (protocol.hasPrimaryDrugs) ...[
-            const Text(
+            Text(
               'Специфическая терапия',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
             ),
@@ -446,7 +446,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   '...и ещё ${protocol.primaryDrugs.length - 10} препаратов',
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+                  style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
                 ),
               ),
           ],
@@ -454,7 +454,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
           // Симптоматическая терапия
           if (protocol.hasSupportiveTherapy) ...[
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Симптоматическая терапия',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
             ),
@@ -481,7 +481,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
                 '• $n',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
               ),
             )),
           ],
@@ -505,14 +505,14 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
           // Название и МНН
           Text(
             drug.name,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
           ),
           if (drug.inn.isNotEmpty && drug.inn.toLowerCase() != drug.name.toLowerCase())
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 drug.inn,
-                style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
               ),
             ),
           const SizedBox(height: 6),
@@ -536,7 +536,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 '🕐 Срок ожидания: ${drug.waitingPeriod}',
-                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
               ),
             ),
         ],
@@ -557,21 +557,21 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
         children: [
           Text(
             drug.name,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textPrimary),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.textPrimary),
           ),
           if (drug.inn.isNotEmpty)
-            Text(drug.inn, style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
+            Text(drug.inn, style: TextStyle(fontSize: 10, color: AppTheme.textTertiary, fontStyle: FontStyle.italic)),
           const SizedBox(height: 4),
           Wrap(
             spacing: 8,
             runSpacing: 2,
             children: [
               if (drug.dose.isNotEmpty && drug.dose != 'по инструкции')
-                Text('💊 ${drug.dose}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Text('💊 ${drug.dose}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
               if (drug.route.isNotEmpty && drug.route != 'по инструкции')
-                Text('📍 ${drug.route}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Text('📍 ${drug.route}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
               if (drug.frequency.isNotEmpty && drug.frequency != 'по инструкции')
-                Text('🔄 ${drug.frequency}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Text('🔄 ${drug.frequency}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
             ],
           ),
         ],
@@ -588,7 +588,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
       ),
       child: Text(
         '$label: $value',
-        style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+        style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
       ),
     );
   }
@@ -601,10 +601,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
         children: [
           SizedBox(
             width: 80,
-            child: Text('$label:', style: const TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+            child: Text('$label:', style: TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+            child: Text(value, style: TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
           ),
         ],
       ),

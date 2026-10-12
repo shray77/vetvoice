@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.16.1+21  # 🐛 Фиксы полевого отчёта: кеш баз, self-listening TTS/STT, чёрный экран из протоколов, Impeller→Skia
+version: 1.16.2+22  # 🐛 Фиксы полевого отчёта #2: Impeller реально выключен, поиск ожил (юникод-токены), Vosk без гонки, парсинг в изолятах, тёмная тема экранов
 
 environment:
   sdk: ^3.5.0

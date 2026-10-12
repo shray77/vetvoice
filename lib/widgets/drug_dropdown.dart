@@ -113,18 +113,18 @@ class _DrugDropdownState extends State<DrugDropdown> {
         TextField(
           controller: _searchController,
           focusNode: _focusNode,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: AppTheme.textPrimary,
           ),
           decoration: InputDecoration(
             hintText: widget.hintText,
-            hintStyle: const TextStyle(color: AppTheme.textTertiary),
-            prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
+            hintStyle: TextStyle(color: AppTheme.textTertiary),
+            prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, color: AppTheme.textSecondary),
+                    icon: Icon(Icons.clear, color: AppTheme.textSecondary),
                     onPressed: () {
                       _searchController.clear();
                       setState(() {
@@ -234,7 +234,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
                       Expanded(
                         child: Text(
                           _getSubtitle(drug),
-                          style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+                          style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -280,7 +280,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
             ),
             child: Text(
               'Ничего не найдено по запросу "${_searchController.text}"',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: AppTheme.textSecondary,
               ),

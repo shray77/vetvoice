@@ -163,7 +163,7 @@ class _WithdrawalCalculatorScreenState
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Spacer(),
-                    const Icon(Icons.edit, color: AppTheme.textTertiary, size: 18),
+                    Icon(Icons.edit, color: AppTheme.textTertiary, size: 18),
                   ],
                 ),
               ),
@@ -185,7 +185,7 @@ class _WithdrawalCalculatorScreenState
                   color: Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
                     Icon(Icons.warning_amber, color: Colors.orange, size: 32),
                     SizedBox(height: 8),
@@ -324,7 +324,7 @@ class _WithdrawalResultCard extends StatelessWidget {
                 children: [
                   Text(
                     result.product,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       color: AppTheme.textSecondary,
                     ),

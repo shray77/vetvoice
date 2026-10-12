@@ -162,6 +162,12 @@ class VoskWakeWordService(private val context: Context) {
 
     fun initialize(): Boolean {
         if (state == State.READY || state == State.LISTENING) return true
+        // ⚠️ Фикс v1.16.2: если загрузка УЖЕ идёт — НЕ отменяем и не перезапускаем её.
+        // Раньше каждый повторный вызов initialize() делал downloadJob?.cancel()
+        // и запускал скачивание заново: Dart-ретраи и кнопка «Загрузить» в
+        // настройках раз за разом обрывали 46-МБ файл на полпути — модель
+        // фактически не могла докачаться («воск по итогу не скачался»).
+        if (state == State.LOADING) return false
         setState(State.LOADING, "Проверка модели...")
         downloadJob?.cancel()
         downloadJob = scope.launch {
@@ -172,7 +178,7 @@ class VoskWakeWordService(private val context: Context) {
                     withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
                 } else {
                     withContext(Dispatchers.Main) {
-                        setState(State.LOADING, "Загрузка модели (~50 МБ)...")
+                        setState(State.LOADING, "Загрузка модели (~46 МБ)...")
                     }
                     downloadAndExtractModel(modelDir)
                     mainHandler.post { setState(State.LOADING, "Загрузка в память...") }

@@ -50,7 +50,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
         foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         actions: [
-          Text('$_resultCount', style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+          Text('$_resultCount', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           const SizedBox(width: 8),
         ],
       ),
@@ -59,7 +59,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             child: TextField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Поиск по МНН, названию, описанию...',
                 prefixIcon: Icon(Icons.search, color: AppTheme.textTertiary),
               ),
@@ -92,7 +92,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
           Expanded(
             child: list.isEmpty
                 ? Center(child: Text(_searchQuery.isEmpty ? 'Нет данных' : 'Ничего не найдено',
-                    style: const TextStyle(color: AppTheme.textTertiary, fontSize: 14)))
+                    style: TextStyle(color: AppTheme.textTertiary, fontSize: 14)))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
                     itemCount: list.length,
@@ -114,11 +114,11 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
           Text(p.drugNameInn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           if (p.tradeNames.isNotEmpty)
             Text(p.tradeNames.take(3).join(', '), style: const TextStyle(fontSize: 12, color: AppTheme.maleBlue)),
-          if (p.form.isNotEmpty) Text(p.form, style: const TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+          if (p.form.isNotEmpty) Text(p.form, style: TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
           if (p.description.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(p.description.length > 150 ? '${p.description.substring(0, 150)}...' : p.description,
-              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.4)),
+              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.4)),
           ],
           if (p.animalDosages.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -131,12 +131,12 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
                     decoration: const BoxDecoration(color: AppTheme.safeGreen, shape: BoxShape.circle)),
                   Text('${d.animal}: ', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   Expanded(child: Text('${d.doseMin > 0 ? d.doseMin : ''}${d.doseMin != d.doseMax ? '-${d.doseMax}' : ''} ${d.unit} ${d.route}',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
                 ],
               ),
             )),
             if (p.animalDosages.length > 3)
-              Text('+ ещё ${p.animalDosages.length - 3} дозировок', style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+              Text('+ ещё ${p.animalDosages.length - 3} дозировок', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           ],
           if (p.warnings.isNotEmpty)
             Padding(

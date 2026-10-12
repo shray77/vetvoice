@@ -107,7 +107,7 @@ class MethodSelector extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 availableMethodsString,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.textPrimary,

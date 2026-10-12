@@ -39,7 +39,7 @@ void main() async {
   ));
 }
 
-class VetVoiceApp extends StatelessWidget {
+class VetVoiceApp extends StatefulWidget {
   final ThemeService themeService;
   final bool disclaimerAccepted;
 
@@ -50,17 +50,46 @@ class VetVoiceApp extends StatelessWidget {
   });
 
   @override
+  State<VetVoiceApp> createState() => _VetVoiceAppState();
+}
+
+class _VetVoiceAppState extends State<VetVoiceApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // v1.16.2: следим за системной яркостью — при ThemeMode.system смена
+    // тёмного режима в системе должна перестроить дерево (иначе
+    // AppTheme-геттеры продолжат возвращать старую палитру).
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    widget.themeService.notifyPlatformBrightness();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: themeService,
+      animation: widget.themeService,
       builder: (context, _) {
         // Статус-бар под текущую тему (иконки читаемы и в dark).
-        final mode = themeService.themeMode;
+        final mode = widget.themeService.themeMode;
         final darkNow = mode == ThemeMode.dark ||
             (mode == ThemeMode.system &&
                 WidgetsBinding
                     .instance.platformDispatcher.platformBrightness ==
                     Brightness.dark);
+        // v1.16.2: глобальный флаг для theme-aware геттеров AppTheme —
+        // ДО построения MaterialApp, чтобы всё дерево этого кадра
+        // рисовалось уже новой палитрой.
+        AppTheme.applyBrightness(darkNow);
         SystemChrome.setSystemUIOverlayStyle(
           darkNow
               ? const SystemUiOverlayStyle(
@@ -78,9 +107,9 @@ class VetVoiceApp extends StatelessWidget {
           title: 'VetVoice AI',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,  // 🆕
-          themeMode: themeService.themeMode,  // 🆕 light / dark / system
-          home: disclaimerAccepted
+          darkTheme: AppTheme.darkTheme,
+          themeMode: widget.themeService.themeMode,
+          home: widget.disclaimerAccepted
               ? const HomeScreen()
               : const DisclaimerScreen(),
         );

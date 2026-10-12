@@ -110,10 +110,18 @@ class SymptomSearchService {
   }
 
   /// Токенизация текста: lower-case, удаление пунктуации, фильтр стоп-слов.
+  ///
+  /// v1.16.2 КРИТИЧЕСКИЙ ФИКС: раньше был RegExp(r'[^\w\s\-]') — в Dart
+  /// `\w` это ТОЛЬКО ASCII [A-Za-z0-9_], русские буквы под класс НЕ подходят,
+  /// поэтому вся кириллица заменялась пробелами: и индекс, и запрос
+  /// превращались в пустоту → поиск всегда возвращал 0 результатов.
+  /// Теперь юникодный класс \p{L}\p{N} (unicode: true) — буквы всех
+  /// алфавитов, включая кириллицу, остаются в токенах.
   List<String> _tokenize(String text) {
     final lower = text.toLowerCase();
-    // Удаляем пунктуацию, оставляем буквы/цифры/пробелы
-    final cleaned = lower.replaceAll(RegExp(r'[^\w\s\-]'), ' ');
+    // Удаляем пунктуацию, оставляем буквы/цифры/пробелы/дефис
+    final cleaned =
+        lower.replaceAll(RegExp(r'[^\p{L}\p{N}\s\-]', unicode: true), ' ');
     final tokens = cleaned.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
     // Фильтр стоп-слов и слишком коротких
     return tokens

@@ -144,10 +144,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await _vetProvider.initialize();
     await _speechService.initializeSTT();
     await _speechService.initializeTTS();
-    
-    // Инициализируем wake word service (Vosk)
-    await _wakeWordService.initialize();
-    
+
+    // v1.16.2: Vosk инициализируем БЕЗ ожидания. Если модель не скачана —
+    // скачивание (46 МБ) идёт фоном, статус живёт в настройках. Раньше
+    // await здесь блокировал старт на ~7 с (3 ретрая по 2-4 с), даже когда
+    // модель в принципе не была готова — пользователь видел «загрузку баз».
+    unawaited(_wakeWordService.initialize());
+
     debugPrint('✅ App initialized — STT: ${_speechService.isSTTReady}, TTS: ${_speechService.isTTSReady}, locale: ${_speechService.currentLocaleId}');
     // ⚠️ Фикс B-6: mounted-проверка после async-гэпа в _initializeApp.
     // Пользователь может закрыть экран до окончания инициализации.
@@ -616,11 +619,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Icon(icon, color: iconColor, size: 20)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
           ])),
-          const Icon(Icons.chevron_right, color: AppTheme.textTertiary, size: 20),
+          Icon(Icons.chevron_right, color: AppTheme.textTertiary, size: 20),
         ]),
       ),
     );
@@ -678,7 +681,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(height: 24),
           Text(
             _vetProvider.statusMessage,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               color: AppTheme.textSecondary,
             ),
@@ -846,7 +849,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'VetVoice AI',
               style: TextStyle(
                 fontSize: AppTheme.fontSizeTitle,
@@ -1251,7 +1254,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       decoration: BoxDecoration(
                         color: AppTheme.safeGreen,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
                   ),
@@ -1269,7 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Выберите животное',
           style: TextStyle(
             fontSize: 16,
@@ -1319,7 +1322,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Вес животного',
               style: TextStyle(
                 fontSize: 16,
@@ -1330,7 +1333,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             if (animal != null)
               Text(
                 '${animal.minWeight}-${animal.maxWeight > 100 ? "${animal.maxWeight.toStringAsFixed(0)}" : animal.maxWeight} кг',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: AppTheme.textTertiary,
                 ),
@@ -1342,7 +1345,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(height: 4),
           Text(
             animal.weightHint,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: AppTheme.textTertiary,
               fontStyle: FontStyle.italic,
@@ -1367,7 +1370,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           decoration: InputDecoration(
             hintText: 'Введите вес или скажите',
             suffixText: 'кг',
-            suffixStyle: const TextStyle(
+            suffixStyle: TextStyle(
               fontSize: 16,
               color: AppTheme.textSecondary,
             ),
@@ -1431,7 +1434,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Препарат',
               style: TextStyle(
                 fontSize: 16,
@@ -1441,7 +1444,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             Text(
               '${_vetProvider.totalDrugs} препаратов',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 color: AppTheme.textTertiary,
               ),
@@ -1468,7 +1471,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         // Селектор способа введения (показываем только если препарат выбран)
         if (_vetProvider.selectedDrug != null) ...[
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Способ введения',
             style: TextStyle(
               fontSize: 14,
@@ -1523,7 +1526,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: Icon(
                     _isListening ? Icons.mic : Icons.mic_none,
                     size: 48,
-                    color: AppTheme.white,
+                    color: Colors.white, // белый на зелёном — в обеих темах
                   ),
                 ),
               ),
@@ -1587,7 +1590,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Expanded(
             child: Text(
               _voiceStatusText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 color: AppTheme.textPrimary,
               ),
@@ -1608,7 +1611,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       child: Text(
         _voiceHint,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           color: AppTheme.textSecondary,
         ),
@@ -1685,7 +1688,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Быстрые команды',
           style: TextStyle(
             fontSize: 14,
