@@ -1602,8 +1602,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           MaterialPageRoute(
             builder: (_) => TreatmentProtocolsScreen(
               vetProvider: _vetProvider,
-              onDrugSelected: (drug) {
-                _vetProvider.selectDrug(drug);
+              // v1.16.4: из протокола прилетают ОБА — вид и препарат.
+              // selectAnimalFromSpecies НЕ сбрасывает препарат (в отличие от
+              // selectAnimal), поэтому вид подставляем ДО препарата.
+              // Раньше тут был голый selectDrug без setState: препарат
+              // «проявлялся» рывком только когда стримы WW/STT дёргали
+              // перерисовку, а животное вообще не подставлялось.
+              onDrugSelected: (drug, species) {
+                _vetProvider.selectAnimalFromSpecies(species);
+                if (_vetProvider.weight > 0) {
+                  _validateWeight(_vetProvider.weight);
+                }
+                _onDrugSelected(drug);
               },
             ),
           ),

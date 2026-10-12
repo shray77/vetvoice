@@ -16,6 +16,7 @@ import '../models/unofficial_protocol.dart';
 import '../models/fluid_therapy.dart';
 import '../models/verified_dosage.dart';
 import '../services/drug_loader_service.dart';
+import '../services/theme_service.dart';
 import '../utils/concentration_parser.dart';
 import '../widgets/method_selector.dart';
 
@@ -323,10 +324,15 @@ class VetProvider {
     }
     
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
+      final q = normalizeForSearch(_searchQuery);
+      final loose = _looseKey(_searchQuery);
       return all.where((d) {
-        if (d is CalcDrug) return d.name.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
-        if (d is RegistryDrug) return d.tradeName.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
+        if (d is CalcDrug) {
+          return _matchesSearchQuery(name: d.name, inn: d.inn, query: q, looseQuery: loose);
+        }
+        if (d is RegistryDrug) {
+          return _matchesSearchQuery(name: d.tradeName, inn: d.inn, query: q, looseQuery: loose);
+        }
         return false;
       }).toList();
     }
@@ -334,15 +340,59 @@ class VetProvider {
     return all;
   }
 
+  /// v1.16.4: нормализация для поиска. Полевой репорт #4: «нет АСД-10 для
+  /// протокола чумы КРС» — препарат в базе ЕСТЬ («АСД®-10», id 128), но
+  /// пользователь вводит «асд-10» без ®, а подстрока «асд-10» в «асд®-10»
+  /// разорвана символом ® → contains = false → «не найден». Кроме того ё/е
+  /// должны быть эквивалентны («Пчелы» ↔ «Пчёлы»).
+  static String normalizeForSearch(String s) {
+    return s
+        .toLowerCase()
+        .replaceAll('ё', 'е')
+        .replaceAll(RegExp(r'[®™©]'), '')
+        .trim();
+  }
+
+  /// «Мягкий» ключ: только буквы/цифры — для второго прохода, когда запрос
+  /// набран с другими разделителями («асд 10» / «асд10» ↔ «асд-10»). 
+  static String _looseKey(String s) {
+    return normalizeForSearch(s).replaceAll(RegExp(r'[^a-zа-я0-9]'), '');
+  }
+
+  /// Матч препарата под поисковый запрос: точная нормализованная подстрока,
+  /// затем — loose-проход (запрос от 3 символов, иначе шум).
+  static bool _matchesSearchQuery({
+    required String name,
+    required String inn,
+    required String query,
+    required String looseQuery,
+  }) {
+    final n = normalizeForSearch(name);
+    final i = normalizeForSearch(inn);
+    if (n.contains(query) || i.contains(query)) return true;
+    if (looseQuery.length >= 3) {
+      if (_looseKey(name).contains(looseQuery) ||
+          _looseKey(inn).contains(looseQuery)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /// 🆕 Sprint 2: Найти CalcDrug по названию (для протоколов лечения)
   CalcDrug? findCalcDrugByName(String name) {
     if (_calcDatabase == null) return null;
-    final lower = name.toLowerCase().trim();
+    final q = normalizeForSearch(name);
+    if (q.isEmpty) return null;
+    final loose = _looseKey(name);
     try {
       return _calcDatabase!.drugs.firstWhere(
-        (d) =>
-            d.name.toLowerCase().contains(lower) ||
-            d.inn.toLowerCase().contains(lower),
+        (d) => _matchesSearchQuery(
+          name: d.name,
+          inn: d.inn,
+          query: q,
+          looseQuery: loose,
+        ),
       );
     } catch (_) {
       return null;
@@ -391,10 +441,15 @@ class VetProvider {
     debugPrint('📊 Всего препаратов для $animalName: ${filtered.length}');
 
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
+      final q = normalizeForSearch(_searchQuery);
+      final loose = _looseKey(_searchQuery);
       return filtered.where((d) {
-        if (d is CalcDrug) return d.name.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
-        if (d is RegistryDrug) return d.tradeName.toLowerCase().contains(q) || d.inn.toLowerCase().contains(q);
+        if (d is CalcDrug) {
+          return _matchesSearchQuery(name: d.name, inn: d.inn, query: q, looseQuery: loose);
+        }
+        if (d is RegistryDrug) {
+          return _matchesSearchQuery(name: d.tradeName, inn: d.inn, query: q, looseQuery: loose);
+        }
         return false;
       }).toList();
     }
@@ -449,6 +504,17 @@ class VetProvider {
       _interactionDatabase = loadResult.interactionDatabase;
       _isOnline = loadResult.fromNetwork;
       _statusMessage = loadResult.source;
+
+      // v1.16.4: «Версия базы» в настройках вечно показывала «Загрузка...» —
+      // ThemeService.setDatabaseInfo не вызывался НИГДЕ (мёртвый фиче-код).
+      // Заполняем сразу после ядра: version/last_updated лежат в самом JSON.
+      final db = _calcDatabase;
+      if (db != null) {
+        final buf = StringBuffer('v${db.version} · ${db.drugs.length} препаратов');
+        if (db.lastUpdated.isNotEmpty) buf.write(' · обновлено ${db.lastUpdated}');
+        buf.write(loadResult.fromNetwork ? ' · сеть' : ' · кеш');
+        unawaited(ThemeService().setDatabaseInfo(buf.toString()));
+      }
 
       // DEBUG: Проверяем загрузку животных
       if (_calcDatabase != null) {
@@ -536,6 +602,35 @@ class VetProvider {
     _result = const DoseResult();
     _selectedDrugHistory.clear();
     if (_weight > 0) _validateWeight(_weight);
+  }
+
+  /// v1.16.4: подбор животного калькулятора по видам из протокола лечения.
+  /// Полевой репорт #4: «автоматом не подставляет животное хотя бы из
+  /// протоколов, только препарат». Виды в протоколах не совпадают 1-в-1 с
+  /// названиями животных базы: «Пчелы»/«Пчёлы» (е/ё), «Пушные» vs
+  /// «Пушные звери», опечатки регистра («КРс»), служебное «Все». Матчим
+  /// первый вид, который узнаётся одним из животных (нормализация ё→е,
+  /// префиксы в обе стороны). Возвращает id выбранного животного или null.
+  /// ⚠️ НЕ сбрасывает препарат (в отличие от selectAnimal) — вызывать ДО
+  /// selectDrug, чтобы из протокола прилетали ОБА: и вид, и препарат.
+  String? selectAnimalFromSpecies(List<String> species) {
+    if (_calcDatabase == null || species.isEmpty) return null;
+    String norm(String s) =>
+        s.toLowerCase().replaceAll('ё', 'е').trim();
+    for (final s in species) {
+      final target = norm(s);
+      if (target.isEmpty || target == 'все') continue;
+      for (final a in _calcDatabase!.animals) {
+        final name = norm(a.name);
+        if (name.isEmpty) continue;
+        if (name == target || name.startsWith(target) || target.startsWith(name)) {
+          _selectedAnimalId = a.id;
+          if (_weight > 0) _validateWeight(_weight);
+          return a.id;
+        }
+      }
+    }
+    return null;
   }
 
   void selectDrug(dynamic drug) {

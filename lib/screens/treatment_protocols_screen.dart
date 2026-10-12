@@ -141,7 +141,10 @@ class TreatmentProtocol {
 
 class TreatmentProtocolsScreen extends StatefulWidget {
   final VetProvider vetProvider;
-  final void Function(CalcDrug)? onDrugSelected;
+
+  /// v1.16.4: колбэк получает и вид(ы) из протокола — home подставит
+  /// животное автоматически (раньше прилетал только препарат).
+  final void Function(CalcDrug drug, List<String> species)? onDrugSelected;
 
   const TreatmentProtocolsScreen({
     super.key,
@@ -353,7 +356,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
 class _ProtocolCard extends StatefulWidget {
   final TreatmentProtocol protocol;
   final VetProvider vetProvider;
-  final void Function(CalcDrug)? onDrugSelected;
+  final void Function(CalcDrug drug, List<String> species)? onDrugSelected;
 
   const _ProtocolCard({
     required this.protocol,
@@ -450,6 +453,7 @@ class _ProtocolCardState extends State<_ProtocolCard> {
                     ),
                   ...p.allDrugs.map((d) => _ProtocolDrugItem(
                         drug: d,
+                        species: p.species,
                         vetProvider: widget.vetProvider,
                         onDrugSelected: widget.onDrugSelected,
                       )),
@@ -464,11 +468,13 @@ class _ProtocolCardState extends State<_ProtocolCard> {
 
 class _ProtocolDrugItem extends StatelessWidget {
   final Map<String, dynamic> drug;
+  final List<String> species;
   final VetProvider vetProvider;
-  final void Function(CalcDrug)? onDrugSelected;
+  final void Function(CalcDrug drug, List<String> species)? onDrugSelected;
 
   const _ProtocolDrugItem({
     required this.drug,
+    required this.species,
     required this.vetProvider,
     this.onDrugSelected,
   });
@@ -555,7 +561,9 @@ class _ProtocolDrugItem extends StatelessWidget {
                   // Найдём препарат в vetProvider
                   final calcDrug = vetProvider.findCalcDrugByName(name);
                   if (calcDrug != null && onDrugSelected != null) {
-                    onDrugSelected!(calcDrug);
+                    // v1.16.4: передаём и вид из протокола — home подставит
+                    // животное (КРС/Собаки/...) автоматически.
+                    onDrugSelected!(calcDrug, species);
                     // v1.16.1: только ОДИН pop — возвращаемся на home,
                     // где калькулятор уже получил препарат. Раньше стоял
                     // двойной pop: второй выталкивал сам home → пустой

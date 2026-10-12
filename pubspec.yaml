@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.16.3+23  # 🐛 Фиксы полевого отчёта #2: Impeller реально выключен, поиск ожил (юникод-токены), Vosk без гонки, парсинг в изолятах, тёмная тема экранов
+version: 1.16.4+24  # 🐛 Фиксы полевого отчёта #4: Vosk «директория не найдена» (ZIP без model/ + вечная перескачка), поиск с ®/ё-нормализацией («нет АСД-10»), авто-подстановка животного из протокола, «Версия базы» больше не висит в «Загрузке»
 
 environment:
   sdk: ^3.5.0

@@ -49,7 +49,6 @@ class VoskWakeWordService(private val context: Context) {
         private const val LAST_CHECK_KEY = "vosk_last_check"
         private const val MODEL_DIR_NAME = "vosk-model-ru"
         private const val SAMPLE_RATE = 16000f
-        private const val CHECK_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
         // v1.16.3: параметры скачивания. readTimeout — таймаут ОДНОГО блока чтения
         // (не всего файла), поэтому можно смело ставить большой: соединение,
         // отдающее хоть байт в 3 минуты, считается живым.
@@ -57,6 +56,8 @@ class VoskWakeWordService(private val context: Context) {
         private const val DOWNLOAD_CONNECT_TIMEOUT_MS = 20000
         private const val DOWNLOAD_READ_TIMEOUT_MS = 180000
         private const val FALLBACK_TOTAL_MB = 44.0
+        // v1.16.4: CHECK_INTERVAL_MS удалён вместе с 7-дневным перекачиванием
+        // модели (см. initialize, случай A).
     }
 
     enum class State { IDLE, LOADING, READY, LISTENING, ERROR }
@@ -188,17 +189,38 @@ class VoskWakeWordService(private val context: Context) {
         downloadJob = scope.launch {
             try {
                 val modelDir = File(context.filesDir, MODEL_DIR_NAME)
-                if (isModelPresent(modelDir) && !needsUpdate()) {
+                // v1.16.4: трёхуровневая логика вместо «isModelPresent && !needsUpdate()»:
+                //  A) модель на месте и версия совпадает → грузим сразу, ноль сети;
+                //  B) модель на месте, версия НЕИЗВЕСТНА (грязное состояние после
+                //     бага «директория не найдена»: файлы распакованы, а prefs
+                //     записываются только после успешной загрузки) → сначала
+                //     пробуем загрузить существующую копию, и только если она
+                //     битая — качаем. Убирает лишние 46 МБ при первом запуске
+                //     после обновления;
+                //  C) модели нет ИЛИ версия сменилась (MODEL_VERSION бампнут
+                //     намеренно) ИЛИ существующая копия не загрузилась → качаем.
+                //  Еженедельный перекачивающий чек (needsUpdate/CHECK_INTERVAL_MS)
+                //  убран: 46 МБ каждые 7 дней в поле — это не «обновление», а вред.
+                val savedVersion = prefs.getString(MODEL_VERSION_KEY, null)
+                val present = isModelPresent(modelDir)
+                if (present && savedVersion == MODEL_VERSION) {
+                    // Случай A
                     mainHandler.post { setState(State.LOADING, "Загрузка в память...") }
                     withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        setState(State.LOADING, "Загрузка модели (~46 МБ)...")
-                    }
-                    downloadAndExtractModel(modelDir)
-                    mainHandler.post { setState(State.LOADING, "Загрузка в память...") }
-                    withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
+                    return@launch
                 }
+                if (present && savedVersion == null &&
+                    loadModelFromDir(modelDir, silent = true)) {
+                    // Случай B: существующая копия жива — prefs уже записаны
+                    return@launch
+                }
+                // Случай C
+                withContext(Dispatchers.Main) {
+                    setState(State.LOADING, "Загрузка модели (~46 МБ)...")
+                }
+                downloadAndExtractModel(modelDir)
+                mainHandler.post { setState(State.LOADING, "Загрузка в память...") }
+                withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
             } catch (e: CancellationException) {
                 withContext(Dispatchers.Main) { setState(State.IDLE, "Загрузка отменена") }
             } catch (e: Exception) {
@@ -275,58 +297,59 @@ class VoskWakeWordService(private val context: Context) {
         setState(State.IDLE, "")
     }
 
-    private fun isModelPresent(modelDir: File): Boolean {
-        val amFile = File(modelDir, "model/am")
-        if (amFile.exists() && amFile.isDirectory) return true
-        // Fallback: если модель распакована с корневой папкой ZIP
-        modelDir.listFiles()?.firstOrNull { it.isDirectory && it.name.contains("vosk-model") }?.let {
-            return File(it, "model/am").exists() && File(it, "model/am").isDirectory
-        }
-        // Fallback: ищем model/am рекурсивно на один уровень
-        modelDir.listFiles()?.forEach { dir ->
-            if (dir.isDirectory) {
-                val candidate = File(dir, "am")
-                if (candidate.exists() && candidate.isDirectory) return true
+    /**
+     * v1.16.4: единый резолвер корня модели. Официальный ZIP
+     * vosk-model-small-ru-0.22.zip НЕ содержит папки model/ — внутри сразу
+     * vosk-model-small-ru-0.22/{am,conf,graph}. После strip-распаковки
+     * (v1.16.3) файлы ложатся ПРЯМО в modelDir, а старые проверки искали
+     * только File(modelDir, "model"): модель распаковывалась, но не
+     * загружалась («директория не найдена»), prefs о готовности не
+     * записывались, и при следующем запуске isModelPresent был false →
+     * 46 МБ качались ЗАНОВО при каждом старте. Поддерживаем все раскладки:
+     *   1) <modelDir>/model/{am,conf}          — классическая
+     *   2) <modelDir>/vosk-model-*/{am,conf}   — ZIP-корень без strip
+     *   3) <modelDir>/{am,conf}                — наша strip-распаковка
+     */
+    private fun looksLikeModel(dir: File): Boolean =
+        File(dir, "am").isDirectory &&
+            (File(dir, "conf").isDirectory || File(dir, "graph").isDirectory)
+
+    private fun resolveModelPath(modelDir: File): File? {
+        // 1) Классическая раскладка
+        val classic = File(modelDir, "model")
+        if (classic.isDirectory && looksLikeModel(classic)) return classic
+        // 2) Вложенный корень ZIP (старые распаковки, обновление поверх)
+        modelDir.listFiles()?.forEach { child ->
+            if (child.isDirectory) {
+                if (looksLikeModel(child)) return child
+                val nested = File(child, "model")
+                if (nested.isDirectory && looksLikeModel(nested)) return nested
             }
         }
-        return false
+        // 3) Strip-распаковка: сам modelDir и есть корень модели
+        if (looksLikeModel(modelDir)) return modelDir
+        return null
     }
 
-    private fun needsUpdate(): Boolean {
-        val lastCheck = prefs.getLong(LAST_CHECK_KEY, 0)
-        return prefs.getString(MODEL_VERSION_KEY, null) != MODEL_VERSION ||
-            (System.currentTimeMillis() - lastCheck) > CHECK_INTERVAL_MS
-    }
+    private fun isModelPresent(modelDir: File): Boolean = resolveModelPath(modelDir) != null
 
-    private fun loadModelFromDir(modelDir: File) {
+    // v1.16.4: needsUpdate() удалён вместе с 7-дневным чеком — решение о
+    // скачивании теперь принимает initialize (случаи A/B/C, см. комментарий там).
+
+    private fun loadModelFromDir(modelDir: File, silent: Boolean = false): Boolean {
+        // v1.16.4: возвращает успех; silent=true не показывает ERROR-состояния
+        // (используется для пробной загрузки существующей копии в initialize).
         try {
-            // Ищем директорию модели — сначала стандартный путь, потом fallback
-            var modelPath = File(modelDir, "model")
-            if (!modelPath.exists()) {
-                // Модель может быть внутри подпапки (vosk-model-small-ru-0.22/model/)
-                modelDir.listFiles()?.firstOrNull { it.isDirectory && it.name.contains("vosk-model") }?.let {
-                    val candidate = File(it, "model")
-                    if (candidate.exists()) modelPath = candidate
-                }
-                // Последний шанс — ищем любую папку с model/conf
-                if (!modelPath.exists()) {
-                    modelDir.listFiles()?.forEach { dir ->
-                        if (dir.isDirectory) {
-                            val conf = File(dir, "conf")
-                            if (conf.exists() && conf.isDirectory) {
-                                modelPath = dir
-                                return@forEach
-                            }
-                        }
-                    }
-                }
-            }
+            // v1.16.4: все раскладки через единый резолвер (см. resolveModelPath)
+            val modelPath = resolveModelPath(modelDir)
 
-            if (!modelPath.exists()) {
-                setState(State.ERROR, "Директория модели не найдена")
+            if (modelPath == null) {
                 Log.e(TAG, "Model dir not found in: ${modelDir.absolutePath}")
                 modelDir.listFiles()?.forEach { f -> Log.d(TAG, "  ${f.name} (${if (f.isDirectory) "dir" else "file"})") }
-                return
+                if (!silent) {
+                    setState(State.ERROR, "Директория модели не найдена")
+                }
+                return false
             }
 
             Log.d(TAG, "Loading model from: ${modelPath.absolutePath}")
@@ -337,9 +360,13 @@ class VoskWakeWordService(private val context: Context) {
                 .putLong(LAST_CHECK_KEY, System.currentTimeMillis())
                 .putString(MODEL_VERSION_KEY, MODEL_VERSION)
                 .apply()
+            return true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load model", e)
-            setState(State.ERROR, "Ошибка загрузки модели: ${e.localizedMessage}")
+            if (!silent) {
+                setState(State.ERROR, "Ошибка загрузки модели: ${e.localizedMessage}")
+            }
+            return false
         }
     }
 
