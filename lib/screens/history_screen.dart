@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import '../services/history_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/empty_state.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -78,24 +79,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('🕒', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          Text(
-            'История пустая',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Здесь появятся ваши расчёты\nпосле первого использования',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
+    // v1.17.0: общий EmptyState вместо self-made Column — theme-aware
+    // (старый Colors.grey[600] слепнул в тёмной теме)
+    return const EmptyState(
+      emoji: '🕒',
+      title: 'История пустая',
+      message: 'Здесь появятся ваши расчёты\nпосле первого использования',
     );
   }
 

@@ -13,6 +13,7 @@ import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/empty_state.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -98,24 +99,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('⭐', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          Text(
-            'Избранное пустое',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
+    // v1.17.0: общий EmptyState вместо self-made Column — theme-aware
+    // (старый Colors.grey[600] слепнул в тёмной теме)
+    return const EmptyState(
+      emoji: '⭐',
+      title: 'Избранное пустое',
+      message: 'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
     );
   }
 

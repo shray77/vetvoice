@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.16.5+25  # 🐛 Фикс полевого отчёта #5: вылет при первом Model() — R8 переименовывал com.sun.jna.Pointer (правила ProGuard хранили несуществующий пакет com.alphacephei, а не org.vosk/com.sun.jna) → UnsatisfiedLinkError в нативном initIDs; теперь JNA/vosk хранятся целиком + все Vosk-пути ловят Throwable (деградация в ERROR вместо вылета) + mapping.txt в релизах для деобфускации стектрейсов
+version: 1.17.0+26  # 🧩 Фаза 1 визуального рефактора: библиотека общих компонентов lib/widgets/common/ (AppScaffold, StatusChip, EmptyState, DrugPicker, VoiceStatusBar) — аддитивно, без переписывания экранов; демо-встраивания: EmptyState в избранном/истории (заодно исправлен слепнущий в тёмной теме Colors.grey[600]), VoiceStatusBar в настройках (живой статус Vosk + прогресс-бар + кнопки из компонента)
 
 environment:
   sdk: ^3.5.0
