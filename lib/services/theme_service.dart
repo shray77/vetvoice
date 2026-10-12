@@ -20,6 +20,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeService extends ChangeNotifier {
+  // v1.16: синглтон. Раньше main.dart и settings_screen.dart создавали
+  // РАЗНЫЕ инстансы — переключение темы из настроек не доходило до
+  // MaterialApp, а radio показывал не текущий режим.
+  ThemeService._internal();
+  static final ThemeService _instance = ThemeService._internal();
+  factory ThemeService() => _instance;
+
   static const String _key = 'vetvoice_theme_mode';
   static const String _dbInfoKey = 'vetvoice_db_info';
 

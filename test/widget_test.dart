@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vetvoice_ai/main.dart';
+import 'package:vetvoice_ai/services/theme_service.dart';
 
 /// Smoke test для VetVoiceApp.
 ///
@@ -10,12 +11,16 @@ import 'package:vetvoice_ai/main.dart';
 /// асинхронно грузит базы препаратов (через `DrugLoaderService.initialize`),
 /// поэтому на первом фрейме текста ещё нет, тест зависал или падал в CI.
 ///
-/// Теперь тест проверяет только то, что MaterialApp с `HomeScreen` строится
-/// без исключений и MaterialApp с заголовком 'VetVoice AI' создаётся.
-/// Полные интеграционные тесты (с моком `DrugLoaderService`) — отдельная задача.
+/// ⚠️ Фикс v1.16: `VetVoiceApp` требует `themeService` и `disclaimerAccepted`
+/// (прежний `const VetVoiceApp()` не компилировался). Даём синглтон
+/// `ThemeService()` (без init — SharedPreferences не трогается) и
+/// `disclaimerAccepted: false` — рендерится DisclaimerScreen, без сети.
 void main() {
   testWidgets('VetVoiceApp строится без исключений', (WidgetTester tester) async {
-    await tester.pumpWidget(const VetVoiceApp());
+    await tester.pumpWidget(VetVoiceApp(
+      themeService: ThemeService(),
+      disclaimerAccepted: false,
+    ));
 
     // MaterialApp с заголовком 'VetVoice AI' должен существовать
     expect(find.byType(MaterialApp), findsOneWidget);

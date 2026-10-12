@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Дизайн-система VetVoice v1.16: бренд-фон запуска -->
+    <color name="launch_bg">#F6F9F3</color>
+</resources>

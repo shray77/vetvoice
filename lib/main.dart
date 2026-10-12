@@ -54,6 +54,26 @@ class VetVoiceApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: themeService,
       builder: (context, _) {
+        // Статус-бар под текущую тему (иконки читаемы и в dark).
+        final mode = themeService.themeMode;
+        final darkNow = mode == ThemeMode.dark ||
+            (mode == ThemeMode.system &&
+                WidgetsBinding
+                    .instance.platformDispatcher.platformBrightness ==
+                    Brightness.dark);
+        SystemChrome.setSystemUIOverlayStyle(
+          darkNow
+              ? const SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
+                )
+              : const SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.light,
+                ),
+        );
         return MaterialApp(
           title: 'VetVoice AI',
           debugShowCheckedModeBanner: false,

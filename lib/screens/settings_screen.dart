@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('⚙️ Настройки')),
+      appBar: AppBar(title: const Text('Настройки')),
       body: ListView(
         children: [
           // === Тема ===
@@ -60,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '7.5',
+                applicationVersion: '1.16.0',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),
