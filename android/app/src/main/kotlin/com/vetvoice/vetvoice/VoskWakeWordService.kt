@@ -151,13 +151,13 @@ class VoskWakeWordService(private val context: Context) {
             return
         }
         // Останавливаем текущие ресурсы
-        try { speechService?.stop() } catch (e: Exception) {
+        try { speechService?.stop() } catch (e: Throwable) {
             Log.w(TAG, "restartRecognition: speechService.stop() error: ${e.localizedMessage}")
         }
-        try { speechService?.shutdown() } catch (e: Exception) {
+        try { speechService?.shutdown() } catch (e: Throwable) {
             Log.w(TAG, "restartRecognition: speechService.shutdown() error: ${e.localizedMessage}")
         }
-        try { voskRecognizer?.close() } catch (e: Exception) {
+        try { voskRecognizer?.close() } catch (e: Throwable) {
             Log.w(TAG, "restartRecognition: recognizer.close() error: ${e.localizedMessage}")
         }
         speechService = null
@@ -168,7 +168,9 @@ class VoskWakeWordService(private val context: Context) {
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю... (рестарт)")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Throwable, не Exception: UnsatisfiedLinkError/Error от нативного Vosk
+            // не должен ронять приложение — деградируем до ERROR-статуса (v1.16.5)
             Log.e(TAG, "restartRecognition: failed to recreate", e)
             setState(State.ERROR, "Ошибка рестарта: ${e.localizedMessage}")
         }
@@ -223,7 +225,11 @@ class VoskWakeWordService(private val context: Context) {
                 withContext(Dispatchers.Main) { loadModelFromDir(modelDir) }
             } catch (e: CancellationException) {
                 withContext(Dispatchers.Main) { setState(State.IDLE, "Загрузка отменена") }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                // Throwable: UnsatisfiedLinkError (нативный JNA/Vosk) — это Error,
+                // catch(Exception) его НЕ ловил → вылет приложения (v1.16.5).
+                // Ловим после CancellationException-ветки — отмена корутины
+                // обрабатывается выше и сюда не попадает.
                 Log.e(TAG, "Initialization error", e)
                 withContext(Dispatchers.Main) {
                     setState(State.ERROR, "Ошибка: ${e.localizedMessage}")
@@ -246,7 +252,7 @@ class VoskWakeWordService(private val context: Context) {
             speechService = SpeechService(voskRecognizer!!, SAMPLE_RATE)
             speechService?.startListening(recognitionListener)
             setState(State.LISTENING, "Слушаю...")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             setState(State.ERROR, "Ошибка запуска: ${e.localizedMessage}")
         }
     }
@@ -256,18 +262,18 @@ class VoskWakeWordService(private val context: Context) {
             Log.d(TAG, "stopListening: releasing microphone resources...")
             try {
                 speechService?.stop()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.w(TAG, "speechService.stop() error: ${e.localizedMessage}")
             }
             try {
                 speechService?.shutdown()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.w(TAG, "speechService.shutdown() error: ${e.localizedMessage}")
             }
             speechService = null
             try {
                 voskRecognizer?.close()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.w(TAG, "voskRecognizer.close() error: ${e.localizedMessage}")
             }
             voskRecognizer = null
@@ -291,7 +297,7 @@ class VoskWakeWordService(private val context: Context) {
         downloadJob?.cancel()
         try {
             voskModel?.close()
-        } catch (_: Exception) {}
+        } catch (_: Throwable) {}
         voskModel = null
         scope.cancel()
         setState(State.IDLE, "")
@@ -361,7 +367,11 @@ class VoskWakeWordService(private val context: Context) {
                 .putString(MODEL_VERSION_KEY, MODEL_VERSION)
                 .apply()
             return true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Throwable: Model() триггерит статическую инициализацию JNA
+            // (LibVosk/Native <clinit>) — падение там это UnsatisfiedLinkError
+            // (Error, не Exception): catch(Exception) пропускал его наверх и
+            // приложение вылетало (полевой репорт v1.16.4). Деградируем до ERROR.
             Log.e(TAG, "Failed to load model", e)
             if (!silent) {
                 setState(State.ERROR, "Ошибка загрузки модели: ${e.localizedMessage}")

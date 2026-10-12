@@ -86,6 +86,14 @@ jobs:
           if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
             cp build/app/outputs/bundle/release/app-release.aab "artifacts/vetvoice-${VERSION}.aab"
           fi
+          # v1.16.5: R8 mapping для деобфускации полевых стектрейсов
+          # (нативные крэши JNA/Vosk приходят с перепутанными номерами строк)
+          if [ -f build/app/outputs/mapping/release/mapping.txt ]; then
+            cp build/app/outputs/mapping/release/mapping.txt "artifacts/mapping-${VERSION}.txt"
+            echo "mapping.txt added to artifacts"
+          else
+            echo "WARNING: mapping.txt not found"
+          fi
           ls -la artifacts/
 
       - name: Upload artifact

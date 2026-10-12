@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.16.4+24  # 🐛 Фиксы полевого отчёта #4: Vosk «директория не найдена» (ZIP без model/ + вечная перескачка), поиск с ®/ё-нормализацией («нет АСД-10»), авто-подстановка животного из протокола, «Версия базы» больше не висит в «Загрузке»
+version: 1.16.5+25  # 🐛 Фикс полевого отчёта #5: вылет при первом Model() — R8 переименовывал com.sun.jna.Pointer (правила ProGuard хранили несуществующий пакет com.alphacephei, а не org.vosk/com.sun.jna) → UnsatisfiedLinkError в нативном initIDs; теперь JNA/vosk хранятся целиком + все Vosk-пути ловят Throwable (деградация в ERROR вместо вылета) + mapping.txt в релизах для деобфускации стектрейсов
 
 environment:
   sdk: ^3.5.0
