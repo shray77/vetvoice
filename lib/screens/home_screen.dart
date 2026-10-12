@@ -1620,9 +1620,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         expand: false,
         builder: (context, scrollController) => Container(
           padding: const EdgeInsets.only(top: 12),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          // v1.16: theme-aware — в тёмной теме был белый лист с белым текстом
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppTheme.darkBackground
+                : AppTheme.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
             controller: scrollController,

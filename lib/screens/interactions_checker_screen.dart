@@ -223,8 +223,9 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
                           child: const Center(
                             child: Text(
                               'Добавьте 2+ препарата для проверки совместимости',
+                              // v1.16: textTertiary был почти невидим на светлом фоне
                               style:
-                                  TextStyle(color: AppTheme.textTertiary, fontSize: 13),
+                                  TextStyle(color: AppTheme.textSecondary, fontSize: 13),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -578,8 +579,7 @@ class _AddDrugSearchState extends State<_AddDrugSearch> {
           decoration: InputDecoration(
             hintText: 'Поиск по названию или МНН...',
             prefixIcon: const Icon(Icons.search),
-            filled: true,
-            fillColor: AppTheme.backgroundGray,
+            // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: BorderSide.none,

@@ -24,7 +24,9 @@ class ThemeService extends ChangeNotifier {
   static const String _dbInfoKey = 'vetvoice_db_info';
 
   SharedPreferences? _prefs;
-  ThemeMode _themeMode = ThemeMode.system;
+  // v1.16: дефолт light, а не system — тёмная тема недоведена (захардкоженные
+  // светлые поверхности дают белый-на-сером); выбрать dark можно в настройках
+  ThemeMode _themeMode = ThemeMode.light;
   String? _databaseInfo;
 
   ThemeMode get themeMode => _themeMode;
@@ -42,7 +44,7 @@ class ThemeService extends ChangeNotifier {
         break;
       case 'system':
       default:
-        _themeMode = ThemeMode.system;
+        _themeMode = ThemeMode.light;
     }
     _databaseInfo = _prefs?.getString(_dbInfoKey);
     notifyListeners();

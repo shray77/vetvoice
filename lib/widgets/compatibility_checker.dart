@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
+import '../utils/app_theme.dart';
 
 /// Экран/диалог для проверки совместимости двух препаратов
 class CompatibilityChecker extends StatefulWidget {
@@ -115,7 +116,10 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // v1.16: theme-aware — в тёмной теме был белый остров с белым текстом
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.darkSurface
+            : AppTheme.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -132,7 +136,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
           // Заголовок
           Row(
             children: [
-              const Icon(Icons.compare_arrows, color: Colors.deepPurple),
+              const Icon(Icons.compare_arrows, color: AppTheme.safeGreen),
               const SizedBox(width: 8),
               const Text(
                 'Проверка совместимости',
@@ -213,8 +217,8 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                   : const Icon(Icons.search),
               label: const Text('Проверить совместимость'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
+                backgroundColor: AppTheme.safeGreen,
+                foregroundColor: AppTheme.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -285,7 +289,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+              borderSide: const BorderSide(color: AppTheme.safeGreen, width: 2),
             ),
           ),
         ),

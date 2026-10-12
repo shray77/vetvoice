@@ -115,7 +115,10 @@ class _ResultCardState extends State<ResultCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray,
+        // v1.16: theme-aware — белый остров в тёмной теме
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.darkSurfaceLight
+            : AppTheme.backgroundGray,
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
       ),
       child: Column(
@@ -180,7 +183,9 @@ class _ResultCardState extends State<ResultCard> {
           decoration: BoxDecoration(
             color: hasRiskWarnings
                 ? AppTheme.errorRed.withOpacity(0.05)
-                : Colors.white,
+                : Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.darkSurface
+                    : AppTheme.white,
             borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
             border: Border.all(
               color: hasRiskWarnings
@@ -624,7 +629,10 @@ class _ResultCardState extends State<ResultCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // v1.16: theme-aware
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.darkSurface
+            : AppTheme.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
         border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
       ),

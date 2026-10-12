@@ -417,8 +417,7 @@ class _DrugSelectorState extends State<_DrugSelector> {
                     },
                   )
                 : null,
-            filled: true,
-            fillColor: AppTheme.backgroundGray,
+            // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: BorderSide.none,
@@ -448,7 +447,10 @@ class _DrugSelectorState extends State<_DrugSelector> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 250),
             decoration: BoxDecoration(
-              color: AppTheme.white,
+              // v1.16: theme-aware
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.darkSurface
+                  : AppTheme.white,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(color: AppTheme.dividerGray),
               boxShadow: AppTheme.softShadow,

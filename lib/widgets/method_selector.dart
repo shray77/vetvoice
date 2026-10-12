@@ -90,7 +90,10 @@ class MethodSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray,
+        // v1.16: theme-aware — в тёмной теме был светлый остров
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.darkSurfaceLight
+            : AppTheme.backgroundGray,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(color: AppTheme.dividerGray),
       ),
@@ -130,7 +133,15 @@ class MethodSelector extends StatelessWidget {
                     children: [
                       Icon(m.icon, size: 18, color: AppTheme.textSecondary),
                       const SizedBox(width: 8),
-                      Text(m.displayName),
+                      // v1.16: явный цвет — в тёмной теме текст пунктов был невидим
+                      Text(
+                        m.displayName,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     ],
                   ),
                 )),

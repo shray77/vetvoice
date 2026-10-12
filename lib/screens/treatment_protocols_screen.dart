@@ -235,8 +235,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                               },
                             )
                           : null,
-                      filled: true,
-                      fillColor: AppTheme.backgroundGray,
+                      // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusLarge),
