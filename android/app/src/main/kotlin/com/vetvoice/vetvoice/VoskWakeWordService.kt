@@ -300,15 +300,15 @@ class VoskWakeWordService(private val context: Context) {
     /**
      * v1.16.4: единый резолвер корня модели. Официальный ZIP
      * vosk-model-small-ru-0.22.zip НЕ содержит папки model/ — внутри сразу
-     * vosk-model-small-ru-0.22/{am,conf,graph}. После strip-распаковки
+     * vosk-model-small-ru-0.22/[am,conf,graph]. После strip-распаковки
      * (v1.16.3) файлы ложатся ПРЯМО в modelDir, а старые проверки искали
      * только File(modelDir, "model"): модель распаковывалась, но не
      * загружалась («директория не найдена»), prefs о готовности не
      * записывались, и при следующем запуске isModelPresent был false →
      * 46 МБ качались ЗАНОВО при каждом старте. Поддерживаем все раскладки:
-     *   1) <modelDir>/model/{am,conf}          — классическая
-     *   2) <modelDir>/vosk-model-*/{am,conf}   — ZIP-корень без strip
-     *   3) <modelDir>/{am,conf}                — наша strip-распаковка
+     *   1) modelDir/model/[am,conf]              — классическая
+     *   2) modelDir/vosk-model-xxx/[am,conf]     — ZIP-корень без strip
+     *   3) modelDir/[am,conf]                    — наша strip-распаковка
      */
     private fun looksLikeModel(dir: File): Boolean =
         File(dir, "am").isDirectory &&
