@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.16.0+20  # 🆕 Фаза 0 визуального рефакторинга: дизайн-система, шрифты Inter+Manrope, SeverityColors
+version: 1.16.1+21  # 🐛 Фиксы полевого отчёта: кеш баз, self-listening TTS/STT, чёрный экран из протоколов, Impeller→Skia
 
 environment:
   sdk: ^3.5.0
@@ -19,6 +19,9 @@ dependencies:
 
   # 🆕 Local storage для избранного, истории, настроек темы
   shared_preferences: ^2.2.2
+
+  # 🆕 v1.16.1: дисковый кеш загруженных баз (offline-first, не качаем GitLab при каждом старте)
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

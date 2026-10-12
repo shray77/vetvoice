@@ -20,6 +20,11 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritesService extends ChangeNotifier {
+  // v1.16.1: синглтон — один инстанс между result_card и favorites_screen.
+  FavoritesService._internal();
+  static final FavoritesService _instance = FavoritesService._internal();
+  factory FavoritesService() => _instance;
+
   static const String _key = 'vetvoice_favorites';
   static const int _maxFavorites = 200;  // ограничение, чтобы не засорять
 
@@ -30,8 +35,9 @@ class FavoritesService extends ChangeNotifier {
   List<int> get favorites => List.unmodifiable(_favorites);
 
   /// Инициализация — загрузка из SharedPreferences.
-  /// Вызывается один раз при старте приложения.
+  /// Идемпотентна: повторные вызовы — no-op. Вызывается при старте приложения.
   Future<void> init() async {
+    if (_prefs != null) return;
     _prefs = await SharedPreferences.getInstance();
     _loadFavorites();
   }

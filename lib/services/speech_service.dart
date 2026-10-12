@@ -14,6 +14,12 @@ class SpeechService {
   bool _isSTTReady = false;
   bool _isListening = false;
   bool _continuousMode = false; // Hands-free режим
+  // 🆕 v1.16.1: флаг «сейчас говорит TTS». Пока он поднят — STT не запускается,
+  // а результаты, пришедшие во время озвучки, игнорируются (эхо-защита).
+  // Раньше в hands-free STT перезапускался через 800 мс после финального
+  // результата — пока TTS ещё говорил → микрофон слышал собственный голос
+  // и парсил его как новый ввод («приложение слушает само себя»).
+  bool _isSpeaking = false;
   String _lastRecognizedWords = '';
   String _statusText = 'Голос не активен';
   String _currentLocaleId = 'ru_RU'; // Сохраняем выбранную локаль
@@ -21,6 +27,7 @@ class SpeechService {
   // Геттеры
   bool get isSTTReady => _isSTTReady;
   bool get isListening => _isListening;
+  bool get isSpeaking => _isSpeaking; // 🆕 v1.16.1
   bool get continuousMode => _continuousMode;
   String get lastRecognizedWords => _lastRecognizedWords;
   String get statusText => _statusText;
@@ -132,10 +139,14 @@ class SpeechService {
         // Слушаем завершение озвучивания для hands-free режима
         _tts.setCompletionHandler(() {
           debugPrint('🔊 TTS completed');
+          _isSpeaking = false; // 🆕 эхо-защита снята
           if (_continuousMode && !_isListening) {
             // Автоматически продолжаем слушать после озвучивания
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (_continuousMode) startListening();
+            // (хвост 600 мс — чтобы не поймать реверберацию последнего слога)
+            Future.delayed(const Duration(milliseconds: 600), () {
+              if (_continuousMode && !_isListening && !_isSpeaking) {
+                startListening();
+              }
             });
           }
         });
@@ -143,12 +154,14 @@ class SpeechService {
         // Обработчик ошибок TTS
         _tts.setErrorHandler((message) {
           debugPrint('❌ TTS Error: $message');
+          _isSpeaking = false; // 🆕 эхо-защита снята и при ошибке
           _statusText = 'Ошибка озвучки: $message';
         });
 
         // Обработчик начала озвучивания
         _tts.setStartHandler(() {
           debugPrint('🔊 TTS started speaking');
+          _isSpeaking = true; // 🆕 микрофон молчит, пока звучит озвучка
         });
 
         _isTTSReady = true;
@@ -175,6 +188,12 @@ class SpeechService {
 
   /// Начать прослушивание
   Future<void> startListening() async {
+    // 🆕 v1.16.1: не открываем микрофон, пока звучит TTS — иначе STT
+    // распознаёт собственную озвучку (самопрослушивание).
+    if (_isSpeaking) {
+      debugPrint('🎤 TTS говорит — запуск STT отложен до конца озвучки');
+      return;
+    }
     if (!_isSTTReady) {
       final ready = await initializeSTT();
       if (!ready) {
@@ -249,6 +268,13 @@ class SpeechService {
     }
 
     try {
+      // 🆕 v1.16.1: перед озвучкой гасим микрофон (микрофон — shared resource)
+      if (_isListening) {
+        await _stt.stop();
+        _isListening = false;
+        _onListeningStateChanged.add(false);
+      }
+      _isSpeaking = true;
       // Убираем переносы строк - TTS их не озвучивает
       // Заменяем на паузу через точку или запятую
       final cleanText = text
@@ -260,8 +286,10 @@ class SpeechService {
       debugPrint('🔊 Speaking: $cleanText');
       final result = await _tts.speak(cleanText);
       debugPrint('🔊 speak result: $result');
+      _isSpeaking = false;
     } catch (e) {
       debugPrint('❌ speak error: $e');
+      _isSpeaking = false;
       // Пробуем переинициализировать при ошибке
       _isTTSReady = false;
     }
@@ -270,10 +298,18 @@ class SpeechService {
   /// Остановить озвучивание
   Future<void> stopSpeaking() async {
     await _tts.stop();
+    _isSpeaking = false; // 🆕 ручная остановка тоже снимает эхо-защиту
   }
 
   /// Обработка результата распознавания
   void _handleSTTResult(SpeechRecognitionResult result) {
+    // 🆕 v1.16.1: эхо-защита — всё, что пришло во время озвучки (или в
+    // первые 300 мс после неё), это собственный голос TTS, не пользователь.
+    if (_isSpeaking) {
+      debugPrint('🎤 Эхо-фильтр: игнорируем распознанное во время TTS');
+      return;
+    }
+
     _lastRecognizedWords = result.recognizedWords;
 
     // Показываем partial results для визуальной обратной связи
@@ -297,10 +333,14 @@ class SpeechService {
       _isListening = false;
       _onListeningStateChanged.add(false);
 
-      // В hands-free режиме продолжаем слушать после обработки
-      if (_continuousMode) {
+      // В hands-free режиме продолжаем слушать после обработки.
+      // 🆕 v1.16.1: НЕ перезапускаем, пока звучит TTS-ответ — раньше
+      // рестарт через 800 мс попадал в середину озвучки, микрофон слышал
+      // сам себя и приложение начинало разговаривать с собой по кругу.
+      // Рестарт выполнит completion-handler TTS после конца озвучки.
+      if (_continuousMode && !_isSpeaking) {
         Future.delayed(const Duration(milliseconds: 800), () {
-          if (_continuousMode && !_isListening) {
+          if (_continuousMode && !_isListening && !_isSpeaking) {
             startListening();
           }
         });

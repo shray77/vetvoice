@@ -42,6 +42,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final VetProvider _vetProvider = VetProvider();
+  final ThemeService _themeService = ThemeService(); // v1.16.1: быстрый тогл темы
   final SpeechService _speechService = SpeechService();
   final WakeWordService _wakeWordService = WakeWordService.instance;
 
@@ -486,6 +487,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _wakeWordRestartTimer = Timer(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       if (!_wasWakeWordManuallyEnabled || _isListening || _handsFreeMode) return;
+      // v1.16.1: если ещё звучит TTS-ответ — перезапускаем позже,
+      // иначе Vosk услышит собственную озвучку приложения.
+      if (_speechService.isSpeaking) {
+        _restartWakeWordIfNeeded();
+        return;
+      }
       
       debugPrint('🔄 Restarting Vosk wake word after STT session');
       _wakeWordService.startListening().then((_) {
@@ -850,6 +857,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             Row(
               children: [
+                // v1.16.1: быстрый переключатель темы — раньше тёмная тема
+                // пряталась в Настройках и её не находили
+                IconButton(
+                  onPressed: () {
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    _themeService.setThemeMode(
+                        isDark ? ThemeMode.light : ThemeMode.dark);
+                  },
+                  icon: Icon(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined,
+                  ),
+                  color: AppTheme.textSecondary,
+                  tooltip: Theme.of(context).brightness == Brightness.dark
+                      ? 'Светлая тема'
+                      : 'Тёмная тема',
+                ),
+
                 // 🆕 Кнопка избранного
                 IconButton(
                   onPressed: () {

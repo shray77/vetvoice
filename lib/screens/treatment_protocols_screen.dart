@@ -542,7 +542,10 @@ class _ProtocolDrugItem extends StatelessWidget {
                   final calcDrug = vetProvider.findCalcDrugByName(name);
                   if (calcDrug != null && onDrugSelected != null) {
                     onDrugSelected!(calcDrug);
-                    Navigator.pop(context);
+                    // v1.16.1: только ОДИН pop — возвращаемся на home,
+                    // где калькулятор уже получил препарат. Раньше стоял
+                    // двойной pop: второй выталкивал сам home → пустой
+                    // стек навигации → чёрный экран.
                     Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

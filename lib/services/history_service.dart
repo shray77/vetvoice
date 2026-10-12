@@ -106,6 +106,13 @@ class HistoryEntry {
 }
 
 class HistoryService extends ChangeNotifier {
+  // v1.16.1: синглтон. Раньше result_card и history_screen держали разные
+  // инстансы: если init() ещё не успел отработать — _prefs был null и
+  // записи молча терялись (_prefs?.setString — no-op), история пустовала.
+  HistoryService._internal();
+  static final HistoryService _instance = HistoryService._internal();
+  factory HistoryService() => _instance;
+
   static const String _key = 'vetvoice_history';
   static const int _maxEntries = 50;  // храним последние 50 расчётов
 
@@ -116,6 +123,7 @@ class HistoryService extends ChangeNotifier {
   List<HistoryEntry> get history => List.unmodifiable(_entries);
 
   Future<void> init() async {
+    if (_prefs != null) return; // идемпотентно: повторный вызов — no-op
     _prefs = await SharedPreferences.getInstance();
     _loadHistory();
   }

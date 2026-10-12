@@ -191,6 +191,15 @@ class DoseResult {
 ///   3. В `main.dart`: `ChangeNotifierProvider(create: (_) => VetProvider(), child: ...)`
 ///   4. В виджетах: `context.watch<VetProvider>()` / `context.read<VetProvider>()`
 class VetProvider {
+  // v1.16.1: синглтон. Раньше home_screen и favorites_screen создавали
+  // РАЗНЫЕ инстансы — избранное перечитывало все базы с нуля (долгая
+  // загрузка) и состояние не совпадало между экранами.
+  VetProvider._internal();
+  static final VetProvider _instance = VetProvider._internal();
+  factory VetProvider() => _instance;
+
+  bool _initialized = false;
+
   CalcDrugDatabase? _calcDatabase;
   DrugRegistry? _registry;
   DosageDatabase? _dosageDatabase;
@@ -410,8 +419,9 @@ class VetProvider {
     return animalDosage != null && animalDosage.hasDosage;
   }
 
-  /// Инициализация
+  /// Инициализация (мемоизирована: повторные вызовы — мгновенный no-op).
   Future<void> initialize() async {
+    if (_initialized) return;
     try {
       _isLoading = true;
       _statusMessage = 'Загрузка баз препаратов...';
@@ -470,6 +480,7 @@ class VetProvider {
       }
 
       _isLoading = false;
+      _initialized = true;
     } catch (e) {
       _isLoading = false;
       _statusMessage = 'Ошибка: $e';

@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
+import '../services/wake_word_service.dart';
 import 'terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -22,11 +23,22 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final ThemeService _themeService = ThemeService();
+  final WakeWordService _wakeWordService = WakeWordService.instance;
 
   @override
   void initState() {
     super.initState();
     _themeService.addListener(_onThemeChanged);
+    // v1.16.1: живой статус модели Vosk (скачана / качается / ошибка)
+    _wakeWordService.onDownloadProgress.listen((_) {
+      if (mounted) setState(() {});
+    });
+    _wakeWordService.onListeningStateChanged.listen((_) {
+      if (mounted) setState(() {});
+    });
+    _wakeWordService.onError.listen((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -48,6 +60,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // === Тема ===
           _SectionHeader(title: '🎨 Внешний вид'),
           _ThemeSelector(themeService: _themeService),
+          const Divider(),
+
+          // === Голос и распознавание ===
+          _SectionHeader(title: '🎤 Голос и распознавание'),
+          ListTile(
+            leading: Icon(
+              _voskIcon,
+              color: _voskIconColor,
+            ),
+            title: const Text('Офлайн-модель Vosk (wake word «ВетВойс»)'),
+            subtitle: Text(_voskStatusText),
+            isThreeLine: _voskStatusText.length > 60,
+            trailing: _wakeWordService.isInitialized
+                ? const Icon(Icons.check_circle, color: AppTheme.safeGreen)
+                : TextButton(
+                    onPressed: () async {
+                      setState(() {});
+                      await _wakeWordService.initialize();
+                      if (mounted) setState(() {});
+                    },
+                    child: _wakeWordService.isModelLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Загрузить')),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Модель нужна для wake word: скажите «ВетВойс» на главном '
+              'экране и голосовой ввод включится без интернета. '
+              'Качается один раз (~50 МБ), дальше работает оффлайн.',
+              style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
+            ),
+          ),
+          const SizedBox(height: 8),
           const Divider(),
 
           // === О приложении ===
@@ -118,6 +168,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+  /// Статусная строка модели Vosk (v1.16.1)
+  String get _voskStatusText {
+    switch (_wakeWordService.state) {
+      case 'LISTENING':
+        return 'Скачана и активна: слушает «ВетВойс» (офлайн)';
+      case 'READY':
+        return 'Скачана и готова — включите wake word кнопкой микрофона с волной';
+      case 'LOADING':
+        if (_wakeWordService.isExtracting) return 'Распаковка модели...';
+        if (_wakeWordService.totalMB > 0) {
+          return 'Скачивание: ${_wakeWordService.downloadedMB.toStringAsFixed(1)} из '
+              '${_wakeWordService.totalMB.toStringAsFixed(0)} МБ';
+        }
+        return _wakeWordService.loadingMessage.isNotEmpty
+            ? _wakeWordService.loadingMessage
+            : 'Загрузка модели...';
+      case 'ERROR':
+        return _wakeWordService.errorMessage ?? 'Ошибка загрузки модели';
+      default:
+        return 'Модель не загружена (нужна только для wake word)';
+    }
+  }
+
+  IconData get _voskIcon {
+    switch (_wakeWordService.state) {
+      case 'LISTENING':
+      case 'READY':
+        return Icons.mic_outlined;
+      case 'LOADING':
+        return Icons.downloading;
+      case 'ERROR':
+        return Icons.error_outline;
+      default:
+        return Icons.mic_none;
+    }
+  }
+
+  Color get _voskIconColor {
+    switch (_wakeWordService.state) {
+      case 'LISTENING':
+      case 'READY':
+        return AppTheme.safeGreen;
+      case 'LOADING':
+        return AppTheme.maleBlue;
+      case 'ERROR':
+        return AppTheme.errorRed;
+      default:
+        return AppTheme.textTertiary;
+    }
   }
 
   void _showSourcesDialog(BuildContext context) {

@@ -20,8 +20,8 @@
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import '../models/calc_drug.dart';
+import 'drug_loader_service.dart';
 
 class SearchResult {
   final CalcDrug drug;
@@ -36,6 +36,13 @@ class SearchResult {
 }
 
 class SymptomSearchService {
+  // v1.16.1: синглтон. Раньше индекс строился заново при каждом открытии
+  // экрана (парсинг 7 МБ drugs_calc.json на главном изоляте) — экран
+  // «висел» на спиннере и казался сломанным.
+  SymptomSearchService._internal();
+  static final SymptomSearchService _instance = SymptomSearchService._internal();
+  factory SymptomSearchService() => _instance;
+
   static const String _assetPath = 'assets/data/drugs_calc.json';
 
   // Стоп-слова — не индексируем
@@ -49,16 +56,26 @@ class SymptomSearchService {
   final Map<String, Set<int>> _index = {};  // token -> {drug_id, ...}
   final Map<int, CalcDrug> _drugs = {};     // drug_id -> CalcDrug
   bool _isLoaded = false;
+  bool _isLoading = false;
 
   bool get isLoaded => _isLoaded;
+  bool get isLoading => _isLoading;
   int get indexedDrugs => _drugs.length;
 
   /// Загрузить базу и построить индекс.
+  ///
+  /// Сырой JSON берётся из кеша DrugLoaderService (уже прочитан при старте),
+  /// тяжёлый jsonDecode уходит в background-isolate.
   Future<void> init() async {
-    if (_isLoaded) return;
+    if (_isLoaded || _isLoading) return;
+    _isLoading = true;
     try {
-      final jsonString = await rootBundle.loadString(_assetPath);
-      final data = jsonDecode(jsonString) as Map<String, dynamic>;
+      final jsonString = await DrugLoaderService.getRawJson(_assetPath);
+      if (jsonString == null) {
+        debugPrint('SymptomSearch: нет доступа к $_assetPath');
+        return;
+      }
+      final data = await compute(_decodeJsonInIsolate, jsonString);
       final drugsList = data['drugs_calc'] as List<dynamic>? ?? [];
 
       for (final drugJson in drugsList) {
@@ -72,9 +89,14 @@ class SymptomSearchService {
           final tokens = _tokenize(text);
           for (final token in tokens) {
             _index.putIfAbsent(token, () => {}).add(drug.id);
+            // Префиксная форма (первые 4 буквы) — покрывает русскую
+            // морфологию: «кошка»/«кошки»/«кошке» → общий префикс «кошк».
+            if (token.length >= 5) {
+              _index.putIfAbsent(token.substring(0, 4), () => {}).add(drug.id);
+            }
           }
         } catch (e) {
-          debugPrint('SymptomSearch: skip drug #$drugJson: $e');
+          debugPrint('SymptomSearch: skip drug: $e');
         }
       }
       _isLoaded = true;
@@ -82,6 +104,8 @@ class SymptomSearchService {
           '${_index.length} unique tokens');
     } catch (e) {
       debugPrint('SymptomSearch init error: $e');
+    } finally {
+      _isLoading = false;
     }
   }
 
@@ -111,21 +135,33 @@ class SymptomSearchService {
     final Map<int, int> scores = {};        // drug_id -> score
     final Map<int, Set<String>> matched = {}; // drug_id -> matched terms
 
+    void addScore(int id, int points, String term) {
+      scores[id] = (scores[id] ?? 0) + points;
+      matched.putIfAbsent(id, () => {}).add(term);
+    }
+
     for (final token in tokens) {
-      // Точное совпадение
-      final ids = _index[token];
-      if (ids != null) {
-        for (final id in ids) {
-          scores[id] = (scores[id] ?? 0) + 2;  // точное = 2 очка
-          matched.putIfAbsent(id, () => {}).add(token);
+      // За один проход по токену препарат получает максимум одну оценку
+      // за этот токен (точное совпадение сильнее префиксного).
+      final exact = _index[token];
+      if (exact != null) {
+        for (final id in exact) {
+          addScore(id, 2, token); // точное = 2 очка
         }
       }
-      // Частичное совпадение (начинается с токена)
+      // Префиксные совпадения: токены индекса, начинающиеся с запроса,
+      // и наоборот (префиксная морфология: «кошки» найдёт «кошк*»).
+      final queryPrefix = token.length >= 5 ? token.substring(0, 4) : token;
       _index.forEach((key, ids) {
-        if (key.startsWith(token) && key != token) {
+        if (key == token) return;
+        final keyMatches =
+            key.startsWith(token) ||
+            (queryPrefix.length >= 4 && key.startsWith(queryPrefix));
+        if (keyMatches) {
           for (final id in ids) {
-            scores[id] = (scores[id] ?? 0) + 1;  // частичное = 1 очко
-            matched.putIfAbsent(id, () => {}).add(token);
+            // Если уже есть точное совпадение этого токена — не дублируем
+            if (exact != null && exact.contains(id)) continue;
+            addScore(id, 1, token); // частичное/морфологическое = 1 очко
           }
         }
       });
@@ -162,4 +198,9 @@ class SymptomSearchService {
     'вакцина от бешенства',
     'дегельминтизация',
   ];
+}
+
+/// Top-level функция для compute(): jsonDecode в background-isolate.
+Map<String, dynamic> _decodeJsonInIsolate(String raw) {
+  return jsonDecode(raw) as Map<String, dynamic>;
 }
