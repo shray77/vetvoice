@@ -682,7 +682,13 @@ class AppTheme {
   }
 
   /// Тёмная тема (OLED-фон, паритет контейнеров, яркий primary).
-  static ThemeData get darkTheme {
+  /// v1.16.3: мемоизирована — ThemeData строится один раз (см. lightTheme).
+  static ThemeData? _darkThemeCache;
+
+  /// Тёмная тема.
+  static ThemeData get darkTheme => _darkThemeCache ??= _buildDarkTheme();
+
+  static ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,

@@ -110,6 +110,23 @@ class DrugLoaderService {
   /// Мемо: базы собираются один раз на сессию.
   static LoadResult? _memo;
 
+  // v1.16.3: staged-загрузка. Ядро (расчёт доз на home) парсим сразу,
+  // остальные базы — фоном ПОСЛЕ первого кадра: «секунд 5 пишет что идёт
+  // загрузка баз» сокращается примерно вдвое (unofficial_protocols 5.7МБ +
+  // verified_dosages 6МБ + treatment_protocols 1МБ уходят с критического пути).
+  static const Set<String> _coreFileNames = {
+    'drugs_calc.json', // 7.0 МБ — препараты калькулятора + животные
+    'drugs_registry.json', // 7.3 МБ — реестр (выбор препарата)
+    'dosage_database.json', // дозировки по МНН
+    'drug_interactions.json', // предупреждения совместимости в result_card
+  };
+  static LoadResult? _coreMemo;
+
+  /// v1.16.3: источник последней _loadOnce — для корректного статуса в UI
+  /// (loadCore вызывает _buildResult уже ПОСЛЕ _loadOnce).
+  static bool _lastLoadWasOnline = false;
+  static String? _lastLoadSource;
+
   /// Сырые JSON-строки последней загрузки (assetPath → содержимое).
   /// Переиспользуется SymptomSearchService и др. без повторного чтения.
   static Map<String, String>? _lastRaws;
@@ -212,6 +229,98 @@ class DrugLoaderService {
     return result;
   }
 
+  /// v1.16.3: СТАДИЯ 1 — только ядро для home (расчёт доз, выбор препарата,
+  /// совместимость). Сырьё всё равно читается целиком (кеш/сеть), но парсинг
+  /// вторичных баз откладывается до [parseExtended].
+  static Future<LoadResult> loadCore() async {
+    if (_coreMemo != null) return _coreMemo!;
+    final raws = await _loadRaws();
+    final result = await _buildResult(raws,
+        online: _lastLoadWasOnline,
+        source: _lastLoadSource,
+        coreOnly: true);
+    _coreMemo = result;
+    return result;
+  }
+
+  /// v1.16.3: СТАДИЯ 2 — парсинг остальных баз из уже прочитанного сырья
+  /// ([_lastRaws]). Вызывается фоном после первого кадра; вернёт null,
+  /// если loadCore ещё не отработал.
+  static Future<ExtendedDatabases?> parseExtended() async {
+    final raws = _lastRaws;
+    if (raws == null) return null;
+    final specs = _specs.values
+        .where((s) => raws.containsKey(s.assetPath))
+        .where((s) => !_coreFileNames.contains(s.fileName))
+        .toList();
+    final parsedList = <Object?>[];
+    const batchSize = 4;
+    for (int i = 0; i < specs.length; i += batchSize) {
+      final batch = specs.sublist(i, (i + batchSize).clamp(0, specs.length));
+      final part = await Future.wait(batch.map((spec) async {
+        final raw = raws[spec.assetPath]!;
+        try {
+          return await compute(_parseIsolateEntry<Object>, (raw, spec.fromJson));
+        } catch (e) {
+          debugPrint('⚠️ [DrugLoader] Ошибка парсинга ${spec.fileName}: $e');
+          return null;
+        }
+      }));
+      parsedList.addAll(part);
+    }
+
+    DrugDatabase? database;
+    AntidoteDatabase? antidoteDatabase;
+    EmergencyDatabase? emergencyDatabase;
+    SideEffectsDatabase? sideEffectsDatabase;
+    WithdrawalDatabase? withdrawalDatabase;
+    DoseAdjustmentDatabase? doseAdjustmentDatabase;
+    UnofficialProtocolDatabase? unofficialDatabase;
+    FluidTherapyDatabase? fluidTherapyDatabase;
+    VerifiedDosageDatabase? verifiedDosageDatabase;
+    for (final parsed in parsedList) {
+      if (parsed == null) continue;
+      if (parsed is DrugDatabase) {
+        database = parsed;
+      } else if (parsed is AntidoteDatabase) {
+        antidoteDatabase = parsed;
+        debugPrint('✅ Антидоты: ${antidoteDatabase.poisonings.length} токсинов');
+      } else if (parsed is EmergencyDatabase) {
+        emergencyDatabase = parsed;
+        debugPrint('✅ Emergency: ${emergencyDatabase.protocols.length} протоколов');
+      } else if (parsed is SideEffectsDatabase) {
+        sideEffectsDatabase = parsed;
+        debugPrint('✅ Побочные эффекты: ${sideEffectsDatabase.drugs.length} препаратов');
+      } else if (parsed is WithdrawalDatabase) {
+        withdrawalDatabase = parsed;
+        debugPrint('✅ Сроки ожидания: ${withdrawalDatabase.drugs.length} препаратов');
+      } else if (parsed is DoseAdjustmentDatabase) {
+        doseAdjustmentDatabase = parsed;
+        debugPrint('✅ Корректировки доз загружены');
+      } else if (parsed is UnofficialProtocolDatabase) {
+        unofficialDatabase = parsed;
+        debugPrint('✅ Неофициальные протоколы: ${unofficialDatabase.records.length} записей');
+      } else if (parsed is FluidTherapyDatabase) {
+        fluidTherapyDatabase = parsed;
+        debugPrint('✅ Инфузионная терапия: ${fluidTherapyDatabase.solutions.length} растворов');
+      } else if (parsed is VerifiedDosageDatabase) {
+        verifiedDosageDatabase = parsed;
+        debugPrint('✅ Верифицированные дозировки: ${verifiedDosageDatabase.dosages.length} препаратов');
+      }
+    }
+    return ExtendedDatabases(
+      database: database,
+      antidoteDatabase: antidoteDatabase,
+      emergencyDatabase: emergencyDatabase,
+      sideEffectsDatabase: sideEffectsDatabase,
+      withdrawalDatabase: withdrawalDatabase,
+      doseAdjustmentDatabase: doseAdjustmentDatabase,
+      unofficialDatabase: unofficialDatabase,
+      fluidTherapyDatabase: fluidTherapyDatabase,
+      verifiedDosageDatabase: verifiedDosageDatabase,
+    );
+  }
+
   /// Сырой JSON по assetPath: сначала из памяти (последняя загрузка),
   /// затем из assets. Для вторичных потребителей (поиск по симптомам).
   static Future<String?> getRawJson(String assetPath) async {
@@ -243,7 +352,9 @@ class DrugLoaderService {
   // Основной конвейер загрузки
   // ============================================================
 
-  static Future<LoadResult> _loadOnce() async {
+  /// v1.16.3: чтение сырья (кеш → сеть → assets) вынесено из _loadOnce,
+  /// чтобы loadCore мог парсить только ядро из того же сырья.
+  static Future<Map<String, String>> _loadRaws() async {
     // 1. Свежий дисковый кеш → мгновенный старт без сети.
     final cache = await _readDiskCache();
     final cacheHasCore = cache != null &&
@@ -253,8 +364,9 @@ class DrugLoaderService {
       final fresh = await _isCacheFresh();
       if (fresh) {
         debugPrint('📦 [DrugLoader] Старт из дискового кеша: ${cache.length} файлов');
-        final result = await _buildResult(cache, online: false, source: 'Кеш (офлайн-базы актуальны)');
-        return result;
+        _lastLoadWasOnline = false;
+        _lastLoadSource = 'Кеш (офлайн-базы актуальны)';
+        return cache;
       }
       debugPrint('📦 [DrugLoader] Дисковый кеш старше 24 ч — обновляем из сети');
     }
@@ -269,13 +381,24 @@ class DrugLoaderService {
       );
       final allRaws = {...assetRaws, ...netRaws};
       unawaited(_writeDiskCache(netRaws)); // кеш сетевых — на следующий старт
-      return await _buildResult(allRaws, online: true);
+      _lastLoadWasOnline = true;
+      _lastLoadSource = null;
+      return allRaws;
     }
 
     // 3. Нет сети и/или кеша → assets, кеш не трогаем (пусть лежит старый).
     debugPrint('📦 [DrugLoader] Офлайн — загрузка из assets');
     final assetRaws = await _readAssetRaws();
-    return await _buildResult(assetRaws, online: false);
+    _lastLoadWasOnline = false;
+    _lastLoadSource = null;
+    return assetRaws;
+  }
+
+  /// Загружает и парсит ВСЕ базы (legacy-путь; home использует loadCore+parseExtended).
+  static Future<LoadResult> _loadOnce() async {
+    final raws = await _loadRaws();
+    return await _buildResult(raws,
+        online: _lastLoadWasOnline, source: _lastLoadSource);
   }
 
   /// Собирает LoadResult из сырых JSON-строк (assetPath → содержимое).
@@ -289,6 +412,7 @@ class DrugLoaderService {
     Map<String, String> raws, {
     required bool online,
     String? source,
+    bool coreOnly = false,
   }) async {
     // Сырьё доступно вторичным потребителям (SymptomSearchService) без
     // повторного чтения — в т.ч. при старте из дискового кеша.
@@ -308,8 +432,12 @@ class DrugLoaderService {
     FluidTherapyDatabase? fluidTherapyDatabase;
     VerifiedDosageDatabase? verifiedDosageDatabase;
 
-    final specs =
-        _specs.values.where((s) => raws.containsKey(s.assetPath)).toList();
+    final specs = _specs.values
+        .where((s) => raws.containsKey(s.assetPath))
+        // v1.16.3: coreOnly — парсим только ядро, вторичные базы ждёт
+        // parseExtended() после первого кадра.
+        .where((s) => !coreOnly || _coreFileNames.contains(s.fileName))
+        .toList();
     final parsedList = <Object?>[];
     const batchSize = 4; // не плодим 13 изолятов разом на low-end устройствах
     for (int i = 0; i < specs.length; i += batchSize) {
@@ -620,4 +748,30 @@ T _parseIsolateEntry<T>((String, T Function(Map<String, dynamic>)) msg) {
 /// Top-level функция для compute(): jsonDecode в background-isolate.
 Map<String, dynamic> _decodeJsonInIsolate(String raw) {
   return jsonDecode(raw) as Map<String, dynamic>;
+}
+
+/// v1.16.3: результат СТАДИИ 2 — вторичные базы, парс которых уходит с
+/// критического пути старта (домашний экран их для расчёта доз не ждёт).
+class ExtendedDatabases {
+  final DrugDatabase? database;
+  final AntidoteDatabase? antidoteDatabase;
+  final EmergencyDatabase? emergencyDatabase;
+  final SideEffectsDatabase? sideEffectsDatabase;
+  final WithdrawalDatabase? withdrawalDatabase;
+  final DoseAdjustmentDatabase? doseAdjustmentDatabase;
+  final UnofficialProtocolDatabase? unofficialDatabase;
+  final FluidTherapyDatabase? fluidTherapyDatabase;
+  final VerifiedDosageDatabase? verifiedDosageDatabase;
+
+  const ExtendedDatabases({
+    this.database,
+    this.antidoteDatabase,
+    this.emergencyDatabase,
+    this.sideEffectsDatabase,
+    this.withdrawalDatabase,
+    this.doseAdjustmentDatabase,
+    this.unofficialDatabase,
+    this.fluidTherapyDatabase,
+    this.verifiedDosageDatabase,
+  });
 }

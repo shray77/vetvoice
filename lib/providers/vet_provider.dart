@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/drug.dart';
 import '../models/drug_registry.dart';
@@ -419,30 +420,36 @@ class VetProvider {
     return animalDosage != null && animalDosage.hasDosage;
   }
 
-  /// Инициализация (мемоизирована: повторные вызовы — мгновенный no-op).
+  /// Инициализация (v1.16.3: двухстадийная).
+  ///
+  /// СТАДИЯ 1 — ядро (препараты калькулятора, реестр, дозировки, совместимость):
+  /// home становится интерактивным примерно вдвое быстрее, «секунд 5 загрузка
+  /// баз» больше не блокирует выбор животного/препарата.
+  /// СТАДИЯ 2 — вторичные базы (антидоты, инфузии, каренция, неофициальные
+  /// протоколы...) парсятся фоном; [extendedReady] резолвится, когда всё
+  /// готово — home по нему дорисовывает навигационные кнопки.
+  /// Повторные вызовы — мгновенный no-op.
+  final Completer<void> _extendedCompleter = Completer<void>();
+
+  /// Готовность вторичных баз (СТАДИЯ 2). Никогда не бросает исключение.
+  Future<void> get extendedReady => _extendedCompleter.future;
+
   Future<void> initialize() async {
     if (_initialized) return;
+    _initialized = true; // гард ДО await — параллельные вызовы не задвоят загрузку
     try {
       _isLoading = true;
       _statusMessage = 'Загрузка баз препаратов...';
 
-      final loadResult = await DrugLoaderService.loadDatabase();
+      // === СТАДИЯ 1: ядро для расчёта доз ===
+      final loadResult = await DrugLoaderService.loadCore();
       _calcDatabase = loadResult.calcDatabase;
       _registry = loadResult.registry;
       _dosageDatabase = loadResult.dosageDatabase;
       _interactionDatabase = loadResult.interactionDatabase;
-      _antidoteDatabase = loadResult.antidoteDatabase;
-      _emergencyDatabase = loadResult.emergencyDatabase;
-      _sideEffectsDatabase = loadResult.sideEffectsDatabase;
-      // Новые подключённые базы
-      _withdrawalDatabase = loadResult.withdrawalDatabase;
-      _doseAdjustmentDatabase = loadResult.doseAdjustmentDatabase;
-      _unofficialDatabase = loadResult.unofficialDatabase;
-      _fluidTherapyDatabase = loadResult.fluidTherapyDatabase;
-      _verifiedDosageDatabase = loadResult.verifiedDosageDatabase;
       _isOnline = loadResult.fromNetwork;
       _statusMessage = loadResult.source;
-      
+
       // DEBUG: Проверяем загрузку животных
       if (_calcDatabase != null) {
         debugPrint('✅ CalcDatabase loaded: ${_calcDatabase!.drugs.length} drugs');
@@ -454,11 +461,38 @@ class VetProvider {
         debugPrint('❌ CalcDatabase is NULL!');
       }
 
-      // Enhanced drugs удалён — файл drugs_enhanced.json не существовал.
-      // Данные из unofficial_protocols.json и verified_dosages.json заменили его.
+      _isLoading = false;
+      // ядро готово — home интерактивен
+    } catch (e) {
+      _isLoading = false;
+      _statusMessage = 'Ошибка: $e';
+      _extendedCompleter.complete(); // не оставляем вечный Future
+      return;
+    }
 
-      // Загружаем болезни (v1.16.2: parse в background-isolate —
-      // diseases.json немаленький, раньше fromJson считал на главном изоляте)
+    // === СТАДИЯ 2: фоном, не блокирует home ===
+    unawaited(_loadExtendedDatabases());
+  }
+
+  /// v1.16.3: вторичные базы + болезни + протоколы лечения — строго после
+  /// первого кадра. Ошибки гасим: эти базы факультативны для расчёта доз,
+  /// экраны уже имеют null-guard'ы.
+  Future<void> _loadExtendedDatabases() async {
+    try {
+      final ext = await DrugLoaderService.parseExtended();
+      if (ext != null) {
+        _antidoteDatabase = ext.antidoteDatabase;
+        _emergencyDatabase = ext.emergencyDatabase;
+        _sideEffectsDatabase = ext.sideEffectsDatabase;
+        _withdrawalDatabase = ext.withdrawalDatabase;
+        _doseAdjustmentDatabase = ext.doseAdjustmentDatabase;
+        _unofficialDatabase = ext.unofficialDatabase;
+        _fluidTherapyDatabase = ext.fluidTherapyDatabase;
+        _verifiedDosageDatabase = ext.verifiedDosageDatabase;
+        debugPrint('✅ Extended databases loaded (стадия 2)');
+      }
+
+      // Болезни (v1.16.2: parse в background-isolate)
       try {
         final diseaseRaw =
             await DrugLoaderService.getRawJson('assets/data/diseases.json');
@@ -473,7 +507,7 @@ class VetProvider {
         debugPrint('⚠️ Diseases not loaded: $e');
       }
 
-      // Загружаем протоколы лечения (v1.16.2: тоже в изоляте)
+      // Протоколы лечения (v1.16.2: тоже в изоляте)
       try {
         final treatmentRaw = await DrugLoaderService.getRawJson(
             'assets/data/advanced/treatment_protocols.json');
@@ -488,12 +522,8 @@ class VetProvider {
       } catch (e) {
         debugPrint('⚠️ Treatment protocols not loaded: $e');
       }
-
-      _isLoading = false;
-      _initialized = true;
-    } catch (e) {
-      _isLoading = false;
-      _statusMessage = 'Ошибка: $e';
+    } finally {
+      if (!_extendedCompleter.isCompleted) _extendedCompleter.complete();
     }
   }
 

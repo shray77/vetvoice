@@ -14,11 +14,24 @@
 //   - AppTheme (lib/utils/app_theme.dart)
 
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
+import '../services/drug_loader_service.dart';
 import '../utils/app_theme.dart';
+
+/// v1.16.3: парсинг протоколов в background-isolate (экран держит СВОЙ
+/// локальный класс TreatmentProtocol, поэтому DrugLoader.parseInIsolate
+/// с модельным типом тут не подходит).
+List<TreatmentProtocol> _parseProtocolsInIsolate(String raw) {
+  final data = jsonDecode(raw) as Map<String, dynamic>;
+  final list = data['protocols'] as List<dynamic>? ?? [];
+  return list
+      .map((p) => TreatmentProtocol.fromJson(p as Map<String, dynamic>))
+      .toList();
+}
 
 class TreatmentProtocol {
   final int diseaseId;
@@ -156,13 +169,14 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
 
   Future<void> _loadProtocols() async {
     try {
-      final jsonString = await rootBundle
-          .loadString('assets/data/advanced/treatment_protocols.json');
-      final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      final list = data['protocols'] as List<dynamic>? ?? [];
-      _allProtocols = list
-          .map((p) => TreatmentProtocol.fromJson(p as Map<String, dynamic>))
-          .toList();
+      // v1.16.3: сырьё через DrugLoaderService (кеш/память), парсинг в
+      // background-isolate. Раньше jsonDecode 1 МБ протоколов считался на
+      // главном изоляте — экран «деревенел» при каждом открытии.
+      final jsonString = await DrugLoaderService.getRawJson(
+          'assets/data/advanced/treatment_protocols.json');
+      if (jsonString != null) {
+        _allProtocols = await compute(_parseProtocolsInIsolate, jsonString);
+      }
       _filtered = _allProtocols;
     } catch (e) {
       debugPrint('TreatmentProtocols load error: $e');

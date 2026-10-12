@@ -568,8 +568,12 @@ class _ResultCardState extends State<ResultCard> {
               label: const Text('Озвучить результат'),
             ),
           ),
-          // 🆕 Кнопка "Сохранить в историю"
-          if (widget.result.calcDrug != null && widget.animalName != null)
+        ],
+
+        // v1.16.3: кнопка «Сохранить в историю» вынесена ИЗ onSpeak-блока —
+        // показывается всегда при наличии препарата/животного, независимо
+        // от того, передан ли колбэк озвучки.
+        if (widget.result.calcDrug != null && widget.animalName != null)
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
@@ -619,7 +623,6 @@ class _ResultCardState extends State<ResultCard> {
                 ),
               ),
             ),
-        ],
       ],
     );
   }

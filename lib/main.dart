@@ -109,6 +109,11 @@ class _VetVoiceAppState extends State<VetVoiceApp> with WidgetsBindingObserver {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: widget.themeService.themeMode,
+          // v1.16.3: мгновенная смена темы. Дефолтные 200мс анимируют ЛЕРП
+          // всех цветов по всему дереву — на больших экранах это выглядело
+          // как подвисание при переключении. Кэши ThemeData (app_theme)
+          // + нулевая анимация = переключение в один кадр.
+          themeAnimationDuration: Duration.zero,
           home: widget.disclaimerAccepted
               ? const HomeScreen()
               : const DisclaimerScreen(),

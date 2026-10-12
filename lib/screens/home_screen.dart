@@ -156,6 +156,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Пользователь может закрыть экран до окончания инициализации.
     if (!mounted) return;
     setState(() {});
+
+    // v1.16.3: после дозагрузки вторичных баз (фоном) дорисовываем
+    // навигационные кнопки «Инфузии»/«Болезни» и статус-строку.
+    unawaited(_vetProvider.extendedReady.then((_) {
+      if (mounted) setState(() {});
+    }));
   }
   
   /// Обработка wake word - когда пользователь сказал "ВетВойс"
@@ -751,6 +757,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ResultCard(
             result: _vetProvider.result,
             onSpeak: _speakResult,
+            // v1.16.3: без этого кнопка «В историю» вообще не показывалась
+            // (условие widget.animalName != null), история пустовала —
+            // «история так и не заработала».
+            animalName: _vetProvider.selectedAnimal?.name,
+            weightKg: _vetProvider.weight,
           ),
           
           const SizedBox(height: 24),
@@ -858,10 +869,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 letterSpacing: -0.5,
               ),
             ),
+            // v1.16.3: компактный ряд системных контролов. Раньше здесь же
+            // висели 8 функциональных кнопок — Row переполнялся на реальных
+            // экранах, правая часть (протоколы, каренция) уходила за край
+            // («не вижу вкладки протоколов»).
             Row(
               children: [
-                // v1.16.1: быстрый переключатель темы — раньше тёмная тема
-                // пряталась в Настройках и её не находили
+                // Кнопка wake word - слушает "ВетВойс" как Ok Google
+                _buildWakeWordButton(),
+                const SizedBox(width: 4),
+                // Кнопка автоозвучивания
+                IconButton(
+                  onPressed: () => setState(() => _autoSpeakResult = !_autoSpeakResult),
+                  icon: Icon(
+                    _autoSpeakResult ? Icons.volume_up : Icons.volume_off,
+                    color: _autoSpeakResult ? AppTheme.safeGreen : AppTheme.textTertiary,
+                  ),
+                  tooltip: _autoSpeakResult ? 'Автоозвучивание включено' : 'Автоозвучивание выключено',
+                ),
+                // v1.16.1: быстрый переключатель темы
                 IconButton(
                   onPressed: () {
                     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -878,132 +904,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ? 'Светлая тема'
                       : 'Тёмная тема',
                 ),
-
-                // 🆕 Кнопка избранного
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FavoritesScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.star_border),
-                  color: AppTheme.warningOrange,
-                  tooltip: 'Избранное',
-                ),
-
-                // 🆕 Кнопка истории расчётов
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const HistoryScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.history),
-                  color: AppTheme.textSecondary,
-                  tooltip: 'История расчётов',
-                ),
-
-                // 🆕 Sprint 2: Поиск по симптомам
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SymptomSearchScreen(
-                          onDrugSelected: (drug) {
-                            // Передаём выбранный препарат в калькулятор
-                            _vetProvider.selectDrug(drug);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.search),
-                  color: AppTheme.safeGreen,
-                  tooltip: 'Поиск по симптомам',
-                ),
-
-                // Кнопка болезней
-                if (_vetProvider.diseasesCount > 0)
-                  IconButton(
-                    onPressed: _openDiseasesScreen,
-                    icon: const Icon(Icons.coronavirus_outlined),
-                    color: AppTheme.textSecondary,
-                    tooltip: 'Справочник болезней (${_vetProvider.diseasesCount})',
-                  ),
-
-                // 🆕 Sprint 2: Протоколы лечения
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TreatmentProtocolsScreen(
-                          vetProvider: _vetProvider,
-                          onDrugSelected: (drug) {
-                            _vetProvider.selectDrug(drug);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.medical_information_outlined),
-                  color: AppTheme.maleBlue,
-                  tooltip: 'Протоколы лечения',
-                ),
-
-                // 🆕 Sprint 2: Проверка совместимости
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InteractionsCheckerScreen(
-                          vetProvider: _vetProvider,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.compare_arrows),
-                  color: AppTheme.warningOrange,
-                  tooltip: 'Проверка совместимости',
-                ),
-
-                if (_vetProvider.fluidTherapyDatabase != null)
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (_) => FluidTherapyScreen(db: _vetProvider.fluidTherapyDatabase!),
-                      ));
-                    },
-                    icon: const Icon(Icons.water_drop, color: AppTheme.maleBlue),
-                    tooltip: 'Инфузионная терапия',
-                  ),
-
-                // 🆕 Sprint 2: Каренция-калькулятор
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => WithdrawalCalculatorScreen(
-                          vetProvider: _vetProvider,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.schedule),
-                  color: AppTheme.errorRed,
-                  tooltip: 'Калькулятор каренции',
-                ),
-
-                // 🆕 Кнопка настроек
+                // Кнопка настроек
                 IconButton(
                   onPressed: () {
                     Navigator.push(
@@ -1017,22 +918,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   color: AppTheme.textSecondary,
                   tooltip: 'Настройки',
                 ),
-                // Кнопка wake word - слушает "ВетВойс" как Ok Google
-                _buildWakeWordButton(),
-                const SizedBox(width: 8),
-                // Кнопка автоозвучивания
-                IconButton(
-                  onPressed: () => setState(() => _autoSpeakResult = !_autoSpeakResult),
-                  icon: Icon(
-                    _autoSpeakResult ? Icons.volume_up : Icons.volume_off,
-                    color: _autoSpeakResult ? AppTheme.safeGreen : AppTheme.textTertiary,
-                  ),
-                  tooltip: _autoSpeakResult ? 'Автоозвучивание включено' : 'Автоозвучивание выключено',
-                ),
               ],
             ),
           ],
         ),
+        const SizedBox(height: 10),
+        // v1.16.3: функциональная навигация — ПОДПИСАННЫЕ чипы в
+        // горизонтальном скролле. Голые иконки без подписей в переполненном
+        // Row ветврач в поле не находил. 48dp тач-таргет, скролл ≠ overflow.
+        _buildFeatureNav(),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -1676,6 +1570,124 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 interactionDb: db,
                 allDrugs: _vetProvider.allDrugs,
                 onClose: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// v1.16.3: горизонтальная лента подписанных фич-чипов под заголовком.
+  /// Заменяет 8 безымянных IconButton старой шапки: каждый чип имеет текст
+  /// («Протоколы», «Каренция»...), ряд скроллится — overflow невозможен.
+  Widget _buildFeatureNav() {
+    final chips = <Widget>[
+      _featureChip('Поиск', Icons.search, AppTheme.safeGreen, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SymptomSearchScreen(
+              onDrugSelected: (drug) {
+                _vetProvider.selectDrug(drug);
+              },
+            ),
+          ),
+        );
+      }),
+      _featureChip('Протоколы', Icons.medical_information_outlined,
+          AppTheme.maleBlue, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TreatmentProtocolsScreen(
+              vetProvider: _vetProvider,
+              onDrugSelected: (drug) {
+                _vetProvider.selectDrug(drug);
+              },
+            ),
+          ),
+        );
+      }),
+      _featureChip('Совместимость', Icons.compare_arrows,
+          AppTheme.warningOrange, _openCompatibilityChecker),
+      _featureChip('Каренция', Icons.schedule, AppTheme.errorRed, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WithdrawalCalculatorScreen(
+              vetProvider: _vetProvider,
+            ),
+          ),
+        );
+      }),
+      if (_vetProvider.fluidTherapyDatabase != null)
+        _featureChip('Инфузии', Icons.water_drop, AppTheme.maleBlue, () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (_) => FluidTherapyScreen(
+                db: _vetProvider.fluidTherapyDatabase!),
+          ));
+        }),
+      if (_vetProvider.diseasesCount > 0)
+        _featureChip('Болезни', Icons.coronavirus_outlined,
+            AppTheme.safeGreen, _openDiseasesScreen),
+      _featureChip('Избранное', Icons.star_border, AppTheme.warningOrange, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const FavoritesScreen(),
+          ),
+        );
+      }),
+      _featureChip('История', Icons.history, AppTheme.textSecondary, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HistoryScreen(),
+          ),
+        );
+      }),
+    ];
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: chips.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (_, i) => chips[i],
+      ),
+    );
+  }
+
+  /// Подписанный фич-чип: 48dp высота (тач-таргет), контур цвета функции,
+  /// фон theme-aware (AppTheme.white — геттер, в тёмной теме даёт тёмный).
+  Widget _featureChip(
+      String label, IconData icon, Color color, VoidCallback onTap) {
+    return Material(
+      color: AppTheme.white,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            border: Border.all(color: color.withOpacity(0.35)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ],
           ),

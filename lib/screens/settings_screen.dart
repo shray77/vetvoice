@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Text(
               'Модель нужна для wake word: скажите «ВетВойс» на главном '
               'экране и голосовой ввод включится без интернета. '
-              'Качается один раз (~46 МБ), дальше работает оффлайн.',
+              'Качается один раз (~44 МБ), дальше работает оффлайн. При обрыве связи докачивается с места обрыва.',
               style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
             ),
           ),
@@ -115,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.16.2',
+                applicationVersion: '1.16.3',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),

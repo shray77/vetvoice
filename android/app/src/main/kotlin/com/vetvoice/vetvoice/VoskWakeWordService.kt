@@ -15,6 +15,7 @@ import org.vosk.android.SpeechService
 import java.io.File
 import java.io.FileOutputStream
 import java.io.BufferedOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
@@ -30,7 +31,14 @@ class VoskWakeWordService(private val context: Context) {
         // ⚠️ Фикс Q-5: все настройки модели собраны в одном месте —
         // было разбросано по коду, теперь меняешь версию → правишь 3 строки тут.
         // URL скачивания модели Vosk (офлайн-распознавание русской речи).
-        private const val MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip"
+        // v1.16.3: список источников, первый доступный побеждает. alphacephei.com
+        // из мобильных сетей РФ часто тянет 46 МБ часами и рвёт соединение —
+        // поэтому добавлено зеркало на GitHub CDN (тот же файл, тот же SHA-256,
+        // целостность всё равно проверяется ниже перед распаковкой).
+        private val MODEL_URLS = listOf(
+            "https://github.com/shray77/vetvoice/releases/download/vosk-model-ru-0.22/vosk-model-small-ru-0.22.zip",
+            "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip",
+        )
         private const val MODEL_VERSION = "0.22"
         // Ожидаемый SHA-256 модели — защита от подмены (фикс B-11).
         private const val EXPECTED_MODEL_SHA256 =
@@ -42,6 +50,13 @@ class VoskWakeWordService(private val context: Context) {
         private const val MODEL_DIR_NAME = "vosk-model-ru"
         private const val SAMPLE_RATE = 16000f
         private const val CHECK_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000
+        // v1.16.3: параметры скачивания. readTimeout — таймаут ОДНОГО блока чтения
+        // (не всего файла), поэтому можно смело ставить большой: соединение,
+        // отдающее хоть байт в 3 минуты, считается живым.
+        private const val DOWNLOAD_ATTEMPTS_PER_URL = 3
+        private const val DOWNLOAD_CONNECT_TIMEOUT_MS = 20000
+        private const val DOWNLOAD_READ_TIMEOUT_MS = 180000
+        private const val FALLBACK_TOTAL_MB = 44.0
     }
 
     enum class State { IDLE, LOADING, READY, LISTENING, ERROR }
@@ -329,46 +344,40 @@ class VoskWakeWordService(private val context: Context) {
     }
 
     private suspend fun downloadAndExtractModel(targetDir: File) {
-        Log.d(TAG, "Downloading model from $MODEL_URL")
         targetDir.mkdirs()
+        // v1.16.3: tempZip НЕ удаляем перед стартом — если предыдущая попытка
+        // оборвалась, докачиваем с места обрыва через Range-запрос. Раньше файл
+        // стирался и 46 МБ качались с нуля на каждой попытке; на медленной сети
+        // это означало «модель никогда не докачается» (полевой репорт: «таймаут»).
         val tempZip = File(context.cacheDir, "vosk-model.zip")
-        if (tempZip.exists()) tempZip.delete()
-        val url = URL(MODEL_URL)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.connectTimeout = 30000
-        connection.readTimeout = 120000
-        connection.instanceFollowRedirects = true
-        connection.connect()
-        try {
-            // === ФАЗА 1: Скачивание ===
-            val contentLength = connection.contentLength.toLong()
-            val totalMB = if (contentLength > 0) contentLength / (1024.0 * 1024.0) else 50.0
-            mainHandler.post { onDownloadProgress?.invoke(0.0, totalMB) }
-            mainHandler.post { setState(State.LOADING, "Скачивание модели...") }
 
-            connection.inputStream.use { input ->
-                FileOutputStream(tempZip).use { output ->
-                    val buffer = ByteArray(16384) // 16 КБ буфер
-                    var totalRead = 0L
-                    var lastProgressMB = 0.0
-                    while (true) {
-                        coroutineContext.ensureActive()
-                        val read = input.read(buffer)
-                        if (read == -1) break
-                        output.write(buffer, 0, read)
-                        totalRead += read
-                        val downloadedMB = totalRead / (1024.0 * 1024.0)
-                        if (downloadedMB - lastProgressMB >= 0.5 || totalRead == contentLength) {
-                            lastProgressMB = downloadedMB
-                            val currentTotalMB = if (contentLength > 0) totalMB else downloadedMB
-                            mainHandler.post { onDownloadProgress?.invoke(downloadedMB, currentTotalMB) }
-                        }
-                    }
+        var lastError: Exception? = null
+        var downloaded = false
+        urlLoop@ for (modelUrl in MODEL_URLS) {
+            for (attempt in 1..DOWNLOAD_ATTEMPTS_PER_URL) {
+                try {
+                    coroutineContext.ensureActive()
+                    downloadToFile(modelUrl, tempZip)
+                    downloaded = true
+                    break@urlLoop
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    lastError = e
+                    Log.w(TAG, "Download failed (url=${modelUrl.substringBefore("/vosk-model")}..., attempt=$attempt): ${e.message}; partial=${tempZip.length()} bytes")
+                    // Недокачанный файл ОСТАЁТСЯ — следующая попытка/URL докачает
+                    // (Range). Перед сменой URL-источника файл оставляем тоже:
+                    // серверы отдают идентичный файл (SHA-256 проверяется после).
+                    if (attempt < DOWNLOAD_ATTEMPTS_PER_URL) delay(2000L * attempt)
                 }
             }
+        }
+        if (!downloaded) {
+            throw IOException("Не удалось скачать модель: ${lastError?.message ?: "нет доступа ко всем источникам"}. Частичный файл сохранён (${tempZip.length() / (1024 * 1024)} МБ) — при следующей попытке докачаем.")
+        }
 
-            coroutineContext.ensureActive()
-            Log.d(TAG, "Download complete, file size: ${tempZip.length()} bytes")
+        coroutineContext.ensureActive()
+        Log.d(TAG, "Download complete, file size: ${tempZip.length()} bytes")
 
             // ⚠️ Фикс B-11: проверка SHA-256 модели — supply-chain protection.
             // Если файл подменён в transit (MITM, скомпрометированный CDN) — не используем его.
@@ -478,9 +487,77 @@ class VoskWakeWordService(private val context: Context) {
             Log.d(TAG, "Extraction complete: $extractedFiles files")
             coroutineContext.ensureActive()
             mainHandler.post { setState(State.LOADING, "Распаковка завершена") }
+        // v1.16.3: tempZip удаляем только после УСПЕШНОЙ распаковки — иначе
+        // следующий запуск сможет докачать/переиспользовать его.
+        if (tempZip.exists()) tempZip.delete()
+        Log.i(TAG, "Model zip cleaned up")
+    }
+
+    /**
+     * v1.16.3: скачивание одного URL с докачкой через Range.
+     * - Уже скачанный префикс tempZip НЕ перезаписывается: шлём
+     *   Range: bytes=<size>-; 206 → append, 200 → начинаем заново.
+     * - 416 Range Not Satisfiable → файл уже скачан целиком ранее.
+     * - Прогресс в UI — в АБСОЛЮТНЫХ МБ (с учётом ранее скачанного).
+     * - Ошибка чтения/обрыв → исключение вверх (наружный цикл делает ретраи).
+     */
+    private suspend fun downloadToFile(modelUrl: String, tempZip: File) {
+        val already = if (tempZip.exists()) tempZip.length() else 0L
+        val connection = (URL(modelUrl).openConnection() as HttpURLConnection).apply {
+            connectTimeout = DOWNLOAD_CONNECT_TIMEOUT_MS
+            readTimeout = DOWNLOAD_READ_TIMEOUT_MS
+            instanceFollowRedirects = true
+            if (already > 0L) setRequestProperty("Range", "bytes=$already-")
+        }
+        connection.connect()
+        try {
+            val code = connection.responseCode
+            if (code == 416) {
+                // Уже скачан весь файл в прошлой сессии — считаем успехом.
+                Log.i(TAG, "HTTP 416 — file already fully downloaded (${tempZip.length()} bytes)")
+                return
+            }
+            if (code != 200 && code != 206) {
+                throw IOException("HTTP $code")
+            }
+            val resuming = code == 206 && already > 0L
+            val contentLength = connection.getHeaderField("Content-Length")?.toLongOrNull() ?: -1L
+            val base = if (resuming) already else 0L
+            val totalBytes = if (contentLength > 0) base + contentLength else -1L
+            val totalMB = if (totalBytes > 0) totalBytes / (1024.0 * 1024.0) else FALLBACK_TOTAL_MB
+
+            mainHandler.post {
+                setState(State.LOADING, if (resuming)
+                    "Продолжаем скачивание (${base / (1024.0 * 1024.0)} МБ из ~${totalMB.toInt()})..."
+                else "Скачивание модели...")
+                onDownloadProgress?.invoke(base / (1024.0 * 1024.0), totalMB)
+            }
+
+            FileOutputStream(tempZip, resuming).use { output ->
+                connection.inputStream.use { input ->
+                    val buffer = ByteArray(32768) // 32 КБ буфер
+                    var totalRead = base
+                    var lastProgressMB = base / (1024.0 * 1024.0)
+                    while (true) {
+                        coroutineContext.ensureActive()
+                        val read = input.read(buffer)
+                        if (read == -1) break
+                        output.write(buffer, 0, read)
+                        totalRead += read
+                        val downloadedMB = totalRead / (1024.0 * 1024.0)
+                        if (downloadedMB - lastProgressMB >= 0.5 || (totalBytes > 0 && totalRead == totalBytes)) {
+                            lastProgressMB = downloadedMB
+                            mainHandler.post { onDownloadProgress?.invoke(downloadedMB, totalMB) }
+                        }
+                    }
+                }
+            }
+            if (totalBytes > 0 && tempZip.length() < totalBytes) {
+                throw IOException("Соединение оборвалось: ${tempZip.length()} из $totalBytes байт (докачаем при следующей попытке)")
+            }
+            Log.i(TAG, "Download OK: ${tempZip.length()} bytes (resumed=$resuming)")
         } finally {
             connection.disconnect()
-            if (tempZip.exists()) tempZip.delete()
         }
     }
 
