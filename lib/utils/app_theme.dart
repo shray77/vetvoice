@@ -415,8 +415,7 @@ class AppTheme {
           color: textPrimary,
         ),
         labelPadding: EdgeInsets.symmetric(horizontal: 10),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        height: 40,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         shape: StadiumBorder(),
         side: BorderSide(color: Colors.transparent),
       ),
@@ -425,7 +424,7 @@ class AppTheme {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
           side: BorderSide(color: outlineVariant),
         ),
       ),
@@ -448,23 +447,23 @@ class AppTheme {
         prefixIconColor: textSecondary,
         suffixIconColor: textSecondary,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: safeGreen, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: errorRed, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: errorRed, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -481,7 +480,7 @@ class AppTheme {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radiusSmall),
+              borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
             ),
           ),
           textStyle: WidgetStatePropertyAll(
@@ -503,7 +502,7 @@ class AppTheme {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radiusSmall),
+              borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
             ),
           ),
           side: WidgetStatePropertyAll(
@@ -550,7 +549,7 @@ class AppTheme {
           color: Color(0xFFE7F2E9),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
         ),
         elevation: 3,
       ),
@@ -627,7 +626,7 @@ class AppTheme {
       tooltipTheme: const TooltipThemeData(
         decoration: BoxDecoration(
           color: textPrimary,
-          borderRadius: BorderRadius.circular(radiusMicro),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMicro)),
         ),
         textStyle: TextStyle(
           fontFamily: fontBody,
@@ -721,8 +720,7 @@ class AppTheme {
           color: darkTextPrimary,
         ),
         labelPadding: EdgeInsets.symmetric(horizontal: 10),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        height: 40,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         shape: StadiumBorder(),
         side: BorderSide(color: Colors.transparent),
       ),
@@ -731,7 +729,7 @@ class AppTheme {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
           side: BorderSide(color: Color(0xFF24352A)),
         ),
       ),
@@ -754,23 +752,23 @@ class AppTheme {
         prefixIconColor: darkTextSecondary,
         suffixIconColor: darkTextSecondary,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: darkPrimary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: darkError, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
           borderSide: BorderSide(color: darkError, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -787,7 +785,7 @@ class AppTheme {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radiusSmall),
+              borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
             ),
           ),
           textStyle: WidgetStatePropertyAll(
@@ -809,7 +807,7 @@ class AppTheme {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radiusSmall),
+              borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
             ),
           ),
           side: WidgetStatePropertyAll(
@@ -856,7 +854,7 @@ class AppTheme {
           color: textPrimary,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusSmall),
+          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
         ),
         elevation: 3,
       ),
@@ -935,7 +933,7 @@ class AppTheme {
       tooltipTheme: const TooltipThemeData(
         decoration: BoxDecoration(
           color: darkTextPrimary,
-          borderRadius: BorderRadius.circular(radiusMicro),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMicro)),
         ),
         textStyle: TextStyle(
           fontFamily: fontBody,
