@@ -117,7 +117,7 @@ class MethodSelector extends StatelessWidget {
           ),
           items: [
             if (showAutoOption)
-              const DropdownMenuItem<AdministrationMethod?>(
+              DropdownMenuItem<AdministrationMethod?>(
                 value: null,
                 child: Row(
                   children: [
