@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/unofficial_protocol.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 
 class UnofficialRecordsScreen extends StatefulWidget {
   final UnofficialProtocolDatabase db;
@@ -42,18 +43,12 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
   @override
   Widget build(BuildContext context) {
     final list = _filtered;
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundGray,
-      appBar: AppBar(
-        title: const Text('Неофициальные протоколы'),
-        backgroundColor: AppTheme.white,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-        actions: [
-          Text('$_resultCount', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
-          const SizedBox(width: 8),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Неофициальные протоколы',
+      actions: [
+        Text('$_resultCount', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+        const SizedBox(width: 8),
+      ],
       body: Column(
         children: [
           Padding(

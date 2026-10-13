@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import '../services/history_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/empty_state.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -35,43 +36,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('🕒 История расчётов'),
-        actions: [
-          if (_histService.history.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              tooltip: 'Очистить историю',
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Очистить историю?'),
-                    content: Text(
-                      'Будет удалено ${_histService.history.length} '
-                      'записей истории.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Отмена'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Очистить'),
-                      ),
-                    ],
+    return AppScaffold(
+      title: '🕒 История расчётов',
+      actions: [
+        if (_histService.history.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            tooltip: 'Очистить историю',
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Очистить историю?'),
+                  content: Text(
+                    'Будет удалено ${_histService.history.length} '
+                    'записей истории.',
                   ),
-                );
-                if (confirmed == true) {
-                  await _histService.clear();
-                  setState(() {});
-                }
-              },
-            ),
-        ],
-      ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Отмена'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Очистить'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await _histService.clear();
+                setState(() {});
+              }
+            },
+          ),
+      ],
       body: _histService.history.isEmpty
           ? _buildEmptyState()
           : _buildHistoryList(),

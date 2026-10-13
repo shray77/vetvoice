@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell.dart';   // 🆕 Фаза 2: shell нижней навигации
 import 'screens/disclaimer_screen.dart';
 import 'utils/app_theme.dart';
 import 'services/theme_service.dart';
@@ -115,7 +115,7 @@ class _VetVoiceAppState extends State<VetVoiceApp> with WidgetsBindingObserver {
           // + нулевая анимация = переключение в один кадр.
           themeAnimationDuration: Duration.zero,
           home: widget.disclaimerAccepted
-              ? const HomeScreen()
+              ? const MainShell()
               : const DisclaimerScreen(),
         );
       },

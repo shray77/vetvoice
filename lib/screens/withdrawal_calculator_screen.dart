@@ -22,6 +22,10 @@ import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
+// v1.18.0 (Фаза 2): каркас + DrugPicker вместо самописного _DrugSelector
+import '../widgets/common/app_scaffold.dart';
+import '../widgets/common/drug_picker.dart';
+import '../widgets/common/status_chip.dart';
 
 class WithdrawalCalculatorScreen extends StatefulWidget {
   final VetProvider vetProvider;
@@ -52,8 +56,8 @@ class _WithdrawalCalculatorScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('🐄 Калькулятор каренции')),
+    return AppScaffold(
+      title: '🐄 Калькулятор каренции',
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
@@ -89,9 +93,18 @@ class _WithdrawalCalculatorScreenState
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            _DrugSelector(
-              vetProvider: widget.vetProvider,
-              selectedDrug: _selectedDrug,
+            // v1.18.0: _DrugSelector заменён общим DrugPicker (Фаза 1).
+            // Было: свой TextField с contains БЕЗ нормализации ®/ё —
+            // «асд10»/«асд-10» не находили «АСД®-10» (класс бага v1.16.4).
+            // Список сужен до препаратов с каренцией — как раньше.
+            DrugPicker(
+              drugs: widget.vetProvider.allDrugs
+                  .whereType<CalcDrug>()
+                  .where((d) =>
+                      d.withdrawalDays > 0 || d.withdrawalText.isNotEmpty)
+                  .toList(),
+              hint: 'Название или МНН…',
+              resultsMaxHeight: 240,
               onSelected: (drug) {
                 setState(() {
                   _selectedDrug = drug;
@@ -99,6 +112,20 @@ class _WithdrawalCalculatorScreenState
                 });
               },
             ),
+            if (_selectedDrug != null) ...[
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: StatusChip(
+                    label: 'Выбрано: ${_selectedDrug!.name}',
+                    severity: StatusSeverity.success,
+                    icon: Icons.medication_rounded,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Выбор животного
@@ -358,141 +385,5 @@ class _WithdrawalResultCard extends StatelessWidget {
   }
 }
 
-class _DrugSelector extends StatefulWidget {
-  final VetProvider vetProvider;
-  final CalcDrug? selectedDrug;
-  final Function(CalcDrug) onSelected;
-
-  const _DrugSelector({
-    required this.vetProvider,
-    required this.selectedDrug,
-    required this.onSelected,
-  });
-
-  @override
-  State<_DrugSelector> createState() => _DrugSelectorState();
-}
-
-class _DrugSelectorState extends State<_DrugSelector> {
-  final TextEditingController _controller = TextEditingController();
-  bool _showDropdown = false;
-  List<CalcDrug> _filtered = [];
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.selectedDrug != null) {
-      _controller.text = widget.selectedDrug!.name;
-    }
-    _filtered = widget.vetProvider.allDrugs
-        .whereType<CalcDrug>()
-        .where((d) => d.withdrawalDays > 0 || d.withdrawalText.isNotEmpty)
-        .toList();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: _controller,
-          style: const TextStyle(fontSize: 15),
-          decoration: InputDecoration(
-            hintText: 'Поиск препарата...',
-            prefixIcon: const Icon(Icons.search, color: AppTheme.safeGreen),
-            suffixIcon: _controller.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _controller.clear();
-                      setState(() {
-                        _showDropdown = false;
-                      });
-                    },
-                  )
-                : null,
-            // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          onChanged: (value) {
-            final q = value.toLowerCase();
-            setState(() {
-              _showDropdown = value.isNotEmpty;
-              _filtered = widget.vetProvider.allDrugs.whereType<CalcDrug>().where((d) {
-                if (d.withdrawalDays == 0 && d.withdrawalText.isEmpty) {
-                  return false;
-                }
-                return d.name.toLowerCase().contains(q) ||
-                    d.inn.toLowerCase().contains(q);
-              }).toList();
-            });
-          },
-          onTap: () {
-            setState(() {
-              _showDropdown = _controller.text.isNotEmpty;
-            });
-          },
-        ),
-        if (_showDropdown && _filtered.isNotEmpty)
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            constraints: const BoxConstraints(maxHeight: 250),
-            decoration: BoxDecoration(
-              // v1.16: theme-aware
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.darkSurface
-                  : AppTheme.white,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: Border.all(color: AppTheme.dividerGray),
-              boxShadow: AppTheme.softShadow,
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: _filtered.length > 50 ? 50 : _filtered.length,
-              itemBuilder: (context, index) {
-                final drug = _filtered[index];
-                final catColor = AppTheme.getCategoryColor(drug.category);
-                return ListTile(
-                  dense: true,
-                  leading: Container(
-                    width: 4,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: catColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  title: Text(drug.name, style: const TextStyle(fontSize: 13)),
-                  subtitle: Text(
-                    drug.withdrawalText.isNotEmpty
-                        ? drug.withdrawalText
-                        : '${drug.withdrawalDays} дн',
-                    style: const TextStyle(fontSize: 10),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () {
-                    widget.onSelected(drug);
-                    _controller.text = drug.name;
-                    setState(() {
-                      _showDropdown = false;
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-      ],
-    );
-  }
-}
+// v1.18.0: класс _DrugSelector удалён — его заменяет общий DrugPicker
+// (поиск с нормализацией ®/ё, loose-матчем и ранжированием).

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
-import 'home_screen.dart';
+import 'main_shell.dart';
 import 'terms_screen.dart';
 
 /// DisclaimerScreen — юридический гейт при первом запуске.
@@ -108,7 +108,9 @@ class DisclaimerScreen extends StatelessWidget {
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        // v1.18.0 (Фаза 2): после юр-гейта — shell с нижней
+                        // навигацией, а не HomeScreen напрямую.
+                        MaterialPageRoute(builder: (_) => const MainShell()),
                       );
                     }
                   },

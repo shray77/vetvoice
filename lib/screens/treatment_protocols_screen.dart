@@ -21,6 +21,11 @@ import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../services/drug_loader_service.dart';
 import '../utils/app_theme.dart';
+// v1.18.0 (Фаза 2): каркас + компоненты Фазы 1
+import '../widgets/common/app_scaffold.dart';
+import '../widgets/common/drug_picker.dart';
+import '../widgets/common/empty_state.dart';
+import '../widgets/common/status_chip.dart';
 
 /// v1.16.3: парсинг протоколов в background-isolate (экран держит СВОЙ
 /// локальный класс TreatmentProtocol, поэтому DrugLoader.parseInIsolate
@@ -163,6 +168,20 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String? _selectedCategory;
+  // v1.18.0: фильтр «протоколы, в которых есть этот препарат» (DrugPicker).
+  CalcDrug? _drugFilter;
+
+  /// Тот же loose-ключ, что в DrugPicker: только буквы/цифры после
+  /// нормализации ®/ё — «асд10» находит «АСД®-10».
+  static String _loose(String s) =>
+      VetProvider.normalizeForSearch(s).replaceAll(RegExp(r'[^a-zа-я0-9]'), '');
+
+  /// Двусторонее contains с отсечкой коротких ключей
+  /// («Энрофлокс» находит «Энрофлоксацин» и наоборот).
+  static bool _matchesLoose(String a, String b) {
+    if (a.length < 3 || b.length < 3) return false;
+    return a.contains(b) || b.contains(a);
+  }
 
   @override
   void initState() {
@@ -197,11 +216,27 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
 
   void _applyFilters() {
     final query = _searchController.text.toLowerCase().trim();
+    final drug = _drugFilter;
     setState(() {
       _filtered = _allProtocols.where((p) {
         // Фильтр по категории
         if (_selectedCategory != null && p.category != _selectedCategory) {
           return false;
+        }
+        // v1.18.0: фильтр по препарату — имя/МНН из базы калькулятора
+        // ищем в препаратах протокола (и имя, и МНН, в обе стороны).
+        if (drug != null) {
+          final dn = _loose(drug.name);
+          final di = _loose(drug.inn);
+          final hit = p.allDrugs.any((d) {
+            final n = _loose(d['name'] as String? ?? '');
+            final i = _loose(d['inn'] as String? ?? '');
+            return _matchesLoose(dn, n) ||
+                _matchesLoose(dn, i) ||
+                _matchesLoose(di, n) ||
+                _matchesLoose(di, i);
+          });
+          if (!hit) return false;
         }
         // Фильтр по поиску
         if (query.isEmpty) return true;
@@ -227,8 +262,8 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('📜 Протоколы лечения')),
+    return AppScaffold(
+      title: '📜 Протоколы лечения',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -303,6 +338,58 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                // v1.18.0: «Найти протокол по препарату» — DrugPicker (Фаза 1):
+                // нормализация ®/ё + loose-матч («асд10» → «АСД®-10») +
+                // ранжирование. Свой TextField здесь снова породил бы баг
+                // «препарат не находится» (урок v1.16.4).
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                      AppTheme.paddingMedium, 0, AppTheme.paddingMedium, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_drugFilter != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: StatusChip(
+                                label: 'Фильтр: ${_drugFilter!.name}',
+                                severity: StatusSeverity.info,
+                                icon: Icons.medication_rounded,
+                                onTap: () {
+                                  setState(() => _drugFilter = null);
+                                  _applyFilters();
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      Text(
+                        'Препарат в протоколах',
+                        style: TextStyle(
+                          fontSize: AppTheme.fontSizeCaption,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      DrugPicker(
+                        drugs: widget.vetProvider.allDrugs
+                            .whereType<CalcDrug>()
+                            .toList(),
+                        hint: 'Найти протоколы по препарату…',
+                        resultsMaxHeight: 200,
+                        onSelected: (d) {
+                          setState(() => _drugFilter = d);
+                          _applyFilters();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 // Счётчик
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -337,18 +424,25 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('📜', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          Text(
-            'Не найдено протоколов',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-        ],
-      ),
+    final hasFilter = _drugFilter != null ||
+        _searchController.text.trim().isNotEmpty ||
+        _selectedCategory != null;
+    return EmptyState(
+      emoji: '📜',
+      title: hasFilter ? 'Ничего не найдено' : 'Протоколы не загружены',
+      message: _drugFilter != null
+          ? 'В протоколах не найден препарат «${_drugFilter!.name}». '
+              'Попробуйте МНН или сбросьте фильтр.'
+          : hasFilter
+              ? 'Попробуйте другой запрос или категорию.'
+              : 'Проверьте сеть и перезапустите приложение — база подтянется.',
+      actionLabel: _drugFilter != null ? 'Сбросить фильтр препарата' : null,
+      onAction: _drugFilter != null
+          ? () {
+              setState(() => _drugFilter = null);
+              _applyFilters();
+            }
+          : null,
     );
   }
 }

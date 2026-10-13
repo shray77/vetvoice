@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
 import '../services/symptom_search_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 
 class SymptomSearchScreen extends StatefulWidget {
   final void Function(CalcDrug)? onDrugSelected;
@@ -73,10 +74,8 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('🔍 Поиск по симптомам'),
-      ),
+    return AppScaffold(
+      title: '🔍 Поиск по симптомам',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(

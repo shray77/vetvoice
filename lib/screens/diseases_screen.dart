@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/disease.dart';
 import '../models/treatment_protocol.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 
 /// Экран справочника болезней с протоколами лечения и МУ
 class DiseasesScreen extends StatefulWidget {
@@ -59,29 +60,23 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.white,
-      appBar: AppBar(
-        title: const Text('Справочник болезней'),
-        backgroundColor: AppTheme.white,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-        actions: [
-          Text(
-            '${widget.treatmentDatabase?.protocols.length ?? 0} протоколов',
-            style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+    return AppScaffold(
+      title: 'Справочник болезней',
+      actions: [
+        Text(
+          '${widget.treatmentDatabase?.protocols.length ?? 0} протоколов',
+          style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: Icon(
+            _showOnlyDangerous ? Icons.warning : Icons.warning_outlined,
+            color: _showOnlyDangerous ? AppTheme.errorRed : AppTheme.textSecondary,
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: Icon(
-              _showOnlyDangerous ? Icons.warning : Icons.warning_outlined,
-              color: _showOnlyDangerous ? AppTheme.errorRed : AppTheme.textSecondary,
-            ),
-            onPressed: () => setState(() => _showOnlyDangerous = !_showOnlyDangerous),
-            tooltip: 'Только особо опасные',
-          ),
-        ],
-      ),
+          onPressed: () => setState(() => _showOnlyDangerous = !_showOnlyDangerous),
+          tooltip: 'Только особо опасные',
+        ),
+      ],
       body: Column(
         children: [
           // Поиск

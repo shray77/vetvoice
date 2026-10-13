@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
 import '../widgets/common/voice_status_bar.dart';
+import '../widgets/common/app_scaffold.dart';
 import 'terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -45,8 +46,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+    return AppScaffold(
+      title: 'Настройки',
       body: ListView(
         children: [
           // === Тема ===

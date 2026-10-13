@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fluid_therapy.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 
 class FluidTherapyScreen extends StatefulWidget {
   final FluidTherapyDatabase db;
@@ -210,20 +211,14 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundGray,
-      appBar: AppBar(
-        title: const Text('Инфузионная терапия'),
-        backgroundColor: AppTheme.white,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.safeGreen,
-          unselectedLabelColor: AppTheme.textTertiary,
-          indicatorColor: AppTheme.safeGreen,
-          tabs: const [Tab(text: 'Калькулятор'), Tab(text: 'Растворы'), Tab(text: 'Протоколы'), Tab(text: 'Добавки')],
-        ),
+    return AppScaffold(
+      title: 'Инфузионная терапия',
+      bottom: TabBar(
+        controller: _tabController,
+        labelColor: AppTheme.safeGreen,
+        unselectedLabelColor: AppTheme.textTertiary,
+        indicatorColor: AppTheme.safeGreen,
+        tabs: const [Tab(text: 'Калькулятор'), Tab(text: 'Растворы'), Tab(text: 'Протоколы'), Tab(text: 'Добавки')],
       ),
       body: TabBarView(
         controller: _tabController,

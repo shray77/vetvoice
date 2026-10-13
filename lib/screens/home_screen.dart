@@ -14,20 +14,12 @@ import '../widgets/result_card.dart';
 import '../widgets/animal_params_selector.dart';
 import '../widgets/method_selector.dart';
 import '../widgets/compatibility_checker.dart';
+// v1.18.0 (Фаза 2): экраны-назначения переехали на вкладки «Главная»
+// (HomeGridScreen) и «Ещё» (MoreScreen) — здесь остаются только симптомы
+// diseases/settings. Голосовой пайплайн не тронут.
 import 'diseases_screen.dart';
-import 'fluid_therapy_screen.dart';
-import 'unofficial_protocols_screen.dart';
-import 'favorites_screen.dart';  // 🆕
-import 'history_screen.dart';    // 🆕
-import 'settings_screen.dart';   // 🆕
-import 'symptom_search_screen.dart';  // 🆕 Sprint 2
-import 'treatment_protocols_screen.dart';  // 🆕 Sprint 2
-import 'interactions_checker_screen.dart';  // 🆕 Sprint 2
-import 'withdrawal_calculator_screen.dart';  // 🆕 Sprint 2
-import '../services/favorites_service.dart';  // 🆕
-import '../services/history_service.dart';    // 🆕
+import 'settings_screen.dart';
 import '../services/theme_service.dart';      // 🆕
-import '../services/symptom_search_service.dart';  // 🆕 Sprint 2
 
 // Экспорт VoiceGender для использования в парсинге
 export '../services/speech_service.dart' show VoiceGender;
@@ -923,11 +915,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         ),
         const SizedBox(height: 10),
-        // v1.16.3: функциональная навигация — ПОДПИСАННЫЕ чипы в
-        // горизонтальном скролле. Голые иконки без подписей в переполненном
-        // Row ветврач в поле не находил. 48dp тач-таргет, скролл ≠ overflow.
-        _buildFeatureNav(),
-        const SizedBox(height: 4),
+        // v1.18.0 (Фаза 2): лента фич-чипов переехала на вкладку «Главная»
+        // (HomeGridScreen: 2×3 сетка + safety-кластер) и «Ещё» (MoreScreen).
+        // Здесь — только статус-строка; микрофонный контур не изменён.
         Row(
           children: [
             Container(
@@ -1578,133 +1568,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  /// v1.16.3: горизонтальная лента подписанных фич-чипов под заголовком.
-  /// Заменяет 8 безымянных IconButton старой шапки: каждый чип имеет текст
-  /// («Протоколы», «Каренция»...), ряд скроллится — overflow невозможен.
-  Widget _buildFeatureNav() {
-    final chips = <Widget>[
-      _featureChip('Поиск', Icons.search, AppTheme.safeGreen, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SymptomSearchScreen(
-              onDrugSelected: (drug) {
-                _vetProvider.selectDrug(drug);
-              },
-            ),
-          ),
-        );
-      }),
-      _featureChip('Протоколы', Icons.medical_information_outlined,
-          AppTheme.maleBlue, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TreatmentProtocolsScreen(
-              vetProvider: _vetProvider,
-              // v1.16.4: из протокола прилетают ОБА — вид и препарат.
-              // selectAnimalFromSpecies НЕ сбрасывает препарат (в отличие от
-              // selectAnimal), поэтому вид подставляем ДО препарата.
-              // Раньше тут был голый selectDrug без setState: препарат
-              // «проявлялся» рывком только когда стримы WW/STT дёргали
-              // перерисовку, а животное вообще не подставлялось.
-              onDrugSelected: (drug, species) {
-                _vetProvider.selectAnimalFromSpecies(species);
-                if (_vetProvider.weight > 0) {
-                  _validateWeight(_vetProvider.weight);
-                }
-                _onDrugSelected(drug);
-              },
-            ),
-          ),
-        );
-      }),
-      _featureChip('Совместимость', Icons.compare_arrows,
-          AppTheme.warningOrange, _openCompatibilityChecker),
-      _featureChip('Каренция', Icons.schedule, AppTheme.errorRed, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => WithdrawalCalculatorScreen(
-              vetProvider: _vetProvider,
-            ),
-          ),
-        );
-      }),
-      if (_vetProvider.fluidTherapyDatabase != null)
-        _featureChip('Инфузии', Icons.water_drop, AppTheme.maleBlue, () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (_) => FluidTherapyScreen(
-                db: _vetProvider.fluidTherapyDatabase!),
-          ));
-        }),
-      if (_vetProvider.diseasesCount > 0)
-        _featureChip('Болезни', Icons.coronavirus_outlined,
-            AppTheme.safeGreen, _openDiseasesScreen),
-      _featureChip('Избранное', Icons.star_border, AppTheme.warningOrange, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const FavoritesScreen(),
-          ),
-        );
-      }),
-      _featureChip('История', Icons.history, AppTheme.textSecondary, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const HistoryScreen(),
-          ),
-        );
-      }),
-    ];
-    return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: chips.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (_, i) => chips[i],
-      ),
-    );
-  }
-
-  /// Подписанный фич-чип: 48dp высота (тач-таргет), контур цвета функции,
-  /// фон theme-aware (AppTheme.white — геттер, в тёмной теме даёт тёмный).
-  Widget _featureChip(
-      String label, IconData icon, Color color, VoidCallback onTap) {
-    return Material(
-      color: AppTheme.white,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            border: Border.all(color: color.withOpacity(0.35)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 20, color: color),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // v1.18.0 (Фаза 2): _buildFeatureNav / _featureChip удалены — их маршруты
+  // переехали в HomeGridScreen («Главная») и MoreScreen («Ещё»).
+  // Подписки wake word/STT и обработка команд не изменены.
 
   Widget _buildQuickActions() {
     return Column(

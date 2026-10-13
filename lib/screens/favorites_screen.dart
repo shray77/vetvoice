@@ -13,6 +13,7 @@ import '../models/calc_drug.dart';
 import '../providers/vet_provider.dart';
 import '../services/favorites_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/empty_state.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -53,43 +54,41 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('⭐ Избранное'),
-        actions: [
-          if (_favoriteDrugs.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              tooltip: 'Очистить избранное',
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Очистить избранное?'),
-                    content: Text(
-                      'Будет удалено ${_favoriteDrugs.length} '
-                      'препаратов из избранного.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Отмена'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Очистить'),
-                      ),
-                    ],
+    return AppScaffold(
+      title: '⭐ Избранное',
+      actions: [
+        if (_favoriteDrugs.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            tooltip: 'Очистить избранное',
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Очистить избранное?'),
+                  content: Text(
+                    'Будет удалено ${_favoriteDrugs.length} '
+                    'препаратов из избранного.',
                   ),
-                );
-                if (confirmed == true) {
-                  await _favService.clear();
-                  _loadFavorites();
-                }
-              },
-            ),
-        ],
-      ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Отмена'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Очистить'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await _favService.clear();
+                _loadFavorites();
+              }
+            },
+          ),
+      ],
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _favoriteDrugs.isEmpty
