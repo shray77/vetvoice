@@ -207,7 +207,9 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
             // что у карточки есть содержимое ниже (полевой отчёт v1.18.0:
             // «а где-то просто название препарата»).
             const SizedBox(height: 6),
-            const Text(
+            // БЕЗ const: textTertiary — theme-aware геттер (упало в Release
+            // APK #45: Constant evaluation error).
+            Text(
               'Описание не указано — применяйте по дозировкам ниже',
               style: TextStyle(
                 fontSize: 12,
