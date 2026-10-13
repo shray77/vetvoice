@@ -10,6 +10,7 @@
 // перчатки, вибрация на весу). Без onTap — компактные 32dp (информационный).
 import 'package:flutter/material.dart';
 import '../../utils/app_theme.dart';
+import 'haptics.dart';
 
 enum StatusSeverity { neutral, info, success, warning, danger }
 
@@ -136,7 +137,8 @@ class StatusChip extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        // Фаза 3: хаптик на интерактивных чипах (чипы сети/базы, severity).
+        onTap: () { AppHaptics.tap(); onTap!(); },
         borderRadius: const BorderRadius.all(Radius.circular(AppTheme.radiusPill)),
         splashColor: fg.withAlpha(40),
         child: chip,

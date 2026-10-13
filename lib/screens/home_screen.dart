@@ -7,6 +7,8 @@ import '../providers/vet_provider.dart';
 import '../services/speech_service.dart';
 import '../services/wake_word_service.dart';
 import '../utils/app_theme.dart';
+// Фаза 3: хаптик на значимых касаниях (wake word и избранное)
+import '../widgets/common/haptics.dart';
 import '../widgets/animal_card.dart';
 import '../widgets/drug_dropdown.dart';
 import '../widgets/mic_button.dart';
@@ -204,6 +206,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   /// Включить/выключить wake word режим
   Future<void> _toggleWakeWord() async {
     if (_isTransitioning) return;
+    // Фаза 3: включение/выключение фонового слушания — значимое действие.
+    AppHaptics.confirm();
     _isTransitioning = true;
 
     try {

@@ -15,6 +15,8 @@ import '../services/favorites_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/haptics.dart';
+import '../widgets/common/skeleton.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -90,7 +92,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
       ],
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          // Фаза 3: каркас списка вместо спиннера.
+          ? const SkeletonList()
           : _favoriteDrugs.isEmpty
               ? _buildEmptyState()
               : _buildFavoritesList(),
@@ -116,11 +119,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         return _FavoriteDrugCard(
           drug: drug,
           onRemove: () async {
+            // Фаза 3: удаление из избранного — подтверждение хаптиком.
+            AppHaptics.confirm();
             await _favService.removeFromFavorites(drug.id);
             _loadFavorites();
           },
           onTap: () {
             // Возвращаемся на главный экран с этим препаратом
+            AppHaptics.tap();
             Navigator.pop(context, drug);
           },
         );
@@ -184,7 +190,7 @@ class _FavoriteDrugCard extends StatelessWidget {
                         drug.inn,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: AppTheme.textTertiary,
                           fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,

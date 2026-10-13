@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/common/app_scaffold.dart';
+import '../widgets/common/haptics.dart';
+import '../widgets/common/skeleton.dart';
 import 'favorites_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
@@ -54,6 +56,7 @@ class _MoreScreenState extends State<MoreScreen> {
     required String title,
     required String subtitle,
     VoidCallback? onTap,
+    bool loading = false,
   }) {
     final disabled = onTap == null;
     final effectiveColor = disabled ? AppTheme.textTertiary : color;
@@ -66,7 +69,8 @@ class _MoreScreenState extends State<MoreScreen> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           child: InkWell(
-            onTap: onTap,
+            // Фаза 3: хаптик на рядах меню (единая точка входа AppHaptics).
+            onTap: onTap == null ? null : () { AppHaptics.tap(); onTap!(); },
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             child: Container(
               constraints: const BoxConstraints(minHeight: 64),
@@ -101,13 +105,15 @@ class _MoreScreenState extends State<MoreScreen> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textTertiary,
-                          ),
-                        ),
+                        loading
+                            ? const SkeletonBox(width: 150, height: 11)
+                            : Text(
+                                subtitle,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textTertiary,
+                                ),
+                              ),
                       ],
                     ),
                   ),
@@ -159,6 +165,8 @@ class _MoreScreenState extends State<MoreScreen> {
             title: 'Неофициальные протоколы',
             // v1.18.1: различаем «ещё грузится» и «не загрузилось» —
             // вечная «Загрузка…» выглядела как зависание (полевой отчёт).
+            // Фаза 3: на «ещё грузится» — скелетон-полоска вместо текста.
+            loading: _vetProvider.unofficialDatabase == null && !_extendedDone,
             subtitle: _vetProvider.unofficialDatabase != null
                 ? 'Опыт практикующих врачей'
                 : (_extendedDone ? 'Не удалось загрузить' : 'Загрузка…'),

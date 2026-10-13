@@ -17,6 +17,8 @@
 // НЕ ТРОГАЕТСЯ: voice-пайплайн (STT/Vosk), контракты VetProvider.
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/haptics.dart';
+import '../widgets/common/wake_word_indicator.dart';
 import 'home_grid_screen.dart';
 import 'home_screen.dart';
 import 'more_screen.dart';
@@ -33,6 +35,9 @@ class _MainShellState extends State<MainShell> {
 
   void _goTo(int i) {
     if (_index == i) return;
+    // Фаза 3: тактильное подтверждение смены вкладки (аудит Фазы 0:
+    // «ни одного HapticFeedback» — теперь хаптик на каждом значимом касании).
+    AppHaptics.select();
     setState(() => _index = i);
   }
 
@@ -64,24 +69,37 @@ class _MainShellState extends State<MainShell> {
             const MoreScreen(),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _goTo,
-          destinations: const [
-            NavigationDestination(
-              selectedIcon: Icon(Icons.home_rounded),
-              icon: Icon(Icons.home_outlined),
-              label: 'Главная',
-            ),
-            NavigationDestination(
-              selectedIcon: Icon(Icons.calculate_rounded),
-              icon: Icon(Icons.calculate_outlined),
-              label: 'Калькулятор',
-            ),
-            NavigationDestination(
-              selectedIcon: Icon(Icons.widgets_rounded),
-              icon: Icon(Icons.widgets_outlined),
-              label: 'Ещё',
+        // Фаза 3: индикатор wake word над панелью — виден на ЛЮБОЙ вкладке
+        // (пульс жил только в кнопке калькулятора; на «Главной»/«Ещё»
+        // активности микрофона не было видно). SizedBox растягивает панель
+        // на всю ширину — Column по умолчанию центрирует детей.
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const WakeWordIndicator(),
+            SizedBox(
+              width: double.infinity,
+              child: NavigationBar(
+                selectedIndex: _index,
+                onDestinationSelected: _goTo,
+                destinations: const [
+                  NavigationDestination(
+                    selectedIcon: Icon(Icons.home_rounded),
+                    icon: Icon(Icons.home_outlined),
+                    label: 'Главная',
+                  ),
+                  NavigationDestination(
+                    selectedIcon: Icon(Icons.calculate_rounded),
+                    icon: Icon(Icons.calculate_outlined),
+                    label: 'Калькулятор',
+                  ),
+                  NavigationDestination(
+                    selectedIcon: Icon(Icons.widgets_rounded),
+                    icon: Icon(Icons.widgets_outlined),
+                    label: 'Ещё',
+                  ),
+                ],
+              ),
             ),
           ],
         ),

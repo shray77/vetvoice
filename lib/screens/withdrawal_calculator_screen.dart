@@ -25,6 +25,7 @@ import '../utils/app_theme.dart';
 // v1.18.0 (Фаза 2): каркас + DrugPicker вместо самописного _DrugSelector
 import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/drug_picker.dart';
+import '../widgets/common/haptics.dart';
 import '../widgets/common/status_chip.dart';
 
 class WithdrawalCalculatorScreen extends StatefulWidget {
@@ -141,6 +142,8 @@ class _WithdrawalCalculatorScreenState
                   label: Text(animal),
                   selected: _selectedAnimal == animal,
                   onSelected: (_) {
+                    // Фаза 3: выбор вида животного — selectionClick.
+                    AppHaptics.select();
                     setState(() {
                       _selectedAnimal = animal;
                       _calculate();
@@ -161,11 +164,15 @@ class _WithdrawalCalculatorScreenState
               onTap: () async {
                 final date = await showDatePicker(
                   context: context,
+                  // v1.19.0: русская локаль (flutter_localizations в main) —
+                  // календарь «31 декабря 2026» вместо «31 Dec 2026».
                   initialDate: _applicationDate,
                   firstDate: DateTime.now().subtract(const Duration(days: 365)),
                   lastDate: DateTime.now().add(const Duration(days: 30)),
                 );
                 if (date != null) {
+                  // Фаза 3: дата принята — подтверждение хаптиком.
+                  AppHaptics.confirm();
                   setState(() {
                     _applicationDate = date;
                     _calculate();

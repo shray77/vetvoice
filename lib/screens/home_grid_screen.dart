@@ -23,6 +23,8 @@ import '../providers/vet_provider.dart';
 import '../services/drug_loader_service.dart';
 import '../services/theme_service.dart';
 import '../utils/app_theme.dart';
+import '../widgets/common/haptics.dart';
+import '../widgets/common/skeleton.dart';
 import '../widgets/common/status_chip.dart';
 import '../widgets/compatibility_checker.dart';
 import 'diseases_screen.dart';
@@ -214,6 +216,9 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
   }
 
   /// Плитка инструмента. [outlined] — safety-вариант с контуром цвета риска.
+  /// [loading] — база ещё парсится: вместо подписи — скелетон-полоска
+  /// (Фаза 3: disabled-плитка с «Загрузка…» не показывала форму будущего
+  /// контента; скелетон читается как «здесь скоро будет живое»).
   Widget _tile({
     required IconData icon,
     required Color color,
@@ -222,6 +227,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     VoidCallback? onTap,
     bool enabled = true,
     bool outlined = false,
+    bool loading = false,
   }) {
     final disabled = !enabled || onTap == null;
     final effectiveColor = disabled ? AppTheme.textTertiary : color;
@@ -232,7 +238,8 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         child: InkWell(
-          onTap: disabled ? null : onTap,
+          // Фаза 3: хаптик на плитках (одна точка входа — AppHaptics).
+          onTap: disabled ? null : () { AppHaptics.tap(); onTap!(); },
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           child: Container(
             height: 76,
@@ -275,15 +282,17 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
+                      loading
+                          ? const SkeletonBox(width: 92, height: 11)
+                          : Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.textTertiary,
+                              ),
+                            ),
                     ],
                   ),
                 ),
@@ -417,11 +426,9 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                       icon: Icons.water_drop_rounded,
                       color: AppTheme.maleBlue,
                       title: 'Инфузии',
-                      subtitle: infusionsReady
-                          ? 'Растворы и скорости'
-                          : 'Загрузка…',
-                      onTap:
-                          infusionsReady ? _openFluidTherapy : null,
+                      subtitle: 'Растворы и скорости',
+                      loading: !infusionsReady,
+                      onTap: infusionsReady ? _openFluidTherapy : null,
                       enabled: infusionsReady,
                     ),
                   ),
@@ -431,9 +438,8 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                       icon: Icons.coronavirus_rounded,
                       color: AppTheme.safeGreen,
                       title: 'Болезни',
-                      subtitle: diseasesReady
-                          ? '${_vetProvider.diseasesCount} в справочнике'
-                          : 'Загрузка…',
+                      subtitle: '${_vetProvider.diseasesCount} в справочнике',
+                      loading: !diseasesReady,
                       onTap: diseasesReady ? _openDiseases : null,
                       enabled: diseasesReady,
                     ),

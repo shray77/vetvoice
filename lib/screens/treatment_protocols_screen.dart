@@ -25,6 +25,7 @@ import '../utils/app_theme.dart';
 import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/drug_picker.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/haptics.dart';
 import '../widgets/common/status_chip.dart';
 
 /// v1.16.3: парсинг протоколов в background-isolate (экран держит СВОЙ
@@ -476,7 +477,11 @@ class _ProtocolCardState extends State<_ProtocolCard> {
         children: [
           // Заголовок
           InkWell(
-            onTap: () => setState(() => _expanded = !_expanded),
+            // Фаза 3: раскрытие/сворачивание карточки — выбор (selectionClick).
+            onTap: () {
+              AppHaptics.select();
+              setState(() => _expanded = !_expanded);
+            },
             borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(AppTheme.radiusLarge)),
             child: Padding(
@@ -655,6 +660,8 @@ class _ProtocolDrugItem extends StatelessWidget {
                   // Найдём препарат в vetProvider
                   final calcDrug = vetProvider.findCalcDrugByName(name);
                   if (calcDrug != null && onDrugSelected != null) {
+                    // Фаза 3: применение протокола — подтверждение хаптиком.
+                    AppHaptics.confirm();
                     // v1.16.4: передаём и вид из протокола — home подставит
                     // животное (КРС/Собаки/...) автоматически.
                     onDrugSelected!(calcDrug, species);

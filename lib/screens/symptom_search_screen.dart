@@ -19,6 +19,8 @@ import '../models/calc_drug.dart';
 import '../services/symptom_search_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/common/app_scaffold.dart';
+import '../widgets/common/haptics.dart';
+import '../widgets/common/skeleton.dart';
 
 class SymptomSearchScreen extends StatefulWidget {
   final void Function(CalcDrug)? onDrugSelected;
@@ -76,8 +78,10 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       title: '🔍 Поиск по симптомам',
+      // Фаза 3: вместо спиннера — каркас списка результатов (видна форма
+      // будущего контента, а не «подвисание»).
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : Column(
               children: [
                 // Поле поиска
@@ -230,7 +234,9 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           const SizedBox(height: 8),
           Text(
             'Попробуйте другие ключевые слова',
-            style: TextStyle(color: Colors.grey[600]),
+            // v1.19.0: Colors.grey[600] слеп в тёмной теме (тот же класс,
+            // что чинили в избранном/истории в v1.17.0) — теперь токен.
+            style: TextStyle(color: AppTheme.textTertiary),
           ),
         ],
       ),
@@ -249,6 +255,8 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
           rank: index + 1,
           onTap: () {
             if (widget.onDrugSelected != null) {
+              // Фаза 3: подтверждение выбора препарата хаптиком.
+              AppHaptics.confirm();
               widget.onDrugSelected!(r.drug);
               Navigator.pop(context);
             }
@@ -367,7 +375,7 @@ class _SearchResultCard extends StatelessWidget {
                           drug.inn,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppTheme.textTertiary,
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,

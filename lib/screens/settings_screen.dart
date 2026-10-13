@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
+import '../widgets/common/haptics.dart';
 import '../widgets/common/voice_status_bar.dart';
 import '../widgets/common/app_scaffold.dart';
 import 'terms_screen.dart';
@@ -86,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.16.4',
+                applicationVersion: '1.19.0',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),
@@ -230,21 +231,31 @@ class _ThemeSelector extends StatelessWidget {
           groupValue: themeService.themeMode,
           title: const Text('Системная'),
           subtitle: const Text('Как в системе'),
-          onChanged: (_) => themeService.setThemeMode(ThemeMode.system),
+          // Фаза 3: смена темы — выбор из вариантов (selectionClick).
+          onChanged: (_) {
+            AppHaptics.select();
+            themeService.setThemeMode(ThemeMode.system);
+          },
         ),
         RadioListTile<ThemeMode>(
           value: ThemeMode.light,
           groupValue: themeService.themeMode,
           title: const Text('Светлая'),
           subtitle: const Text('Всегда светлая тема'),
-          onChanged: (_) => themeService.setThemeMode(ThemeMode.light),
+          onChanged: (_) {
+            AppHaptics.select();
+            themeService.setThemeMode(ThemeMode.light);
+          },
         ),
         RadioListTile<ThemeMode>(
           value: ThemeMode.dark,
           groupValue: themeService.themeMode,
           title: const Text('Тёмная'),
           subtitle: const Text('OLED-чёрный, экономит батарею'),
-          onChanged: (_) => themeService.setThemeMode(ThemeMode.dark),
+          onChanged: (_) {
+            AppHaptics.select();
+            themeService.setThemeMode(ThemeMode.dark);
+          },
         ),
       ],
     );

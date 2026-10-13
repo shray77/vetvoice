@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// v1.19.0 (Фаза 3): русская локаль — календарь каренции и системные
+// диалоги на русском (аудит Фазы 0: showDatePicker был английским).
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/main_shell.dart';   // 🆕 Фаза 2: shell нижней навигации
 import 'screens/disclaimer_screen.dart';
@@ -109,6 +112,19 @@ class _VetVoiceAppState extends State<VetVoiceApp> with WidgetsBindingObserver {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: widget.themeService.themeMode,
+          // v1.19.0: фиксированная русская локаль (приложение полностью
+          // русскоязычное, «системная» локаль давала английский календарь
+          // на англоязычных прошивках).
+          locale: const Locale('ru'),
+          supportedLocales: const [
+            Locale('ru'),
+            Locale('en'), // fallback для Material-виджетов без ru-строк
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           // v1.16.3: мгновенная смена темы. Дефолтные 200мс анимируют ЛЕРП
           // всех цветов по всему дереву — на больших экранах это выглядело
           // как подвисание при переключении. Кэши ThemeData (app_theme)

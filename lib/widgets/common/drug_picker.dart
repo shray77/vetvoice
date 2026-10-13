@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import '../../models/calc_drug.dart';
 import '../../providers/vet_provider.dart';
 import '../../utils/app_theme.dart';
+import 'haptics.dart';
 
 class DrugPicker extends StatefulWidget {
   /// Явный список (для фильтрованных сценариев). null → все калькуляторные
@@ -204,6 +205,8 @@ class _DrugPickerState extends State<DrugPicker> {
                   ),
                   minVerticalPadding: 12,
                   onTap: () {
+                    // Фаза 3: выбор препарата — selectionClick (как чипы).
+                    AppHaptics.select();
                     widget.onSelected(d);
                     _controller.clear();
                     setState(() {});
