@@ -18,7 +18,9 @@ class AppScaffold extends StatelessWidget {
   final Widget body;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
-  final Widget? bottom; // TabBar, и т.п.
+  // v1.18.0: PreferredSizeWidget (не Widget) — AppBar.bottom требует его;
+  // поймано Release APK #43, когда fluid_therapy впервые передал сюда TabBar.
+  final PreferredSizeWidget? bottom; // TabBar, и т.п.
   final bool centerTitle;
   final bool automaticallyImplyLeading;
 
