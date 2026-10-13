@@ -20,6 +20,7 @@ import 'dart:async'; // unawaited
 
 import 'package:flutter/material.dart';
 import '../providers/vet_provider.dart';
+import '../services/drug_loader_service.dart';
 import '../services/theme_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/common/status_chip.dart';
@@ -44,12 +45,23 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
   final VetProvider _vetProvider = VetProvider();
   final ThemeService _themeService = ThemeService();
 
+  /// Честный статус сети (DNS-lookup), а не источник загрузки баз.
+  /// null = проверка ещё идёт.
+  bool? _online;
+
   @override
   void initState() {
     super.initState();
     // Вторичные базы (инфузии/болезни) парсятся фоном — дорисовать плитки.
     unawaited(_vetProvider.extendedReady.then((_) {
       if (mounted) setState(() {});
+    }));
+    // v1.18.1: чип сети больше не привязан к «откуда загружены базы».
+    // Старт из дискового кеша — норма офлайн-first (мгновенный старт),
+    // а не «приложение считает, что оно оффлайн» (полевой отчёт v1.18.0:
+    // пользователь с работающим Wi-Fi видел «Оффлайн» и подозревал багу).
+    unawaited(DrugLoaderService.isNetworkAvailable().then((v) {
+      if (mounted) setState(() => _online = v);
     }));
   }
 
@@ -115,7 +127,11 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
           onDrugSelected: (drug, species) {
             _vetProvider.selectAnimalFromSpecies(species);
             _vetProvider.selectDrug(drug);
-            Navigator.of(context).pop();
+            // v1.18.1: БЕЗ pop здесь — протоколы делают свой единственный pop
+            // ПОСЛЕ колбэка (см. комментарий в _ProtocolCard). Второй pop
+            // отсюда выталкивал MainShell (единственный маршрут под
+            // протоколами) → пустой стек → чёрный экран. Тот же класс бага,
+            // что v1.16.1, только через колбэк (полевой отчёт v1.18.0).
             widget.onOpenCalculator?.call();
           },
         ),
@@ -130,7 +146,9 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
         builder: (_) => SymptomSearchScreen(
           onDrugSelected: (drug) {
             _vetProvider.selectDrug(drug);
-            Navigator.of(context).pop();
+            // v1.18.1: pop делает сам SymptomSearchScreen после колбэка
+            // (onTap → onDrugSelected → Navigator.pop). Второй pop отсюда
+            // выталкивал MainShell → чёрный экран (полевой отчёт v1.18.0).
             widget.onOpenCalculator?.call();
           },
         ),
@@ -279,6 +297,9 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // v1.18.1: зависимость от Theme — при смене темы вкладка перестраивается
+    // (весь контент на статических AppTheme-геттерах, см. MainShell).
+    Theme.of(context);
     final dbInfo = _themeService.databaseInfo;
     final infusionsReady = _vetProvider.fluidTherapyDatabase != null;
     final diseasesReady = _vetProvider.diseasesCount > 0;
@@ -319,14 +340,18 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // Оффлайн — neutral, а не warning: офлайн-first по дизайну,
+                  // базы всегда под рукой из кеша/assets.
                   StatusChip(
-                    label: _vetProvider.isOnline ? 'Онлайн' : 'Оффлайн',
-                    severity: _vetProvider.isOnline
+                    label: _online == null
+                        ? 'Сеть…'
+                        : (_online! ? 'Онлайн' : 'Оффлайн'),
+                    severity: _online == true
                         ? StatusSeverity.success
-                        : StatusSeverity.warning,
-                    icon: _vetProvider.isOnline
-                        ? Icons.wifi_rounded
-                        : Icons.wifi_off_rounded,
+                        : StatusSeverity.neutral,
+                    icon: _online == false
+                        ? Icons.wifi_off_rounded
+                        : Icons.wifi_rounded,
                   ),
                 ],
               ),

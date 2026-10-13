@@ -29,12 +29,18 @@ class MoreScreen extends StatefulWidget {
 class _MoreScreenState extends State<MoreScreen> {
   final VetProvider _vetProvider = VetProvider();
 
+  /// v1.18.1: фоновая загрузка secondary-баз завершена. Если после этого
+  /// базы нет — показываем «Не удалось загрузить», а не вечную «Загрузка…».
+  bool _extendedDone = false;
+
   @override
   void initState() {
     super.initState();
     // Неофициальные протоколы парсятся фоном — включить ряд, когда готовы.
     unawaited(_vetProvider.extendedReady.then((_) {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() => _extendedDone = true);
+      }
     }));
   }
 
@@ -118,7 +124,9 @@ class _MoreScreenState extends State<MoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unofficialReady = _vetProvider.unofficialDatabase != null;
+    // v1.18.1: зависимость от Theme — при смене темы вкладка «Ещё»
+    // перестраивается (контент на статических AppTheme-геттерах, см. MainShell).
+    Theme.of(context);
 
     return AppScaffold(
       title: 'Ещё',
@@ -149,10 +157,12 @@ class _MoreScreenState extends State<MoreScreen> {
             icon: Icons.medical_services_outlined,
             color: AppTheme.maleBlue,
             title: 'Неофициальные протоколы',
-            subtitle: unofficialReady
+            // v1.18.1: различаем «ещё грузится» и «не загрузилось» —
+            // вечная «Загрузка…» выглядела как зависание (полевой отчёт).
+            subtitle: _vetProvider.unofficialDatabase != null
                 ? 'Опыт практикующих врачей'
-                : 'Загрузка…',
-            onTap: unofficialReady
+                : (_extendedDone ? 'Не удалось загрузить' : 'Загрузка…'),
+            onTap: _vetProvider.unofficialDatabase != null
                 ? () => _push(UnofficialRecordsScreen(
                       db: _vetProvider.unofficialDatabase!,
                     ))

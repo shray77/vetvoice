@@ -658,6 +658,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // v1.18.1: явная зависимость от Theme (раньше зависимость возникала
+    // случайно — через иконку-тогл в actions). Смена темы должна гарантированно
+    // перестраивать вкладку-калькулятор, пока она «живая» в IndexedStack.
+    Theme.of(context);
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: SafeArea(

@@ -364,9 +364,23 @@ class DrugLoaderService {
       final fresh = await _isCacheFresh();
       if (fresh) {
         debugPrint('📦 [DrugLoader] Старт из дискового кеша: ${cache.length} файлов');
+        // v1.18.1: assets-only базы (unofficial_protocols, verified_dosages —
+        // «в сети их нет, всегда из бандла») НЕ попадают в дисковый кеш: туда
+        // пишутся только сетевые raws. Раньше кеш-старт возвращал cache как
+        // есть → этих баз не было в сырье → parseExtended их не парсил →
+        // «Неофициальные протоколы» вечно показывали «Загрузка…» после
+        // первого же перезапуска приложения (полевой отчёт v1.18.0; на первом
+        // старте работало, потому что там шла ветка сети/assets с добором).
+        // Дочитываем assets-only из бандла — как это уже делает сетевая ветка.
+        final assetRaws = await _readAssetRaws(
+          onlyKeys: _specs.values
+              .where((s) => s.url == null)
+              .map((s) => s.assetPath)
+              .toSet(),
+        );
         _lastLoadWasOnline = false;
         _lastLoadSource = 'Кеш (офлайн-базы актуальны)';
-        return cache;
+        return {...assetRaws, ...cache};
       }
       debugPrint('📦 [DrugLoader] Дисковый кеш старше 24 ч — обновляем из сети');
     }

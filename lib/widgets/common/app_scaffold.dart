@@ -40,6 +40,9 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // v1.18.1: зависимость от Theme — каркас экрана (AppBar, фон)
+    // перекрашивается при смене темы, даже если экран открыт поверх shell.
+    Theme.of(context);
     return Scaffold(
       // theme-aware: тёмная тема красит фон автоматически
       backgroundColor: AppTheme.background,
