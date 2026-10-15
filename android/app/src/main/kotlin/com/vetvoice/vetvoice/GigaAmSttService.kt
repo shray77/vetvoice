@@ -3,7 +3,7 @@ package com.vetvoice.vetvoice
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
-import ai.onnxruntime.SessionOptions
+import ai.onnxruntime.OrtSession.SessionOptions
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioFormat
@@ -295,7 +295,7 @@ class GigaAmSttService(private val context: Context) {
             var entry: ZipEntry? = zis.nextEntry
             while (entry != null) {
                 if (!entry.isDirectory) {
-                    val outFile = File(targetDir, File(entry.fileName).name)
+                    val outFile = File(targetDir, File(entry.name).name)
                     FileOutputStream(outFile).use { fos -> zis.copyTo(fos) }
                 }
                 zis.closeEntry()
@@ -313,7 +313,7 @@ class GigaAmSttService(private val context: Context) {
             if (labels.size != CHANNELS) {
                 throw IOException("labels.txt: ожидалось $CHANNELS меток, получено ${labels.size}")
             }
-            val opts = SessionOptions().apply {
+            val opts = OrtSession.SessionOptions().apply {
                 setIntraOpNumThreads(4)
                 setInterOpNumThreads(1)
             }
