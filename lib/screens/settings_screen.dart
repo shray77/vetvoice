@@ -13,6 +13,7 @@ import '../utils/app_theme.dart';
 import '../services/theme_service.dart';
 import '../widgets/common/haptics.dart';
 import '../widgets/common/voice_status_bar.dart';
+import '../widgets/common/gigaam_status_bar.dart';
 import '../widgets/common/app_scaffold.dart';
 import 'terms_screen.dart';
 
@@ -77,6 +78,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8),
           const Divider(),
 
+          // === 🆕 v1.20.0: офлайн-движок GigaAM (Сбер) ===
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: GigaAmStatusBar(),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Модель распознаёт команду целиком без интернета (точнее Vosk). '
+              'Качается один раз (~216 МБ) — лучше по Wi-Fi. '
+              'Vosk при этом продолжает будить приложение фразой «ВетВойс». При обрыве связи докачивается с места обрыва.',
+              style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Divider(),
+
           // === О приложении ===
           _SectionHeader(title: 'ℹ️ О приложении'),
           ListTile(
@@ -87,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.19.0',
+                applicationVersion: '1.20.0',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),

@@ -25,6 +25,13 @@
 # Keep MethodChannel classes
 -keep class com.vetvoice.vetvoice.** { *; }
 
+# 🆕 v1.20.0: ONNX Runtime (движок GigaAM). AAR несёт consumer-rules, но урок
+# v1.16.5 (JNA): нативный код libonnxruntime4j_jni.so ищет классы ai.onnxruntime
+# по строковым именам через JNI — R8-переименование невидимо для нативного слоя.
+# Храним целиком, с членами.
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**
+
 # Gson
 -keepattributes Signature
 -keepattributes *Annotation*

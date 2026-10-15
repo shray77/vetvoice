@@ -47,4 +47,6 @@ dependencies {
     // Vosk offline speech recognition
     implementation 'com.alphacephei:vosk-android:0.3.47'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    // 🆕 v1.20.0: ONNX Runtime — офлайн-движок GigaAM (Сбер) для транскрипции высказываний
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
 }

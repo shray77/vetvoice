@@ -4,12 +4,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
+import 'gigaam_service.dart';
 
 /// Сервис для работы с голосом (Speech-to-Text и Text-to-Speech)
 /// Оптимизирован для hands-free использования ветеринарами
 class SpeechService {
   final SpeechToText _stt = SpeechToText();
   final FlutterTts _tts = FlutterTts();
+  // 🆕 v1.20.0: офлайн-движок GigaAM (Сбер) — если включён и модель готова,
+  // распознавание команды идёт через него, системный speech_to_text — фолбэк.
+  final GigaAmService _gigaAm = GigaAmService.instance;
 
   bool _isSTTReady = false;
   bool _isListening = false;
@@ -23,10 +27,15 @@ class SpeechService {
   String _lastRecognizedWords = '';
   String _statusText = 'Голос не активен';
   String _currentLocaleId = 'ru_RU'; // Сохраняем выбранную локаль
+  // 🆕 v1.20.0: активна офлайн-транскрипция GigaAM (влияет на stopListening)
+  bool _offlineTranscribing = false;
+  StreamSubscription<String>? _gigaAmResultSub;
+  StreamSubscription<String>? _gigaAmStateSub;
+  StreamSubscription<String>? _gigaAmErrorSub;
 
   // Геттеры
   bool get isSTTReady => _isSTTReady;
-  bool get isListening => _isListening;
+  bool get isListening => _isListening || _offlineTranscribing; // v1.20.0: офлайн-запись тоже «слушаю»
   bool get isSpeaking => _isSpeaking; // 🆕 v1.16.1
   bool get continuousMode => _continuousMode;
   String get lastRecognizedWords => _lastRecognizedWords;
@@ -194,6 +203,14 @@ class SpeechService {
       debugPrint('🎤 TTS говорит — запуск STT отложен до конца озвучки');
       return;
     }
+
+    // 🆕 v1.20.0: офлайн-движок GigaAM — приоритетный путь, если включён
+    // пользователем и модель готова (READY = сессии в памяти).
+    if (_gigaAm.shouldUseForRecognition && !_gigaAm.isActive) {
+      await _startOfflineListening();
+      return;
+    }
+
     if (!_isSTTReady) {
       final ready = await initializeSTT();
       if (!ready) {
@@ -234,6 +251,14 @@ class SpeechService {
 
   /// Остановить прослушивание
   Future<void> stopListening() async {
+    // 🆕 v1.20.0: офлайн-транскрипция останавливается нативным флагом
+    if (_offlineTranscribing) {
+      _offlineTranscribing = false;
+      await _gigaAm.stopTranscribe();
+      _statusText = 'Готово';
+      _onListeningStateChanged.add(false);
+      return;
+    }
     if (!_isListening) return;
 
     await _stt.stop();
@@ -241,6 +266,102 @@ class SpeechService {
     _statusText = 'Готово';
     _onListeningStateChanged.add(false);
   }
+
+  // ================= 🆕 v1.20.0: офлайн-движок GigaAM =================
+
+  /// Ленивые подписки на стримы GigaAM (создаются один раз).
+  void _ensureGigaAmSubscriptions() {
+    _gigaAmResultSub ??= _gigaAm.onResult.listen(_handleOfflineResult);
+    _gigaAmStateSub ??= _gigaAm.onStateChanged.listen((state) {
+      // Зеркалим состояния нативной записи/распознавания в общий статус
+      switch (state) {
+        case GigaAmService.stateRecording:
+          _statusText = 'Слушаю... (офлайн)';
+          break;
+        case GigaAmService.stateRecognizing:
+          _statusText = 'Распознаю...';
+          break;
+        case GigaAmService.stateReady:
+          // Запись завершилась — снимаем флаг «слушаю»
+          if (_offlineTranscribing) {
+            _offlineTranscribing = false;
+            _onListeningStateChanged.add(false);
+          }
+          break;
+        case GigaAmService.stateError:
+          // Урок v1.16.5: при любом сбое деградируем до видимого статуса,
+          // не оставляя UI в вечном «слушаю»
+          if (_offlineTranscribing) {
+            _offlineTranscribing = false;
+            _statusText = 'Ошибка офлайн-распознавания';
+            _onListeningStateChanged.add(false);
+          }
+          break;
+      }
+    });
+    _gigaAmErrorSub ??= _gigaAm.onError.listen((msg) {
+      if (_offlineTranscribing) {
+        _offlineTranscribing = false;
+        _statusText = 'Ошибка офлайн-распознавания';
+        _onListeningStateChanged.add(false);
+      }
+      _onError.add('GigaAM: $msg');
+    });
+  }
+
+  /// Офлайн-транскрипция через GigaAM (v1.20.0).
+  /// Нативный слой сам откроет AudioRecord, запишет до тишины (≤15 с),
+  /// прогонит ONNX-пайплайн и вернёт текст через стрим onResult.
+  Future<void> _startOfflineListening() async {
+    if (_offlineTranscribing) {
+      debugPrint('🎤 [GigaAM] Already transcribing, skipping');
+      return;
+    }
+    _ensureGigaAmSubscriptions();
+    _lastRecognizedWords = '';
+    _offlineTranscribing = true;
+    _statusText = 'Слушаю... (офлайн)';
+    _onListeningStateChanged.add(true);
+    debugPrint('🎤 [GigaAM] Starting offline transcription');
+    await _gigaAm.startTranscribe();
+  }
+
+  /// Результат офлайн-транскрипции — тот же контракт, что у _handleSTTResult
+  /// (финальный результат): эхо-фильтр → команды → текст дозировки.
+  void _handleOfflineResult(String text) {
+    // Эхо-защита v1.16.1 (та же, что у системного STT)
+    if (_isSpeaking) {
+      debugPrint('🎤 [GigaAM] Эхо-фильтр: игнорируем результат во время TTS');
+      return;
+    }
+
+    _lastRecognizedWords = text;
+    debugPrint('🎤 [GigaAM] final: $text');
+
+    final command = VoiceCommandParser.parse(text);
+    if (command != null) {
+      _onCommand.add(command);
+      _statusText = 'Команда: ${command.type}';
+    } else {
+      _onWordsRecognized.add(text);
+      _statusText = 'Распознано';
+    }
+
+    _offlineTranscribing = false;
+    _onListeningStateChanged.add(false);
+
+    // Hands-free: продолжаем слушать после обработки (тот же контракт,
+    // что в _handleSTTResult: рестарт только когда TTS замолчал)
+    if (_continuousMode && !_isSpeaking) {
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (_continuousMode && !_isListening && !_isSpeaking) {
+          startListening();
+        }
+      });
+    }
+  }
+
+  // ================= /офлайн-движок GigaAM =================
 
   /// Включить/выключить hands-free режим
   void setContinuousMode(bool enabled) {
@@ -397,6 +518,10 @@ class SpeechService {
     _disposed = true;
     _stt.cancel();
     _tts.stop();
+    // v1.20.0: не оставляем подписки на стримы синглтона GigaAM
+    _gigaAmResultSub?.cancel();
+    _gigaAmStateSub?.cancel();
+    _gigaAmErrorSub?.cancel();
     if (!_onWordsRecognized.isClosed) _onWordsRecognized.close();
     if (!_onListeningStateChanged.isClosed) _onListeningStateChanged.close();
     if (!_onError.isClosed) _onError.close();

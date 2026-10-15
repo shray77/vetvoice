@@ -13,12 +13,16 @@ class MainActivity : FlutterActivity() {
     companion object {
         private const val TAG = "MainActivity"
         private const val CHANNEL = "com.vetvoice.vosk"
+        private const val CHANNEL_GIGAAM = "com.vetvoice.gigaam" // 🆕 v1.20.0: офлайн STT GigaAM (Сбер)
         private const val PERMISSION_REQUEST_CODE = 1001
     }
 
     private var voskService: VoskWakeWordService? = null
+    private var gigaAmService: GigaAmSttService? = null
     private var methodChannel: MethodChannel? = null
+    private var gigaAmChannel: MethodChannel? = null
     private var pendingStartAfterPermission = false
+    private var pendingGigaAmStartAfterPermission = false
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,6 +121,64 @@ class MainActivity : FlutterActivity() {
                 methodChannel?.invokeMethod("onMicReleased", null)
             }
         }
+
+        // ===== 🆕 v1.20.0: канал офлайн-STT GigaAM =====
+        gigaAmService = GigaAmSttService(this)
+        gigaAmChannel = MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL_GIGAAM)
+        gigaAmChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "initialize" -> {
+                    gigaAmService?.initialize()
+                    result.success(null)
+                }
+                "startTranscribe" -> {
+                    if (hasRecordPermission()) {
+                        gigaAmService?.startTranscribe()
+                    } else {
+                        pendingGigaAmStartAfterPermission = true
+                        requestRecordPermission()
+                    }
+                    result.success(null)
+                }
+                "stopTranscribe" -> {
+                    gigaAmService?.stopTranscribe()
+                    result.success(null)
+                }
+                "getState" -> {
+                    result.success(gigaAmService?.getState()?.name ?: "IDLE")
+                }
+                "isModelDownloaded" -> {
+                    result.success(gigaAmService?.isModelDownloaded() == true)
+                }
+                "dispose" -> {
+                    gigaAmService?.dispose()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        gigaAmService?.onStateChanged = { state, message ->
+            runOnUiThread {
+                gigaAmChannel?.invokeMethod("onGigaAmStateChanged", mapOf("state" to state.name, "message" to message))
+            }
+        }
+        gigaAmService?.onResult = { text ->
+            runOnUiThread {
+                Log.i(TAG, "🎯 GigaAM result: $text")
+                gigaAmChannel?.invokeMethod("onGigaAmResult", text)
+            }
+        }
+        gigaAmService?.onError = { error ->
+            runOnUiThread { gigaAmChannel?.invokeMethod("onGigaAmError", error) }
+        }
+        gigaAmService?.onDownloadProgress = { downloadedMB, totalMB ->
+            runOnUiThread {
+                gigaAmChannel?.invokeMethod("onGigaAmDownloadProgress", mapOf(
+                    "downloadedMB" to downloadedMB,
+                    "totalMB" to totalMB
+                ))
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -127,8 +189,15 @@ class MainActivity : FlutterActivity() {
                     pendingStartAfterPermission = false
                     voskService?.startListening()
                 }
+                if (pendingGigaAmStartAfterPermission) {
+                    pendingGigaAmStartAfterPermission = false
+                    gigaAmService?.startTranscribe()
+                }
             } else {
-                runOnUiThread { methodChannel?.invokeMethod("onError", "Разрешение на запись микрофона не получено") }
+                runOnUiThread {
+                    methodChannel?.invokeMethod("onError", "Разрешение на запись микрофона не получено")
+                    gigaAmChannel?.invokeMethod("onGigaAmError", "Разрешение на запись микрофона не получено")
+                }
             }
         }
     }
@@ -144,7 +213,13 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             Log.w(TAG, "Vosk dispose failed: ${e.message}")
         }
+        try {
+            gigaAmService?.dispose()
+        } catch (e: Exception) {
+            Log.w(TAG, "GigaAM dispose failed: ${e.message}")
+        }
         methodChannel?.setMethodCallHandler(null)
+        gigaAmChannel?.setMethodCallHandler(null)
     }
 
     private fun hasRecordPermission(): Boolean {
