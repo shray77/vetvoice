@@ -494,8 +494,10 @@ class GigaAmSttService(private val context: Context) {
         // --- frontend: (1, N) → (1, 64, T) ---
         val wavTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(wav), longArrayOf(1, n.toLong()))
         val feOut = fe.run(mapOf("waveform" to wavTensor))
-        val featTensor = feOut[0] as OnnxTensor
-        val featShape = featTensor.shape // [1, 64, T]
+        // OrtSession.Result.get(int) возвращает Optional<OnnxValue> — берём по имени
+        // и разворачиваем; индексный [0] в Kotlin — это Optional (ClassCastException в рантайме)
+        val featTensor = feOut.get("features").orElseThrow() as OnnxTensor
+        val featShape = featTensor.info.shape // TensorInfo.getShape(): [1, 64, T]
         val frames = featShape[2].toInt()
         val fb = featTensor.floatBuffer
         val feats = FloatArray(fb.remaining())
@@ -518,12 +520,12 @@ class GigaAmSttService(private val context: Context) {
         )
         val encOut = session.run(mapOf("features" to featInput, "feature_lengths" to lenInput))
 
-        val logprobsTensor = encOut[0] as OnnxTensor
-        val lpShape = logprobsTensor.shape // [1, T', 34]
+        val logprobsTensor = encOut.get("log_probs").orElseThrow() as OnnxTensor
+        val lpShape = logprobsTensor.info.shape // [1, T', 34]
         val tPrime = lpShape[1].toInt()
         val vocab = lpShape[2].toInt()
         val lp = logprobsTensor.floatBuffer
-        val elenTensor = encOut[1] as OnnxTensor
+        val elenTensor = encOut.get("encoded_lengths").orElseThrow() as OnnxTensor
         val encodedLen = elenTensor.intBuffer.get(0).toInt()
         logprobsTensor.close()
         elenTensor.close()
