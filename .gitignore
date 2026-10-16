@@ -84,3 +84,8 @@ key.properties
 
 # === Android local config (SDK paths, JDK paths) ===
 **/local.properties
+
+# Release keystores / подпись (никогда не в репе)
+*.jks
+*.keystore
+android/key.properties

@@ -29,9 +29,26 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        release {
+            // Release-подпись из env (задаётся в CI: secrets KEYSTORE_*).
+            // Локальные сборки без env прозрачно падают на debug-ключ —
+            // flutter run --release продолжает работать.
+            def ksPath = System.getenv("KEYSTORE_FILE")
+            if (ksPath != null && file(ksPath).exists()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            // Release-подпись когда keystore доступен (CI), иначе debug для локальной разработки.
+            def ksPath = System.getenv("KEYSTORE_FILE")
+            signingConfig = (ksPath != null && file(ksPath).exists()) ? signingConfigs.release : signingConfigs.debug
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
