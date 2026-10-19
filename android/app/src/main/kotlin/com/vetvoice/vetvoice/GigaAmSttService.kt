@@ -71,7 +71,9 @@ class GigaAmSttService(private val context: Context) {
         private const val HOP = 160
         private const val WIN = 320
         private const val N_MELS = 64
-        private const val CHANNELS = 1 // словарь: 33 символа + blank(33) = 34 класса
+        // Словарь CTC: labels.txt содержит 33 символа (без «ё»); blank = индекс 33,
+        // всего классов 34. НЕ путать с числом аудио-каналов (запись моно).
+        private const val NUM_LABELS = 33
         private const val CHANNELS_ACC = 34
 
         // Запись/эндпоинтинг
@@ -310,8 +312,8 @@ class GigaAmSttService(private val context: Context) {
         try {
             val dir = File(context.filesDir, MODEL_DIR_NAME)
             labels = File(dir, "labels.txt").readLines().filter { it.isNotEmpty() }
-            if (labels.size != CHANNELS) {
-                throw IOException("labels.txt: ожидалось $CHANNELS меток, получено ${labels.size}")
+            if (labels.size != NUM_LABELS) {
+                throw IOException("labels.txt: ожидалось $NUM_LABELS меток, получено ${labels.size}")
             }
             val opts = OrtSession.SessionOptions().apply {
                 setIntraOpNumThreads(4)
