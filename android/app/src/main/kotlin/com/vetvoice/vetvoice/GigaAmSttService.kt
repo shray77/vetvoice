@@ -41,8 +41,11 @@ import java.util.zip.ZipInputStream
  * (GigaAM — офлайн-модель батч-типа, не стриминговая).
  *
  * Пайплайн: AudioRecord 16к моно PCM16 → float32 → frontend.onnx (LogMel 64, hop 160,
- * win/n_fft 320, center=false) → model.onnx (Conformer 211M, int8-динамическая
- * квантизация MatMul/Gemm) → log_probs (T',34) → жадный CTC-декод (33 символа + blank).
+ * win/n_fft 320, center=false) → model.onnx (Conformer 211M: int8-динамическая
+ * квантизация MatMul, свёртки fp32 через DequantizeLinear — v2-фикс: нестандартные
+ * 4-входовые ConvInteger не имели кернела в onnxruntime-android 1.22, «Error code =
+ * ORT_NOT_IMPLEMENTED» при загрузке сессии) → log_probs (T',34) → жадный CTC-декод
+ * (33 символа + blank).
  *
  * Модель качается из GitHub Releases (зеркало-паттерн v1.16.3): Range-докачка,
  * SHA-256 верификация, tempZip переживает попытки.
@@ -53,14 +56,15 @@ class GigaAmSttService(private val context: Context) {
         private const val TAG = "GigaAmStt"
 
         // ===== КОНФИГУРАЦИЯ (менять тут при обновлении модели) =====
-        // zip собран скриптом scripts/gigaam_package.py: model.onnx (int8),
-        // frontend.onnx (fp32), labels.txt (33 строки), version.txt.
+        // zip v3-ctc-int8-2 (2026-10-21): model.onnx (int8 MatMul + fp32 Conv — v2-фикс
+        // ConvInteger, см. класс-док), frontend.onnx (fp32), labels.txt (33 строки),
+        // version.txt. Апп не парсит version.txt — источник истины эти константы.
         private val MODEL_URLS = listOf(
             "https://github.com/shray77/vetvoice/releases/download/gigaam-v3-ctc-int8/gigaam-v3-ctc-int8.zip",
         )
-        private const val MODEL_VERSION = "v3-ctc-int8-1"
+        private const val MODEL_VERSION = "v3-ctc-int8-2"
         private const val EXPECTED_MODEL_SHA256 =
-            "84f3f69bc68e19e6a8425bc82ddb7e15871bdf35559a43b721827009539942de"
+            "50f0b1c65236226e78cd181a7e39c6fd2a3927b9d1e987329ef935fb3d1023b0"
         private const val FALLBACK_TOTAL_MB = 216.0
         // ===== /КОНФИГУРАЦИЯ =====
 

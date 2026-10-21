@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.20.2+32  # v1.20.2: фикс loadSessions — проверка labels.txt ждала 1 метку вместо 33 (CHANNELS=1), модель никогда не становилась READY
+version: 1.20.3+33  # v1.20.3: модель GigaAM v3-ctc-int8-2 — ConvInteger(без кернела в ORT 1.22, "Error code = ORT_NOT_IMPLEMENTED") заменён на fp32 Conv + DequantizeLinear
 
 environment:
   sdk: ^3.5.0
