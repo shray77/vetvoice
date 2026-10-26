@@ -12,6 +12,18 @@ permissions:
   contents: read
 
 jobs:
+  ds-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: DS-гейт v2 — ds.dart против design/tokens.json (дрейф ядра = красный)
+        run: python3 scripts/ds_gate.py
+
+
   analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -1,82 +1,146 @@
 #!/usr/bin/env python3
-"""Task 173 — контраст-гейт Material-токенов vet-ds v2.3.2 (голос A + характер).
+# -*- coding: utf-8 -*-
+"""ds_gate.py — гейт Material-портов vet-ds против канонического среза.
 
-Аналог scripts/contrast_v2.py ядра vet-ds (тот меряет CSS-токены витрин),
-этот меряет DsLight/DsDark из lib/theme/ds.dart приложений. Правило DS:
-текст >= AA (4.5:1) на bg/surface/surface2 в обеих темах. Проверяются:
-текстовые роли, характер (акцент как текст/иконка), accent-ink на акценте
-(кнопки), семантика статусов. Запуск: python3 scripts/ds_gate.py [vetvoice|veteco]
+v2 (Task 176, идея №7): гейт ПАРИТ lib/lib/theme/ds.dart против design/tokens.json
+(срез ядра, синкается из vet-ds/vet-ds.css). До этого словари были
+захардкожены в самом гейте и расходились с ds.dart молча (доказано:
+border-strong v2.3.3 #857F6E не доехал ни до одного порта).
+
+Правила:
+  1. ДРЕЙФ: не-акцентные токены ds.dart должны совпадать с ядром
+     (характер-тройка accent/accent-strong/accent-ink — территория
+     приложения, гейтится контрастом, не сравнением).
+  2. КОНТРАСТ AA 4.5:1: text/muted/faint × bg/surface/surface2;
+     характер-акцент как текст/иконка × поверхности; accentInk × accent.
+  3. §1.4.11 графика ≥3:1: borderStrong × поверхности (рамки инпутов),
+     rule × bg (линейки) — паритет с contrast_v2.py ядра.
+
+Запуск: python3 scripts/ds_gate.py    (exit 1 — дрейф или контраст)
 """
+import json
+import re
 import sys
+from pathlib import Path
 
-def lum(hexv: str) -> float:
-    r, g, b = (int(hexv[i:i+2], 16) / 255 for i in (0, 2, 4))
+ROOT = Path(__file__).resolve().parents[1]
+TOKENS = ROOT / "design" / "tokens.json"
+DS_DART = ROOT / "lib/theme/ds.dart"
+
+# класс ds.dart → тема ядра (срез tokens.json)
+THEME_MAP = {'DsLight': 'root', 'DsDark': 'dark'}
+
+AA = 4.5
+GRAPHIC_AA = 3.0
+ACCENT_TRIPLE = ("accent", "accentStrong", "accentInk")
+
+
+def lum(h):
+    r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
     f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
 
-def ratio(fg: str, bg: str) -> float:
+
+def ratio(fg, bg):
     l1, l2 = sorted((lum(fg), lum(bg)), reverse=True)
     return (l1 + 0.05) / (l2 + 0.05)
 
-# ── Ядро DS v2.3.2, голос A (одинаков в обоих приложениях) ──────────────────
-A_LIGHT = dict(bg='FAF9F5', surface='FFFFFF', surface2='F1EEE6',
-               text='1C1B1A', muted='5B564C', faint='6E695C',
-               red='B3261E', green='47753A', amber='8A5A14', orange='AC4E18',
-               blue='33608C', violet='6D4FC4')
-A_DARK = dict(bg='211E19', surface='2A2620', surface2='34302A',
-              text='EDE9E0', muted='B8B1A3', faint='9E9789',
-              red='E87963', green='8DB96F', amber='D9A24A', orange='E08A4F',
-              blue='82A9CC', violet='B9A5E3')
 
-# Характер приложения: (light accent, strong, ink; dark accent, strong, ink)
-CHARACTERS = {
-    'vetvoice': dict(
-        name='VetVoice — зелёный бренда (5-е применение паттерна)',
-        light=dict(accent='097A38', strong='087534', ink='F2FBF5'),
-        dark=dict(accent='3DDC7B', strong='5CE68F', ink='0A120C')),
-    'veteco': dict(
-        name='VetEco — бирюза Vet Teal, зеркально vet-insilico (6-е применение)',
-        light=dict(accent='0F766E', strong='0C5D57', ink='F0FDFA'),
-        dark=dict(accent='2DD4BF', strong='5EE3D4', ink='0A1B19')),
-}
+CLASS_RE = re.compile(r'abstract\s+final\s+class\s+(\w+)\s*\{')
+COLOR_RE = re.compile(r'static\s+const\s+Color\s+(\w+)\s*=\s*Color\(0x([0-9A-Fa-f]{8})\)')
 
-def check(app):
-    ch = CHARACTERS[app]
-    fails, worst = [], []
-    def pair(name, fg, bg, need=4.5):
+
+def parse_ds_dart():
+    """{класс: {токен: hex-6}} — только static const Color."""
+    out = {}
+    cur = None
+    for line in DS_DART.read_text(encoding='utf-8').splitlines():
+        m = CLASS_RE.search(line)
+        if m:
+            cur = m.group(1)
+            out[cur] = {}
+            continue
+        m = COLOR_RE.search(line)
+        if m and cur:
+            out[cur][m.group(1)] = m.group(2)[-6:].upper()
+    return out
+
+
+def main():
+    if not TOKENS.exists():
+        sys.exit("нет design/tokens.json — синк из vet-ds (codegen.py --push-flutter)")
+    if not DS_DART.exists():
+        sys.exit("нет " + str(DS_DART))
+    core = json.loads(TOKENS.read_text(encoding='utf-8'))
+    core_v = core.get("version", "?")
+    dart = parse_ds_dart()
+    fails, pairs = [], []
+
+    # 1. дрейф значений против ядра
+    for cls, th in THEME_MAP.items():
+        d = dart.get(cls)
+        if d is None:
+            fails.append(f"класс {cls} не найден в ds.dart")
+            continue
+        ct = core["themes"][th]
+        for name, val in d.items():
+            kebab = re.sub(r'([A-Z])', lambda m: '-' + m.group(1).lower(), name).lstrip('-')
+            kebab = ('border-strong' if kebab == 'border-strong'
+                     else 'accent-strong' if kebab == 'accent-strong'
+                     else 'accent-ink' if kebab == 'accent-ink'
+                     else 'accent-text' if kebab == 'accent-text'
+                     else 'surface2' if kebab == 'surface2' else kebab)
+            if name in ACCENT_TRIPLE:
+                continue                    # характер приложения
+            if kebab in ct and ct[kebab][1:].upper() != val:
+                fails.append(f"ДРЕЙФ {cls}.{name}: #{val} ≠ ядро #{ct[kebab][1:].upper()}"
+                             f" (v{core_v})")
+
+    # 2/3. контраст на ЗНАЧЕНИЯХ ds.dart (как рендерит приложение)
+    def pair(name, fg, bg, need=AA):
         r = ratio(fg, bg)
-        worst.append((r, name))
+        pairs.append((r, name))
         if r < need:
-            fails.append(f"  FAIL {name}: {r:.2f}:1 (нужно {need})")
+            fails.append(f"КОНТРАСТ {name}: {r:.2f}:1 (нужно {need})")
 
-    for theme, tokens, accent in (('A-light', A_LIGHT, ch['light']),
-                                  ('A-dark',  A_DARK,  ch['dark'])):
-        surf = ['bg', 'surface', 'surface2']
-        # Текстовые роли DS (значения ядра — должны быть зелёными по построению)
-        for role in ('text', 'muted', 'faint'):
+    for cls, th in THEME_MAP.items():
+        d = dart.get(cls)
+        if not d:
+            continue
+        surf = [d.get(k) for k in ("bg", "surface", "surface2") if d.get(k)]
+        label = cls
+        for role in ("text", "muted", "faint"):
             for s in surf:
-                pair(f'{theme} {role} × {s}', tokens[role], tokens[s])
-        # Характер: акцент как текст/иконка на поверхностях
+                if d.get(role):
+                    pair(f"{label} {role} × bg-поверхность", d[role], s)
         for s in surf:
-            pair(f'{theme} accent × {s}', accent['accent'], tokens[s])
-        # Кнопка: ink на заливке акцентом
-        pair(f'{theme} accentInk × accent (кнопка)', accent['ink'], accent['accent'])
-        # Семантика статусов как текст
-        for sem in ('red', 'green', 'amber', 'orange', 'blue'):
+            if d.get("accent"):
+                pair(f"{label} accent × поверхность (текст/иконка)", d["accent"], s)
+        if d.get("accentInk") and d.get("accent"):
+            pair(f"{label} accentInk × accent (кнопка)", d["accentInk"], d["accent"])
+        for sem in ("red", "green", "amber", "orange", "blue", "violet"):
             for s in surf:
-                pair(f'{theme} {sem} × {s}', tokens[sem], tokens[s])
+                if d.get(sem):
+                    pair(f"{label} {sem} × поверхность", d[sem], s)
+        for s in surf:
+            if d.get("borderStrong"):
+                pair(f"{label} borderStrong × поверхность (§1.4.11)",
+                     d["borderStrong"], s, GRAPHIC_AA)
+        if d.get("rule") and d.get("bg"):
+            pair(f"{label} rule × bg (§1.4.11)", d["rule"], d["bg"], GRAPHIC_AA)
 
-    worst.sort(reverse=True)
-    print(f"══ {app}: {ch['name']}")
-    print(f"  пар проверено: {len(worst)}, AA-порог 4.5:1")
-    print(f"  топ-5: " + ' | '.join(f"{n} {r:.2f}" for r, n in worst[:5]))
+    pairs.sort(reverse=True)
+    print(f"ds_gate v2 · ядро v{core_v} · ds.dart: {len(dart)} класс(а), "
+          f"пар: {len(pairs)}")
+    if pairs:
+        print("  топ-5: " + " | ".join(f"{n} {r:.2f}" for r, n in pairs[:5]))
     if fails:
-        print('\n'.join(fails))
-        return False
-    print('  ГЕЙТ ЗЕЛЁНЫЙ — все пары AA')
-    return True
+        print("\n".join("  ✗ " + f for f in fails))
+        print(f"\n✗ {len(fails)} нарушений — гейт красный")
+        return 1
+    print("✓ дрейфа нет, все пары зелёные — ds.dart синхронен с ядром v" + core_v)
+    return 0
 
-if __name__ == '__main__':
-    apps = sys.argv[1:] or ['vetvoice']
-    ok = all(check(a) for a in apps)
-    sys.exit(0 if ok else 1)
+
+if __name__ == "__main__":
+    sys.exit(main())
