@@ -54,7 +54,7 @@ class AnimalSpecificDose {
   }
 
   /// Есть ли доза (мг/кг, МЕ/кг или диапазон doseMin/doseMax).
-  /// ⚠️ Фикс B-3: ранее диапазон doseMin/doseMax игнорировался, если dosePerKg=0,
+  /// ⚠ Фикс B-3: ранее диапазон doseMin/doseMax игнорировался, если dosePerKg=0,
   /// что приводило к silent overdose для препаратов с диапазонной дозировкой
   /// (например, Неомастин для КРС: dose_per_kg=0, dose_min=5, dose_max=10
   /// — fallback на 15 мг/кг давал 1.5×–3× передоз).
@@ -179,7 +179,7 @@ class CalcDrug {
       });
     }
 
-    // ⚠️ Фикс B-4: если concentration_unit содержит "МЕ" (международные единицы),
+    // ⚠ Фикс B-4: если concentration_unit содержит "МЕ" (международные единицы),
     // но в JSON concentration_me не задан — значение в поле concentration
     // на самом деле является концентрацией в МЕ/мл. Переносим его в concentrationMe,
     // чтобы calculateDose() корректно считал объём через МЕ-ветку.
@@ -428,24 +428,24 @@ class CalcDrug {
         if (animalName != null &&
             contraindications.pregnancyContraindicatedAnimals
                 .any((a) => a.toLowerCase() == animalName.toLowerCase())) {
-          riskWarnings.add('🚫 ЗАПРЕЩЕНО ПРИ БЕРЕМЕННОСТИ для $animalName!');
+          riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ БЕРЕМЕННОСТИ для $animalName!');
         }
         // Если вид НЕ в списке — не блокируем (препарат разрешён для этого вида)
       } else {
         // Нет per-species списка — блокируем для ВСЕХ видов
-        riskWarnings.add('🚫 ЗАПРЕЩЕНО ПРИ БЕРЕМЕННОСТИ!');
+        riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ БЕРЕМЕННОСТИ!');
       }
     }
     if (isLactating && contraindications.lactation) {
-      riskWarnings.add('🚫 ЗАПРЕЩЕНО ПРИ ЛАКТАЦИИ!');
+      riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ ЛАКТАЦИИ!');
     }
     if (isYoung && contraindications.young) {
-      riskWarnings.add('🚫 ЗАПРЕЩЕНО МОЛОДНЯКУ!');
+      riskWarnings.add('✗ ЗАПРЕЩЕНО МОЛОДНЯКУ!');
     }
     
     // === ПРЕДУПРЕЖДЕНИЯ С ОСТОРОЖНОСТЬЮ ===
     if (isOld && contraindications.old) {
-      warnings.add('⚠️ С осторожностью для пожилых животных');
+      warnings.add('⚠ С осторожностью для пожилых животных');
     }
     
     // === ПРЕДУПРЕЖДЕНИЯ ПО ПОЛУ (показываем только для СООТВЕТСТВУЮЩЕГО пола!) ===
@@ -731,7 +731,7 @@ class CalcDrugDatabase {
         try {
           drugsList.add(CalcDrug.fromJson(drugsRaw[i] as Map<String, dynamic>));
         } catch (e) {
-          debugPrint('⚠️ Ошибка парсинга препарата #$i: $e');
+          debugPrint('⚠ Ошибка парсинга препарата #$i: $e');
         }
       }
     }
@@ -744,7 +744,7 @@ class CalcDrugDatabase {
         try {
           animalsList.add(Animal.fromJson(animalsRaw[i] as Map<String, dynamic>));
         } catch (e) {
-          debugPrint('⚠️ Ошибка парсинга животного #$i: $e');
+          debugPrint('⚠ Ошибка парсинга животного #$i: $e');
         }
       }
     }

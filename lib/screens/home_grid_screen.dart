@@ -32,6 +32,7 @@ import 'fluid_therapy_screen.dart';
 import 'symptom_search_screen.dart';
 import 'treatment_protocols_screen.dart';
 import 'withdrawal_calculator_screen.dart';
+import '../theme/ds.dart';
 
 class HomeGridScreen extends StatefulWidget {
   /// Переключить shell на вкладку «Калькулятор» (после выбора препарата).
@@ -120,7 +121,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
   void _openProtocols() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      DsRoute(
         builder: (_) => TreatmentProtocolsScreen(
           vetProvider: _vetProvider,
           // v1.16.4-контракт: вид подставляем ДО препарата
@@ -144,7 +145,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
   void _openSymptomSearch() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      DsRoute(
         builder: (_) => SymptomSearchScreen(
           onDrugSelected: (drug) {
             _vetProvider.selectDrug(drug);
@@ -163,7 +164,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     if (db == null) return;
     Navigator.push(
       context,
-      MaterialPageRoute(
+      DsRoute(
         builder: (_) => DiseasesScreen(
           database: db,
           treatmentDatabase: _vetProvider.treatmentProtocolDatabase,
@@ -176,7 +177,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
   void _openWithdrawal() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      DsRoute(
         builder: (_) =>
             WithdrawalCalculatorScreen(vetProvider: _vetProvider),
       ),
@@ -188,7 +189,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     if (db == null) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => FluidTherapyScreen(db: db)),
+      DsRoute(builder: (_) => FluidTherapyScreen(db: db)),
     );
   }
 

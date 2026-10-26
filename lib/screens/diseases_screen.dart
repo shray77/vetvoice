@@ -145,7 +145,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
-                      '⚠️ Особо опасные',
+                      'Особо опасные',
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.errorRed),
                     ),
                   ),
@@ -221,7 +221,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                   color: AppTheme.errorRed.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('⚠️', style: TextStyle(fontSize: 12)),
+                child: const Icon(Icons.warning_amber, size: 12, color: AppTheme.errorRed),
               ),
               const SizedBox(width: 8),
             ],
@@ -242,9 +242,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                   color: AppTheme.safeGreen.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  '💊',
-                  style: TextStyle(fontSize: 12),
+                child: const Icon(
+                  Icons.medication,
+                  size: 12,
+                  color: AppTheme.safeGreen,
                 ),
               ),
             if (hasMu)
@@ -254,9 +255,10 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                   color: AppTheme.maleBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  '📋',
-                  style: TextStyle(fontSize: 12),
+                child: const Icon(
+                  Icons.description,
+                  size: 12,
+                  color: AppTheme.maleBlue,
                 ),
               ),
           ],
@@ -370,7 +372,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '📝 ${mu.note!}',
+                mu.note!,
                 style: TextStyle(fontSize: 11, color: AppTheme.textTertiary, fontStyle: FontStyle.italic),
               ),
             ),
@@ -463,7 +465,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             ...protocol.warnings.map((w) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Text(
-                '⚠️ $w',
+                '⚠ $w',
                 style: const TextStyle(fontSize: 11, color: AppTheme.errorRed),
               ),
             )),
@@ -530,7 +532,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '🕐 Срок ожидания: ${drug.waitingPeriod}',
+                'Срок ожидания: ${drug.waitingPeriod}',
                 style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
               ),
             ),
@@ -562,11 +564,23 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             runSpacing: 2,
             children: [
               if (drug.dose.isNotEmpty && drug.dose != 'по инструкции')
-                Text('💊 ${drug.dose}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.medication, size: 12, color: AppTheme.textSecondary),
+                  const SizedBox(width: 3),
+                  Flexible(child: Text(drug.dose, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                ]),
               if (drug.route.isNotEmpty && drug.route != 'по инструкции')
-                Text('📍 ${drug.route}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.place, size: 12, color: AppTheme.textSecondary),
+                  const SizedBox(width: 3),
+                  Flexible(child: Text(drug.route, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                ]),
               if (drug.frequency.isNotEmpty && drug.frequency != 'по инструкции')
-                Text('🔄 ${drug.frequency}', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.autorenew, size: 12, color: AppTheme.textSecondary),
+                  const SizedBox(width: 3),
+                  Flexible(child: Text(drug.frequency, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                ]),
             ],
           ),
         ],
@@ -609,17 +623,17 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   String _getCategoryName(String category) {
     switch (category) {
       case 'particularly_dangerous':
-        return '🚨 Особо опасная';
+        return 'Особо опасная';
       case 'infectious':
-        return '🦠 Инфекционная';
+        return 'Инфекционная';
       case 'invasive':
-        return '🪱 Инвазионная';
+        return 'Инвазионная';
       case 'fish_diseases':
-        return '🐟 Болезнь рыб';
+        return 'Болезнь рыб';
       case 'bee_diseases':
-        return '🐝 Болезнь пчёл';
+        return 'Болезнь пчёл';
       case 'non_contagious':
-        return '📋 Незаразная';
+        return 'Незаразная';
       default:
         return category;
     }

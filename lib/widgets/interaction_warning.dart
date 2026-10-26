@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
+import '../utils/app_theme.dart';
 
 class InteractionWarning extends StatelessWidget {
   final List<DrugInteraction> interactions;
@@ -58,25 +59,25 @@ class InteractionWarning extends StatelessWidget {
                           ? Icons.warning_amber 
                           : Icons.info_outline,
                   color: critical.isNotEmpty 
-                      ? Colors.red 
+                      ? AppTheme.errorRed 
                       : warnings.isNotEmpty 
-                          ? Colors.orange 
-                          : Colors.blue,
+                          ? AppTheme.warningOrange 
+                          : AppTheme.info,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   critical.isNotEmpty 
-                      ? '🚨 КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ!' 
+                      ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ!' 
                       : warnings.isNotEmpty 
-                          ? '⚠️ Взаимодействие препаратов' 
-                          : 'ℹ️ Информация',
+                          ? '⚠ Взаимодействие препаратов' 
+                          : 'Информация',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: critical.isNotEmpty 
-                        ? Colors.red.shade900 
+                        ? AppTheme.errorRed 
                         : warnings.isNotEmpty 
-                            ? Colors.orange.shade900 
-                            : Colors.blue.shade900,
+                            ? AppTheme.warningOrange 
+                            : AppTheme.info,
                   ),
                 ),
               ],

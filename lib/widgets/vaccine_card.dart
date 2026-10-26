@@ -13,6 +13,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/vaccine_specific.dart';
+import '../utils/app_theme.dart';
 
 class VaccineCard extends StatefulWidget {
   final String drugName;
@@ -58,7 +59,7 @@ class _VaccineCardState extends State<VaccineCard> {
     final vtypeColor = Color(v.vaccineType.colorHex);
 
     return Card(
-      elevation: 4,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -67,9 +68,10 @@ class _VaccineCardState extends State<VaccineCard> {
             // === Заголовок ===
             Row(
               children: [
-                Text(
+                Icon(
                   v.vaccineType.icon,
-                  style: const TextStyle(fontSize: 32),
+                  size: 32,
+                  color: Color(v.vaccineType.colorHex),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -118,7 +120,7 @@ class _VaccineCardState extends State<VaccineCard> {
                 widget.drugInn,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[700],
+                  color: AppTheme.textTertiary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -127,16 +129,16 @@ class _VaccineCardState extends State<VaccineCard> {
 
             // === Разовая доза ===
             _InfoRow(
-              icon: '💊',
+              icon: Icons.medication,
               label: 'Разовая доза',
               value: v.formattedSingleDose,
-              valueColor: Colors.blue[700],
+              valueColor: AppTheme.info,
             ),
 
             // Путь введения
             if (v.route.isNotEmpty)
               _InfoRow(
-                icon: '📍',
+                icon: Icons.place,
                 label: 'Путь введения',
                 value: v.route,
               ),
@@ -144,7 +146,7 @@ class _VaccineCardState extends State<VaccineCard> {
             // Схема вакцинации
             if (v.schedule.isNotEmpty)
               _InfoRow(
-                icon: '📅',
+                icon: Icons.calendar_month,
                 label: 'Схема',
                 value: v.schedule,
               ),
@@ -152,7 +154,7 @@ class _VaccineCardState extends State<VaccineCard> {
             // Для кого
             if (v.animal.isNotEmpty)
               _InfoRow(
-                icon: '🐾',
+                icon: Icons.pets,
                 label: 'Для кого',
                 value: v.animal,
               ),
@@ -176,7 +178,7 @@ class _VaccineCardState extends State<VaccineCard> {
             if (v.notes.isNotEmpty) ...[
               const Divider(height: 24),
               _InfoRow(
-                icon: '📝',
+                icon: Icons.description,
                 label: 'Заметки',
                 value: v.notes,
               ),
@@ -189,7 +191,7 @@ class _VaccineCardState extends State<VaccineCard> {
 }
 
 class _InfoRow extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final String value;
   final Color? valueColor;
@@ -208,7 +210,7 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 16)),
+          Icon(icon, size: 16, color: AppTheme.textSecondary),
           const SizedBox(width: 8),
           SizedBox(
             width: 100,
@@ -216,7 +218,7 @@ class _InfoRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600],
+                color: AppTheme.textTertiary,
               ),
             ),
           ),
@@ -255,7 +257,7 @@ class _VialCalculator extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '📦 Калькулятор флаконов',
+          'Калькулятор флаконов',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -319,19 +321,19 @@ class _VialCalculator extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue[50],
+              color: AppTheme.infoContainer,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue[200]!),
+              border: Border.all(color: AppTheme.info.withOpacity(0.35)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '💉 Нужно: $vials флакон(а) по $selectedVialOption доз',
+                  'Нужно: $vials флакон(а) по $selectedVialOption доз',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.blue[900],
+                    color: AppTheme.info,
                   ),
                 ),
                 if (volume != null)
@@ -341,7 +343,7 @@ class _VialCalculator extends StatelessWidget {
                       'Объём: ${volume.toStringAsFixed(volume >= 10 ? 1 : 2)} мл',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[700],
+                        color: AppTheme.textTertiary,
                       ),
                     ),
                   ),

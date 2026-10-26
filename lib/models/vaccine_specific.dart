@@ -36,6 +36,8 @@
 import 'package:flutter/foundation.dart';
 
 /// Тип вакцины (для иконки и цвета в UI).
+import 'package:flutter/material.dart';
+
 enum VaccineType {
   live,              // живая
   inactivated,       // инактивированная
@@ -72,26 +74,27 @@ extension VaccineTypeExtension on VaccineType {
     }
   }
 
-  /// Иконка для UI
-  String get icon {
+  /// Глиф для UI — Material-иконка (правило DS: эмодзи в UI запрещены;
+  /// монохром, тинт — colorHex типа вакцины, категорийный код датавиза).
+  IconData get icon {
     switch (this) {
       case VaccineType.live:
-        return '🦠';
+        return Icons.coronavirus;
       case VaccineType.inactivated:
-        return '💉';
+        return Icons.vaccines;
       case VaccineType.recombinant:
-        return '🧬';
+        return Icons.biotech;
       case VaccineType.subunit:
-        return '⚛️';
+        return Icons.science;
       case VaccineType.anatoxin:
-        return '☣️';
+        return Icons.warning_amber;
       case VaccineType.serum:
       case VaccineType.immunoglobulin:
-        return '🩸';
+        return Icons.water_drop;
       case VaccineType.bacteriophage:
-        return '噬';
+        return Icons.bug_report;
       case VaccineType.unknown:
-        return '💊';
+        return Icons.medication;
     }
   }
 

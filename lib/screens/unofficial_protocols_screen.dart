@@ -239,7 +239,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
           if (p.warnings.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('⚠️ ${p.warnings}', style: const TextStyle(fontSize: 12, color: AppTheme.warningOrange)),
+              child: Text('⚠ ${p.warnings}', style: const TextStyle(fontSize: 12, color: AppTheme.warningOrange)),
             ),
         ],
       ),

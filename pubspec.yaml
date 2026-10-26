@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.20.3+33  # v1.20.3: модель GigaAM v3-ctc-int8-2 — ConvInteger(без кернела в ORT 1.22, "Error code = ORT_NOT_IMPLEMENTED") заменён на fp32 Conv + DequantizeLinear
+version: 1.21.0+34  # v1.21.0: vet-ds v2.3.2 «Научная периодика» (голос A + зелёный характер) — lib/theme/ds.dart
 
 environment:
   sdk: ^3.5.0
@@ -39,8 +39,11 @@ flutter:
     - assets/data/
     - assets/data/advanced/
 
-  # Дизайн-система v1.16: Inter (текст) + Manrope (заголовки/цифры),
-  # бандл — приложение оффлайн, кириллица включена в оба семейства.
+  # vet-ds v2.3.2 (голос A «Научная периодика»): Inter — текст и цифры
+  # данных (tabular-nums, конвенция .ds-body ядра), Prata — дисплей-
+  # заголовки (serif периодики; прецедент VetOS Task 166). Бандл —
+  # приложение оффлайн, кириллица включена в оба семейства. Manrope
+  # снят (v1.21.0): единственный потребитель был app_theme.dart.
   fonts:
     - family: Inter
       fonts:
@@ -54,15 +57,7 @@ flutter:
           weight: 700
         - asset: assets/fonts/Inter-ExtraBold.ttf
           weight: 800
-    - family: Manrope
+    - family: Prata
       fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/Prata-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Manrope-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Manrope-ExtraBold.ttf
-          weight: 800

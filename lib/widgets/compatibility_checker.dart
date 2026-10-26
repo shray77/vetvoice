@@ -364,8 +364,8 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                 const SizedBox(width: 8),
                 Text(
                   isCritical
-                      ? '🚨 КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ'
-                      : (isWarning ? '⚠️ Взаимодействие обнаружено' : 'ℹ️ Информация'),
+                      ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ'
+                      : (isWarning ? '⚠ Взаимодействие обнаружено' : 'Информация'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: color,

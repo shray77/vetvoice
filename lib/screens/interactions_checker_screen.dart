@@ -68,13 +68,13 @@ class DrugInteractionExtended {
   String get severityLabel {
     switch (severity) {
       case 'critical':
-        return '⚠️ Критическое';
+        return 'Критическое';
       case 'major':
-        return '🔴 Серьёзное';
+        return 'Серьёзное';
       case 'moderate':
-        return '🟡 Умеренное';
+        return 'Умеренное';
       case 'minor':
-        return '🟢 Незначительное';
+        return 'Незначительное';
       default:
         return severity;
     }
@@ -177,7 +177,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('🧪 Проверка совместимости')),
+      appBar: AppBar(title: const Text('Проверка совместимости')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -288,7 +288,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🧪', style: TextStyle(fontSize: 64)),
+          const Icon(Icons.science, size: 64, color: AppTheme.textTertiary),
           const SizedBox(height: 16),
           Text(
             'Добавьте минимум 2 препарата',
@@ -297,7 +297,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'База: ${_allInteractions.length} взаимодействий',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textTertiary),
           ),
         ],
       ),
@@ -309,7 +309,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('✅', style: TextStyle(fontSize: 72)),
+          const Icon(Icons.check_circle, size: 72, color: AppTheme.success),
           const SizedBox(height: 16),
           Text(
             'Взаимодействий не найдено',
@@ -318,7 +318,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           const SizedBox(height: 8),
           Text(
             'Проверено ${_selectedDrugs.length} препаратов',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: AppTheme.textTertiary),
           ),
           const SizedBox(height: 24),
           Container(

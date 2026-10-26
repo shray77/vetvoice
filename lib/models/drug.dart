@@ -176,7 +176,7 @@ class Drug {
   });
 
   factory Drug.fromJson(Map<String, dynamic> json) {
-    // ⚠️ Фикс B-13: null-safe парсинг. Раньше 'as int'/'as String'/'as num'
+    // ⚠ Фикс B-13: null-safe парсинг. Раньше 'as int'/'as String'/'as num'
     // кидали TypeError на одном битом поле, что приводило к потере всего файла
     // (вышестоящий try/catch в DrugLoaderService._loadFromAssets дискардил весь JSON).
     // Теперь каждое поле имеет безопасный fallback.
@@ -251,10 +251,10 @@ class Drug {
     // Проверка беременности
     if (gender == Gender.female && pregnancy != null && pregnancy.isPregnant) {
       if (contraindications.pregnancy) {
-        warnings.add('⚠️ ПРОТИВОПОКАЗАН при беременности!');
+        warnings.add('⚠ ПРОТИВОПОКАЗАН при беременности!');
       }
       if (pregnancy == PregnancyPeriod.late) {
-        warnings.add('⚠️ Осторожно: поздний срок беременности');
+        warnings.add('⚠ Осторожно: поздний срок беременности');
       }
     }
 
@@ -265,10 +265,10 @@ class Drug {
 
     // Проверка возраста
     if (age == AgeCategory.young && contraindications.young) {
-      warnings.add('⚠️ Противопоказан молодняку!');
+      warnings.add('⚠ Противопоказан молодняку!');
     }
     if (age == AgeCategory.old && contraindications.old) {
-      warnings.add('⚠️ С осторожностью для пожилых животных');
+      warnings.add('⚠ С осторожностью для пожилых животных');
     }
 
     // Дополнительные предупреждения
@@ -312,7 +312,7 @@ class Animal {
   });
 
   factory Animal.fromJson(Map<String, dynamic> json) {
-    // ⚠️ Фикс B-13: null-safe парсинг с fallback на пустые значения.
+    // ⚠ Фикс B-13: null-safe парсинг с fallback на пустые значения.
     return Animal(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -415,7 +415,7 @@ class AgeGroup {
   });
 
   factory AgeGroup.fromJson(Map<String, dynamic> json) {
-    // ⚠️ Фикс B-13: null-safe парсинг.
+    // ⚠ Фикс B-13: null-safe парсинг.
     return AgeGroup(
       name: json['name'] as String? ?? '',
       category: AgeCategory.values.firstWhere(
@@ -473,7 +473,7 @@ class DrugDatabase {
   });
 
   factory DrugDatabase.fromJson(Map<String, dynamic> json) {
-    // ⚠️ Фикс B-13: null-safe парсинг + per-item try/catch.
+    // ⚠ Фикс B-13: null-safe парсинг + per-item try/catch.
     // Один битый препарат/животное больше не убивает весь файл.
     final drugsList = <Drug>[];
     final drugsRaw = json['drugs'] as List<dynamic>?;
@@ -482,7 +482,7 @@ class DrugDatabase {
         try {
           drugsList.add(Drug.fromJson(drugsRaw[i] as Map<String, dynamic>));
         } catch (e) {
-          debugPrint('⚠️ Ошибка парсинга препарата #$i: $e');
+          debugPrint('⚠ Ошибка парсинга препарата #$i: $e');
         }
       }
     }
@@ -493,7 +493,7 @@ class DrugDatabase {
         try {
           animalsList.add(Animal.fromJson(animalsRaw[i] as Map<String, dynamic>));
         } catch (e) {
-          debugPrint('⚠️ Ошибка парсинга животного #$i: $e');
+          debugPrint('⚠ Ошибка парсинга животного #$i: $e');
         }
       }
     }

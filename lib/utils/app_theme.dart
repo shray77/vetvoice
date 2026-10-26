@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// VetVoice AI — дизайн-система (Фаза 0 визуального рефакторинга, v1.16).
-///
-/// Палитра бренда VetVoice (синхронизирована с питч-деком):
-/// фон #F6F9F3 · primary #009A44 · лайм #8CC63F · текст #0B2415.
-/// Шрифты (бандл, оффлайн): Inter — текст, Manrope — заголовки и цифры.
+import '../theme/ds.dart';
+
+/// VetVoice AI — v1.21.0: дизайн-система экосистемы vet-ds v2.3.2,
+/// голос A «Научная периодика» (A-light «бумага» / A-dark «Вечерний номер»),
+/// зелёный характер бренда поверх ядра — см. lib/theme/ds.dart (DsLight/DsDark).
+/// Сырые константы ниже — алиасы токенов DS: экраны сидят на прежних именах
+/// (AppTheme.white, safeGreen, ...), значения едут из ядра одной правкой.
+/// Шрифты (бандл, оффлайн): Inter — текст и цифры данных (tabular-nums,
+/// конвенция .ds-body ядра), Prata — дисплей-заголовки (serif периодики).
 ///
 /// Принципы:
 ///  • кард-поверхности без теней: surface + 1px outlineVariant;
@@ -21,8 +25,8 @@ class AppTheme {
   AppTheme._();
 
   // ===== Шрифты (бандл, см. pubspec.yaml) =====
-  static const String fontBody = 'Inter'; // текст, UI
-  static const String fontDisplay = 'Manrope'; // заголовки, крупные цифры
+  static const String fontBody = 'Inter'; // текст, UI, цифры данных (tnum)
+  static const String fontDisplay = Ds.display; // Prata — дисплей-заголовки
 
   // ===== Палитра: светлая (СЫРЫЕ константы) =====
   // v1.16.2: прежние имена (white, background, textPrimary, ...) стали
@@ -30,75 +34,75 @@ class AppTheme {
   // который выставляется в VetVoiceApp.build. Внутри lightTheme/darkTheme
   // используются ТОЛЬКО сырые константы (_xxxLight / darkXxx), чтобы
   // ThemeData не зависел от текущего флага.
-  static const Color _whiteLight = Color(0xFFFFFFFF);
-  /// Фон приложения и AppBar (тёплый молочно-зелёный из бренд-дека).
-  static const Color _backgroundLight = Color(0xFFF6F9F3);
-  /// Заливка полей ввода и вторичных контейнеров.
-  static const Color _fieldFillLight = Color(0xFFEDF2E8);
-  /// Legacy-имя фона (было #F5F5F7) — теперь бренд-фон.
+  static const Color _whiteLight = DsLight.surface; // = #FFFFFF (карточки DS)
+  /// Фон приложения и AppBar — бумага DS A-light.
+  static const Color _backgroundLight = DsLight.bg;
+  /// Заливка полей ввода и вторичных контейнеров — surface2 DS.
+  static const Color _fieldFillLight = DsLight.surface2;
 
-  static const Color _textPrimaryLight = Color(0xFF0B2415);
-  static const Color _textSecondaryLight = Color(0xFF45564B);
-  static const Color _textTertiaryLight = Color(0xFF5F7065);
+  static const Color _textPrimaryLight = DsLight.text;
+  static const Color _textSecondaryLight = DsLight.muted;
+  static const Color _textTertiaryLight = DsLight.faint;
 
   // Акцент «Safe Green» (бренд).
   /// Основной акцент: кнопки, иконки, selected-состояния.
   /// Для МЕЛКОГО акцентного текста на светлом использовать accentText.
-  static const Color safeGreen = Color(0xFF009A44);
-  static const Color safeGreenLight = Color(0xFF2FB45C);
+  static const Color safeGreen = DsLight.accent; // характер: AA на бумаге
+  /// Яркий характер для тёмного фона (= DsDark.accent).
+  static const Color safeGreenLight = DsDark.accent;
   /// Тёмно-зелёный: акцентный текст/иконки с контрастом ≥ 4.5:1 на светлом.
-  static const Color safeGreenDark = Color(0xFF0A7F3C);
+  static const Color safeGreenDark = DsLight.accent;
   /// Синоним для читаемого акцентного текста на светлом фоне.
-  static const Color accentText = Color(0xFF0B6B33);
-  /// Вторичный бренд-акцент (лайм): прогресс, лёгкие заливки.
-  static const Color brandLime = Color(0xFF8CC63F);
+  static const Color accentText = DsLight.accent;
+  /// Вторичный акцент: прогресс, лёгкие заливки — семантика green DS.
+  static const Color brandLime = DsLight.green;
 
-  static const Color primaryContainer = Color(0xFFD3F2DF);
-  static const Color onPrimaryContainer = Color(0xFF0B3D22);
-  static const Color secondaryContainer = Color(0xFFE9F5D3);
-  static const Color onSecondaryContainer = Color(0xFF2A4310);
+  static const Color primaryContainer = Color(0xFFE3F0E8);
+  static const Color onPrimaryContainer = Color(0xFF0A3A20);
+  static const Color secondaryContainer = Color(0xFFEAF0DC);
+  static const Color onSecondaryContainer = Color(0xFF33431F);
 
-  // Семантика (светлая).
-  static const Color errorRed = Color(0xFFB3261E);
+  // Семантика (светлая) — значения DS.
+  static const Color errorRed = DsLight.red;
   static const Color errorContainer = Color(0xFFFBE3E1);
   static const Color onErrorContainer = Color(0xFF690005);
   /// Янтарь, безопасный для мелкого текста на светлом (≥ 4.5:1).
-  static const Color warningOrange = Color(0xFFB45309);
+  static const Color warningOrange = DsLight.orange;
   /// Насыщенный оранжевый — только крупные иконки/заливки, не текст.
   static const Color warningFill = Color(0xFFFF9500);
   static const Color warningContainer = Color(0xFFFCEBD5);
-  static const Color success = Color(0xFF1B7A3D);
+  static const Color success = DsLight.green;
   static const Color successContainer = Color(0xFFDCF5E3);
-  static const Color info = Color(0xFF1F6FB2);
+  static const Color info = DsLight.blue;
   static const Color infoContainer = Color(0xFFE1EEF8);
 
-  // Пол (только в animal_params_selector).
-  static const Color maleBlue = Color(0xFF1F6FB2);
+  // Пол (только в animal_params_selector) — категорийный код, ДС не подчиняется.
+  static const Color maleBlue = DsLight.blue;
   static const Color femalePink = Color(0xFFA8457F);
 
-  // Линии.
-  static const Color _dividerGrayLight = Color(0xFFD8E2D4);
-  static const Color _outlineVariantLight = Color(0xFFE4ECE0);
+  // Линии — волосяные DS.
+  static const Color _dividerGrayLight = DsLight.border;
+  static const Color _outlineVariantLight = DsLight.border;
 
-  // ===== Палитра: тёмная (OLED) =====
-  static const Color darkBackground = Color(0xFF0A120C);
-  static const Color darkSurface = Color(0xFF121F16);
-  static const Color darkSurfaceLight = Color(0xFF1B2B20);
-  static const Color darkFieldFill = Color(0xFF16241B);
-  static const Color darkTextPrimary = Color(0xFFE7F2E9);
-  static const Color darkTextSecondary = Color(0xFFA9BBAD);
-  static const Color darkTextTertiary = Color(0xFF7E9184);
-  static const Color darkDivider = Color(0xFF324437);
-  static const Color darkPrimary = Color(0xFF3DDC7B);
-  static const Color darkPrimaryContainer = Color(0xFF0E5A31);
-  static const Color darkOnPrimaryContainer = Color(0xFFB8F3CE);
-  static const Color darkSecondary = Color(0xFFA5D96B);
-  static const Color darkError = Color(0xFFFF8A80);
-  static const Color darkErrorContainer = Color(0xFF5C1A14);
-  static const Color darkOnErrorContainer = Color(0xFFFFDAD6);
-  static const Color darkWarning = Color(0xFFFFB35C);
-  static const Color darkSuccess = Color(0xFF7ED09A);
-  static const Color darkInfo = Color(0xFF8FD3F4);
+  // ===== Палитра: тёмная (A-dark «Вечерний номер» — тёплый графит DS) =====
+  static const Color darkBackground = DsDark.bg;
+  static const Color darkSurface = DsDark.surface;
+  static const Color darkSurfaceLight = DsDark.surface2;
+  static const Color darkFieldFill = DsDark.surface;
+  static const Color darkTextPrimary = DsDark.text;
+  static const Color darkTextSecondary = DsDark.muted;
+  static const Color darkTextTertiary = DsDark.faint;
+  static const Color darkDivider = DsDark.border;
+  static const Color darkPrimary = DsDark.accent;
+  static const Color darkPrimaryContainer = Color(0xFF0F3D26);
+  static const Color darkOnPrimaryContainer = Color(0xFFA9EFC4);
+  static const Color darkSecondary = DsDark.green;
+  static const Color darkError = DsDark.red;
+  static const Color darkErrorContainer = Color(0xFF46211C);
+  static const Color darkOnErrorContainer = Color(0xFFF2D9D4);
+  static const Color darkWarning = DsDark.amber;
+  static const Color darkSuccess = DsDark.green;
+  static const Color darkInfo = DsDark.blue;
 
   // ===== Theme-aware геттеры (v1.16.2 — фикс «тёмная тема красит только тогглы») =====
   //
@@ -181,35 +185,37 @@ class AppTheme {
     return const Color(0xFF5F7065);
   }
 
-  /// Получить иконку категории (legacy, emoji; в Фазе 2 → Material-иконки).
-  static String getCategoryIcon(String? category) {
-    if (category == null) return '💊';
+  /// Глиф категории — Material-иконка (правило DS: эмодзи в UI запрещены;
+  /// монохром, тинт категориальным цветом — см. getCategoryColor).
+  static IconData getCategoryIcon(String? category) {
+    if (category == null) return Icons.medication;
     final lower = category.toLowerCase();
-    if (lower.contains('антибак')) return '🦠';
-    if (lower.contains('иммунобиол') || lower.contains('вакцин')) return '💉';
-    if (lower.contains('витамин')) return '🌱';
-    if (lower.contains('нпвс') || lower.contains('анальг')) return '💊';
-    if (lower.contains('противопаразит')) return '🐛';
-    if (lower.contains('инсектоакар')) return '🕷️';
-    if (lower.contains('антисепт') || lower.contains('дезинф')) return '🧴';
-    if (lower.contains('противогриб')) return '🍄';
-    if (lower.contains('гормон')) return '⚗️';
-    if (lower.contains('сердеч') || lower.contains('сосуд')) return '❤️';
-    if (lower.contains('нейротроп') || lower.contains('седатив')) return '🧠';
-    if (lower.contains('иммуномод')) return '🛡️';
-    if (lower.contains('пробиот') || lower.contains('пребиот')) return '🦠';
-    if (lower.contains('наруж') || lower.contains('дермат')) return '🩹';
-    if (lower.contains('гастро')) return '🫀';
-    if (lower.contains('диагност')) return '🔬';
-    return '💊';
+    if (lower.contains('антибак')) return Icons.coronavirus;
+    if (lower.contains('иммунобиол') || lower.contains('вакцин')) return Icons.vaccines;
+    if (lower.contains('витамин')) return Icons.spa;
+    if (lower.contains('нпвс') || lower.contains('анальг')) return Icons.medication;
+    if (lower.contains('противопаразит')) return Icons.pest_control;
+    if (lower.contains('инсектоакар')) return Icons.bug_report;
+    if (lower.contains('антисепт') || lower.contains('дезинф')) return Icons.sanitizer;
+    if (lower.contains('противогриб')) return Icons.grain;
+    if (lower.contains('гормон')) return Icons.science;
+    if (lower.contains('сердеч') || lower.contains('сосуд')) return Icons.favorite;
+    if (lower.contains('нейротроп') || lower.contains('седатив')) return Icons.psychology;
+    if (lower.contains('иммуномод')) return Icons.security;
+    if (lower.contains('пробиот') || lower.contains('пребиот')) return Icons.bubble_chart;
+    if (lower.contains('наруж') || lower.contains('дермат')) return Icons.healing;
+    if (lower.contains('гастро')) return Icons.medical_services;
+    if (lower.contains('диагност')) return Icons.biotech;
+    return Icons.medication;
   }
 
-  // Скругления.
-  static const double radiusMicro = 8.0;   // бейджи, тултипы
-  static const double radiusSmall = 12.0;  // инпуты, кнопки, снекбары
-  static const double radiusMedium = 16.0; // карточки
-  static const double radiusLarge = 20.0;  // модалки, hero-блоки, bottom sheets
-  static const double radiusXLarge = 24.0; // legacy
+  // Скругления — DS «периодика»: 4 — кнопки/чипы/инпуты, 8 — карточки/панели
+  // (радиус больше 10px — бан-лист DS; пилюли — легитимны).
+  static const double radiusMicro = Ds.radiusS; // бейджи, тултипы
+  static const double radiusSmall = Ds.radiusS; // инпуты, кнопки, снекбары
+  static const double radiusMedium = Ds.radius; // карточки, панели, снекбары DS
+  static const double radiusLarge = Ds.radius;  // модалки, hero-блоки, bottom sheets
+  static const double radiusXLarge = Ds.radius; // legacy-имя
   static const double radiusPill = 999.0;  // «таблетки», круглые кнопки
 
   // Отступы (шкала 4 / 8 / 12 / 16 / 24 / 32).
@@ -253,9 +259,11 @@ class AppTheme {
     required Color tertiary,
   }) {
     return TextTheme(
-      // Display — Manrope ExtraBold (крупные цифры: доза, вес).
+      // Display — Inter ExtraBold + tabular (цифры данных: .ds-body ядра
+      // держит font-variant-numeric: tabular-nums — «цифры данных не пляшут»;
+      // serif-дисплей на динамических числах = дрожание ширины).
       displayLarge: TextStyle(
-        fontFamily: fontDisplay,
+        fontFamily: fontBody,
         fontSize: 34,
         height: 1.18,
         fontWeight: FontWeight.w800,
@@ -264,7 +272,7 @@ class AppTheme {
         fontFeatures: const [FontFeature.tabularFigures()],
       ),
       displayMedium: TextStyle(
-        fontFamily: fontDisplay,
+        fontFamily: fontBody,
         fontSize: 32,
         height: 1.19,
         fontWeight: FontWeight.w800,
@@ -273,7 +281,7 @@ class AppTheme {
         fontFeatures: const [FontFeature.tabularFigures()],
       ),
       displaySmall: TextStyle(
-        fontFamily: fontDisplay,
+        fontFamily: fontBody,
         fontSize: 28,
         height: 1.21,
         fontWeight: FontWeight.w800,
@@ -281,25 +289,25 @@ class AppTheme {
         color: headline,
         fontFeatures: const [FontFeature.tabularFigures()],
       ),
-      // Headline — Manrope Bold (заголовки экранов).
+      // Headline — Prata w400 (заголовки-витрины периодики, serif-дисплей DS).
       headlineLarge: TextStyle(
         fontFamily: fontDisplay,
         fontSize: 26,
         height: 1.23,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.2,
         color: headline,
       ),
       headlineMedium: TextStyle(
         fontFamily: fontDisplay,
         fontSize: 22,
         height: 1.27,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.3,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.2,
         color: headline,
       ),
       headlineSmall: TextStyle(
-        fontFamily: fontDisplay,
+        fontFamily: fontBody,
         fontSize: 20,
         height: 1.3,
         fontWeight: FontWeight.w700,
@@ -409,9 +417,9 @@ class AppTheme {
         surface: _whiteLight,
         onSurface: _textPrimaryLight,
         surfaceContainerLowest: _whiteLight,
-        surfaceContainerLow: Color(0xFFF0F4EC),
+        surfaceContainerLow: DsLight.surface2,
         surfaceContainer: _fieldFillLight,
-        surfaceContainerHigh: Color(0xFFE7EEE2),
+        surfaceContainerHigh: Color(0xFFE9E6DC),
         surfaceContainerHighest: _fieldFillLight,
         onSurfaceVariant: _textSecondaryLight,
         outline: _dividerGrayLight,
@@ -419,7 +427,7 @@ class AppTheme {
         shadow: Colors.black,
         scrim: Colors.black,
         inverseSurface: _textPrimaryLight,
-        onInverseSurface: Color(0xFFE7F2E9),
+        onInverseSurface: DsLight.bg,
         inversePrimary: darkPrimary,
         surfaceTint: Colors.transparent,
       ),
@@ -434,8 +442,8 @@ class AppTheme {
         titleTextStyle: TextStyle(
           fontFamily: fontDisplay,
           fontSize: 17,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0,
           color: _textPrimaryLight,
         ),
       ),
@@ -449,7 +457,7 @@ class AppTheme {
         backgroundColor: _fieldFillLight,
         selectedColor: primaryContainer,
         checkmarkColor: onPrimaryContainer,
-        disabledColor: Color(0xFFEFF3EC),
+        disabledColor: DsLight.surface2,
         labelStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 13,
@@ -537,7 +545,7 @@ class AppTheme {
       outlinedButtonTheme: const OutlinedButtonThemeData(
         style: ButtonStyle(
           foregroundColor: WidgetStatePropertyAll(accentText),
-          overlayColor: WidgetStatePropertyAll(Color(0x0D009A44)),
+          overlayColor: WidgetStatePropertyAll(Color(0x0D097A38)),
           minimumSize: WidgetStatePropertyAll(Size(0, 52)),
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -583,17 +591,19 @@ class AppTheme {
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: _textPrimaryLight,
+        backgroundColor: DsLight.surface2,
         contentTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Color(0xFFE7F2E9),
+          color: DsLight.text,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
+          side: BorderSide(color: DsLight.borderStrong),
         ),
-        elevation: 3,
+        elevation: 0,
+        actionTextColor: DsLight.accent,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: _whiteLight,
@@ -633,9 +643,9 @@ class AppTheme {
       ),
       sliderTheme: const SliderThemeData(
         activeTrackColor: safeGreen,
-        inactiveTrackColor: Color(0xFFE0E8DC),
+        inactiveTrackColor: Color(0xFFE9E6DC),
         thumbColor: safeGreen,
-        overlayColor: Color(0x14009A44),
+        overlayColor: Color(0x14097A38),
         valueIndicatorColor: _textPrimaryLight,
         valueIndicatorTextStyle: TextStyle(
           fontFamily: fontBody,
@@ -702,17 +712,17 @@ class AppTheme {
       dialogBackgroundColor: darkSurface,
       colorScheme: const ColorScheme.dark(
         primary: darkPrimary,
-        onPrimary: Color(0xFF06281A),
+        onPrimary: DsDark.accentInk,
         primaryContainer: darkPrimaryContainer,
         onPrimaryContainer: darkOnPrimaryContainer,
         secondary: darkSecondary,
-        onSecondary: Color(0xFF06281A),
-        secondaryContainer: Color(0xFF2C4A16),
-        onSecondaryContainer: Color(0xFFD9EFC0),
+        onSecondary: DsDark.accentInk,
+        secondaryContainer: Color(0xFF2C4224),
+        onSecondaryContainer: Color(0xFFD2E8C6),
         tertiary: darkInfo,
-        onTertiary: Color(0xFF06281A),
-        tertiaryContainer: Color(0xFF123047),
-        onTertiaryContainer: Color(0xFFBFE3F7),
+        onTertiary: DsDark.accentInk,
+        tertiaryContainer: Color(0xFF1C3346),
+        onTertiaryContainer: Color(0xFFBFD8EA),
         error: darkError,
         onError: Color(0xFF5C1A14),
         errorContainer: darkErrorContainer,
@@ -722,11 +732,11 @@ class AppTheme {
         surfaceContainerLowest: darkBackground,
         surfaceContainerLow: darkFieldFill,
         surfaceContainer: darkSurfaceLight,
-        surfaceContainerHigh: Color(0xFF233527),
+        surfaceContainerHigh: Color(0xFF3A362E),
         surfaceContainerHighest: darkSurfaceLight,
         onSurfaceVariant: darkTextSecondary,
         outline: darkDivider,
-        outlineVariant: Color(0xFF2A3B2F),
+        outlineVariant: DsDark.border,
         shadow: Colors.black,
         scrim: Colors.black,
         inverseSurface: darkTextPrimary,
@@ -745,8 +755,8 @@ class AppTheme {
         titleTextStyle: TextStyle(
           fontFamily: fontDisplay,
           fontSize: 17,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0,
           color: darkTextPrimary,
         ),
       ),
@@ -760,7 +770,7 @@ class AppTheme {
         backgroundColor: darkSurfaceLight,
         selectedColor: darkPrimaryContainer,
         checkmarkColor: darkOnPrimaryContainer,
-        disabledColor: Color(0xFF16241B),
+        disabledColor: Color(0xFF26221D),
         labelStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 13,
@@ -778,7 +788,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
-          side: BorderSide(color: Color(0xFF24352A)),
+          side: BorderSide(color: DsDark.border),
         ),
       ),
       dividerTheme: const DividerThemeData(color: darkDivider, thickness: 1),
@@ -824,7 +834,7 @@ class AppTheme {
       elevatedButtonTheme: const ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(darkPrimary),
-          foregroundColor: WidgetStatePropertyAll(Color(0xFF06281A)),
+          foregroundColor: WidgetStatePropertyAll(DsDark.accentInk),
           overlayColor: WidgetStatePropertyAll(Color(0x14FFFFFF)),
           elevation: WidgetStatePropertyAll(0),
           minimumSize: WidgetStatePropertyAll(Size(0, 52)),
@@ -894,17 +904,19 @@ class AppTheme {
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: darkTextPrimary,
+        backgroundColor: DsDark.surface2,
         contentTextStyle: TextStyle(
           fontFamily: fontBody,
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: _textPrimaryLight,
+          color: DsDark.text,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(radiusSmall)),
+          borderRadius: BorderRadius.all(Radius.circular(radiusMedium)),
+          side: BorderSide(color: DsDark.borderStrong),
         ),
-        elevation: 3,
+        elevation: 0,
+        actionTextColor: DsDark.accent,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: darkSurface,
@@ -934,7 +946,7 @@ class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? const Color(0xFF06281A)
+              ? const DsDark.accentInk
               : darkSurfaceLight,
         ),
         trackColor: WidgetStateProperty.resolveWith(
@@ -946,7 +958,7 @@ class AppTheme {
       ),
       sliderTheme: const SliderThemeData(
         activeTrackColor: darkPrimary,
-        inactiveTrackColor: Color(0xFF2A3B2F),
+        inactiveTrackColor: DsDark.surface2,
         thumbColor: darkPrimary,
         overlayColor: Color(0x143DDC7B),
         valueIndicatorColor: darkTextPrimary,
@@ -967,8 +979,8 @@ class AppTheme {
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: darkPrimary,
-        linearTrackColor: Color(0xFF2A3B2F),
-        circularTrackColor: Color(0xFF2A3B2F),
+        linearTrackColor: DsDark.surface2,
+        circularTrackColor: DsDark.surface2,
       ),
       expansionTileTheme: const ExpansionTileThemeData(
         iconColor: darkTextSecondary,
@@ -1014,29 +1026,29 @@ enum SeverityLevel { critical, major, moderate, minor }
 class SeverityColors {
   SeverityColors._();
 
-  // Светлая тема: текст (≥ 4.5:1 на белом) / контейнер / текст на контейнере.
-  static const Color criticalLight = Color(0xFFB3261E);
+  // Светлая тема: текст (≥ 4.5:1 на бумаге DS) / контейнер / текст на контейнере.
+  static const Color criticalLight = DsLight.red;
   static const Color criticalLightBg = Color(0xFFFBE3E1);
   static const Color onCriticalLightBg = Color(0xFF690005);
-  static const Color majorLight = Color(0xFFC2410C);
-  static const Color majorLightBg = Color(0xFFFDEBD8);
-  static const Color onMajorLightBg = Color(0xFF7A2E0A);
-  static const Color moderateLight = Color(0xFF8A6A00);
-  static const Color moderateLightBg = Color(0xFFF6EED2);
-  static const Color onModerateLightBg = Color(0xFF5C4300);
-  static const Color minorLight = Color(0xFF1F6FB2);
-  static const Color minorLightBg = Color(0xFFE1EEF8);
-  static const Color onMinorLightBg = Color(0xFF0D3D63);
+  static const Color majorLight = DsLight.orange;
+  static const Color majorLightBg = Color(0xFFF5E7DC);
+  static const Color onMajorLightBg = Color(0xFF6B2E10);
+  static const Color moderateLight = DsLight.amber;
+  static const Color moderateLightBg = Color(0xFFF1E9D2);
+  static const Color onModerateLightBg = Color(0xFF5A4514);
+  static const Color minorLight = DsLight.blue;
+  static const Color minorLightBg = Color(0xFFE1EAF2);
+  static const Color onMinorLightBg = Color(0xFF1A3348);
 
-  // Тёмная тема: текст на тёмном / контейнер.
-  static const Color criticalDark = Color(0xFFFF8A80);
-  static const Color criticalDarkBg = Color(0xFF44150F);
-  static const Color majorDark = Color(0xFFFFB074);
-  static const Color majorDarkBg = Color(0xFF3E2108);
-  static const Color moderateDark = Color(0xFFE8C468);
-  static const Color moderateDarkBg = Color(0xFF332A0B);
-  static const Color minorDark = Color(0xFF8FD3F4);
-  static const Color minorDarkBg = Color(0xFF123047);
+  // Тёмная тема: текст на тёплом графите / контейнер.
+  static const Color criticalDark = DsDark.red;
+  static const Color criticalDarkBg = Color(0xFF40211C);
+  static const Color majorDark = DsDark.orange;
+  static const Color majorDarkBg = Color(0xFF3E2A1D);
+  static const Color moderateDark = DsDark.amber;
+  static const Color moderateDarkBg = Color(0xFF34301F);
+  static const Color minorDark = DsDark.blue;
+  static const Color minorDarkBg = Color(0xFF243747);
 
   static Color text(SeverityLevel level, Brightness brightness) {
     switch (level) {

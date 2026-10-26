@@ -77,7 +77,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: '🔍 Поиск по симптомам',
+      title: 'Поиск по симптомам',
       // Фаза 3: вместо спиннера — каркас списка результатов (видна форма
       // будущего контента, а не «подвисание»).
       body: _isLoading
@@ -158,7 +158,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       children: [
         Text(
-          '💡 Популярные запросы',
+          'Популярные запросы',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -225,7 +225,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🤷', style: TextStyle(fontSize: 64)),
+          const Icon(Icons.search_off, size: 64, color: AppTheme.textTertiary),
           const SizedBox(height: 16),
           Text(
             'Ничего не найдено',
@@ -329,7 +329,7 @@ class _SearchResultCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               // Иконка
-              Text(catIcon, style: const TextStyle(fontSize: 22)),
+              Icon(catIcon, size: 22, color: catColor),
               const SizedBox(width: 8),
               // Контент
               Expanded(

@@ -71,7 +71,8 @@ class AnimalCard extends StatelessWidget {
     );
   }
 
-  /// Возвращает эмодзи для животного по id
+  /// Глиф вида животного — категорийный код (датавиз-исключение DS:
+  /// Material-фауны нет, эмодзи — единственный носитель кода вида).
   String _getAnimalEmoji(String id) {
     switch (id) {
       case 'dog':

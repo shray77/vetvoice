@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
 import 'main_shell.dart';
 import 'terms_screen.dart';
+import '../theme/ds.dart';
 
 /// DisclaimerScreen — юридический гейт при первом запуске.
 ///
@@ -88,7 +89,7 @@ class DisclaimerScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const TermsScreen()),
+                      DsRoute(builder: (_) => const TermsScreen()),
                     );
                   },
                   icon: const Icon(Icons.gavel_outlined, size: 18),
@@ -110,7 +111,7 @@ class DisclaimerScreen extends StatelessWidget {
                         context,
                         // v1.18.0 (Фаза 2): после юр-гейта — shell с нижней
                         // навигацией, а не HomeScreen напрямую.
-                        MaterialPageRoute(builder: (_) => const MainShell()),
+                        DsRoute(builder: (_) => const MainShell()),
                       );
                     }
                   },

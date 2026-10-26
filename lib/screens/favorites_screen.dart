@@ -104,9 +104,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     // v1.17.0: общий EmptyState вместо self-made Column — theme-aware
     // (старый Colors.grey[600] слепнул в тёмной теме)
     return const EmptyState(
-      emoji: '⭐',
+      icon: Icons.star,
       title: 'Избранное пустое',
-      message: 'Нажмите ⭐ на карточке препарата,\nчтобы добавить его сюда',
+      message: 'Нажмите на звёздочку у карточки препарата,\nчтобы добавить его сюда',
     );
   }
 
@@ -171,7 +171,7 @@ class _FavoriteDrugCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               // Иконка категории
-              Text(catIcon, style: const TextStyle(fontSize: 24)),
+              Icon(catIcon, size: 24, color: catColor),
               const SizedBox(width: 12),
               // Название + МНН
               Expanded(

@@ -20,6 +20,7 @@ import 'favorites_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'unofficial_protocols_screen.dart';
+import '../theme/ds.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -47,7 +48,7 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   void _push(Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    Navigator.push(context, DsRoute(builder: (_) => page));
   }
 
   Widget _row({

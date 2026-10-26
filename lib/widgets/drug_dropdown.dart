@@ -188,7 +188,7 @@ class _DrugDropdownState extends State<DrugDropdown> {
                       ),
                       const SizedBox(width: 8),
                       // 🆕 Иконка категории
-                      Text(catIcon, style: const TextStyle(fontSize: 18)),
+                      Icon(catIcon, size: 18, color: catColor),
                       const SizedBox(width: 4),
                       // Existing: индикатор hasCalc
                       Container(

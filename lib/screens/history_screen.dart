@@ -37,7 +37,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: '🕒 История расчётов',
+      title: 'История расчётов',
       actions: [
         if (_histService.history.isNotEmpty)
           IconButton(
@@ -81,7 +81,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     // v1.17.0: общий EmptyState вместо self-made Column — theme-aware
     // (старый Colors.grey[600] слепнул в тёмной теме)
     return const EmptyState(
-      emoji: '🕒',
+      icon: Icons.history,
       title: 'История пустая',
       message: 'Здесь появятся ваши расчёты\nпосле первого использования',
     );
@@ -173,10 +173,10 @@ class _HistoryEntryCard extends StatelessWidget {
                   Wrap(
                     spacing: 12,
                     children: [
-                      _Chip(label: '🐾 ${entry.animal}'),
-                      _Chip(label: '⚖️ ${entry.weightKg.toStringAsFixed(1)} кг'),
+                      _Chip(label: entry.animal),
+                      _Chip(label: '${entry.weightKg.toStringAsFixed(1)} кг'),
                       if (entry.method.isNotEmpty)
-                        _Chip(label: '📍 ${entry.method}'),
+                        _Chip(label: entry.method),
                     ],
                   ),
                   const SizedBox(height: 6),

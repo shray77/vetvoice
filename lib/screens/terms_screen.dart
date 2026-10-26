@@ -111,7 +111,7 @@ class TermsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(title: const Text('⚖️ Условия и дисклеймер')),
+      appBar: AppBar(title: const Text('Условия и дисклеймер')),
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         children: [

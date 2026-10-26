@@ -58,7 +58,7 @@ class _WithdrawalCalculatorScreenState
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: '🐄 Калькулятор каренции',
+      title: 'Калькулятор каренции',
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
@@ -259,9 +259,9 @@ class _WithdrawalCalculatorScreenState
     if (withdrawalText.isNotEmpty) {
       // Парсим «Мясо: N сут/дн/ч; Молоко: N ч/сут; Яйца: N сут»
       final patterns = [
-        ('Мясо', RegExp(r'мясо[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), '🥩'),
-        ('Молоко', RegExp(r'молоко[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), '🥛'),
-        ('Яйца', RegExp(r'яйц[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), '🥚'),
+        ('Мясо', RegExp(r'мясо[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.restaurant),
+        ('Молоко', RegExp(r'молоко[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.water_drop),
+        ('Яйца', RegExp(r'яйц[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.egg),
       ];
       for (final (product, regex, icon) in patterns) {
         final m = regex.firstMatch(withdrawalText);
@@ -292,7 +292,7 @@ class _WithdrawalCalculatorScreenState
           _applicationDate.add(Duration(days: drug.withdrawalDays));
       results.add(WithdrawalResult(
         product: 'Мясо (общая каренция)',
-        icon: '🥩',
+        icon: Icons.restaurant,
         waitHours: drug.withdrawalDays * 24,
         safeDate: safeDate,
         rawText: '${drug.withdrawalDays} дней',
@@ -307,7 +307,7 @@ class _WithdrawalCalculatorScreenState
 
 class WithdrawalResult {
   final String product;
-  final String icon;
+  final IconData icon;
   final int waitHours;
   final DateTime safeDate;
   final String rawText;
@@ -350,7 +350,7 @@ class _WithdrawalResultCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Text(result.icon, style: const TextStyle(fontSize: 32)),
+            Icon(result.icon, size: 32, color: AppTheme.safeGreen),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

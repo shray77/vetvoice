@@ -181,7 +181,7 @@ class DoseResult {
 
 /// State-хранилище приложения.
 ///
-/// ⚠️ Q-2: Ранее в pubspec.yaml была подключена зависимость `provider: ^6.1.2`,
+/// ⚠ Q-2: Ранее в pubspec.yaml была подключена зависимость `provider: ^6.1.2`,
 /// но ни `VetProvider extends ChangeNotifier`, ни `ChangeNotifierProvider` в
 /// `main.dart` не использовались — состояние пробрасывалось через прямые
 /// `setState` вызовы в `HomeScreen`. Зависимость была удалена как мёртвый код.
@@ -291,7 +291,7 @@ class VetProvider {
 
   Animal? get selectedAnimal {
     if (_calcDatabase == null || _selectedAnimalId == null) return null;
-    // ⚠️ Фикс B-12: ранее orElse возвращал _calcDatabase!.animals.first
+    // ⚠ Фикс B-12: ранее orElse возвращал _calcDatabase!.animals.first
     // (тихо возвращало КРС при несоответствии id), что приводило к расчёту дозы
     // для неправильного животного. Теперь возвращаем null — UI покажет «выберите животное».
     try {
@@ -415,7 +415,7 @@ class VetProvider {
       debugPrint('📊 CalcDrugs для $animalName: ${calcDrugs.length} шт');
       filtered.addAll(calcDrugs);
     } else {
-      debugPrint('⚠️ _calcDatabase is null!');
+      debugPrint('⚠ _calcDatabase is null!');
     }
     
     if (_registry != null) {
@@ -570,7 +570,7 @@ class VetProvider {
           }
         }
       } catch (e) {
-        debugPrint('⚠️ Diseases not loaded: $e');
+        debugPrint('⚠ Diseases not loaded: $e');
       }
 
       // Протоколы лечения (v1.16.2: тоже в изоляте)
@@ -586,7 +586,7 @@ class VetProvider {
           }
         }
       } catch (e) {
-        debugPrint('⚠️ Treatment protocols not loaded: $e');
+        debugPrint('⚠ Treatment protocols not loaded: $e');
       }
     } finally {
       if (!_extendedCompleter.isCompleted) _extendedCompleter.complete();
@@ -611,7 +611,7 @@ class VetProvider {
   /// «Пушные звери», опечатки регистра («КРс»), служебное «Все». Матчим
   /// первый вид, который узнаётся одним из животных (нормализация ё→е,
   /// префиксы в обе стороны). Возвращает id выбранного животного или null.
-  /// ⚠️ НЕ сбрасывает препарат (в отличие от selectAnimal) — вызывать ДО
+  /// ⚠ НЕ сбрасывает препарат (в отличие от selectAnimal) — вызывать ДО
   /// selectDrug, чтобы из протокола прилетали ОБА: и вид, и препарат.
   String? selectAnimalFromSpecies(List<String> species) {
     if (_calcDatabase == null || species.isEmpty) return null;
@@ -722,7 +722,7 @@ class VetProvider {
     final substanceDosage = _dosageDatabase!.findByInnList(innList);
     if (substanceDosage == null) {
       return result.copyWith(
-        note: '${drug.indications}\n\n💡 Дозировка не найдена в базе. Проверьте инструкцию.',
+        note: '${drug.indications}\n\nДозировка не найдена в базе. Проверьте инструкцию.',
       );
     }
 
@@ -730,7 +730,7 @@ class VetProvider {
     if (animalDosage == null || !animalDosage.hasDosage) {
       final available = substanceDosage.availableAnimals;
       return result.copyWith(
-        note: '${drug.indications}\n\n⚠️ Дозировка доступна для: ${available.join(', ')}',
+        note: '${drug.indications}\n\n⚠ Дозировка доступна для: ${available.join(', ')}',
       );
     }
 

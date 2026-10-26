@@ -21,6 +21,7 @@ import '../widgets/compatibility_checker.dart';
 // diseases/settings. Голосовой пайплайн не тронут.
 import 'diseases_screen.dart';
 import 'settings_screen.dart';
+import '../theme/ds.dart';
 import '../services/theme_service.dart';      // 🆕
 
 // Экспорт VoiceGender для использования в парсинге
@@ -909,7 +910,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      DsRoute(
                         builder: (_) => const SettingsScreen(),
                       ),
                     );
@@ -937,14 +938,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 8),
+            // Глиф микрофона/ошибки — правило DS «эмодзи в UI запрещены»
+            // (заменил текстовые префиксы 🎤 / ⚠️).
+            if (_wakeWordEnabled ||
+                _wakeWordService.isModelLoading ||
+                _wakeWordService.errorMessage != null) ...[
+              Icon(
+                _wakeWordService.errorMessage != null
+                    ? Icons.error_outline
+                    : Icons.mic,
+                size: 14,
+                color: _wakeWordService.errorMessage != null
+                    ? AppTheme.errorRed
+                    : AppTheme.textTertiary,
+              ),
+              const SizedBox(width: 4),
+            ],
             Expanded(
               child: Text(
                 _wakeWordService.isModelLoading
-                    ? '🎤 ${_wakeWordService.loadingMessage}'
+                    ? _wakeWordService.loadingMessage
                     : (_wakeWordService.errorMessage != null
-                        ? '⚠️ ${_wakeWordService.errorMessage}'
+                        ? _wakeWordService.errorMessage!
                         : (_wakeWordEnabled
-                            ? '🎤 Скажите "ВетВойс"...'
+                            ? 'Скажите "ВетВойс"...'
                             : _vetProvider.statusMessage)),
                 style: TextStyle(
                   fontSize: AppTheme.fontSizeSmall,
@@ -1516,7 +1533,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_vetProvider.diseaseDatabase != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(
+        DsRoute(
           builder: (context) => DiseasesScreen(
             database: _vetProvider.diseaseDatabase!,
             treatmentDatabase: _vetProvider.treatmentProtocolDatabase,

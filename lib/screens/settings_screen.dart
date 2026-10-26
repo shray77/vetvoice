@@ -16,6 +16,7 @@ import '../widgets/common/voice_status_bar.dart';
 import '../widgets/common/gigaam_status_bar.dart';
 import '../widgets/common/app_scaffold.dart';
 import 'terms_screen.dart';
+import '../theme/ds.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -53,12 +54,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // === Тема ===
-          _SectionHeader(title: '🎨 Внешний вид'),
+          _SectionHeader(title: 'Внешний вид'),
           _ThemeSelector(themeService: _themeService),
           const Divider(),
 
           // === Голос и распознавание ===
-          _SectionHeader(title: '🎤 Голос и распознавание'),
+          _SectionHeader(title: 'Голос и распознавание'),
           // v1.17.0: ListTile со статусом заменён на общий компонент
           // VoiceStatusBar (статус + прогресс-бар скачивания + кнопки
           // «Загрузить»/«Стоп» из коробки, тёмная тема theme-aware).
@@ -96,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(),
 
           // === О приложении ===
-          _SectionHeader(title: 'ℹ️ О приложении'),
+          _SectionHeader(title: 'О приложении'),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('VetVoice AI'),
@@ -134,14 +135,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const TermsScreen()),
+                DsRoute(builder: (_) => const TermsScreen()),
               );
             },
           ),
           const Divider(),
 
           // === Данные ===
-          _SectionHeader(title: '📊 Данные'),
+          _SectionHeader(title: 'Данные'),
           ListTile(
             leading: const Icon(Icons.refresh),
             title: const Text('Проверить обновления базы'),

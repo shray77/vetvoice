@@ -264,7 +264,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: '📜 Протоколы лечения',
+      title: 'Протоколы лечения',
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -429,7 +429,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
         _searchController.text.trim().isNotEmpty ||
         _selectedCategory != null;
     return EmptyState(
-      emoji: '📜',
+      icon: Icons.list_alt,
       title: hasFilter ? 'Ничего не найдено' : 'Протоколы не загружены',
       message: _drugFilter != null
           ? 'В протоколах не найден препарат «${_drugFilter!.name}». '
@@ -637,10 +637,10 @@ class _ProtocolDrugItem extends StatelessWidget {
             Wrap(
               spacing: 8,
               children: [
-                if (dose.isNotEmpty) _MiniInfo(label: '💊 $dose'),
-                if (route.isNotEmpty) _MiniInfo(label: '📍 $route'),
-                if (frequency.isNotEmpty) _MiniInfo(label: '⏰ $frequency'),
-                if (duration.isNotEmpty) _MiniInfo(label: '📅 $duration'),
+                if (dose.isNotEmpty) _MiniInfo(icon: Icons.medication, label: dose),
+                if (route.isNotEmpty) _MiniInfo(icon: Icons.place, label: route),
+                if (frequency.isNotEmpty) _MiniInfo(icon: Icons.schedule, label: frequency),
+                if (duration.isNotEmpty) _MiniInfo(icon: Icons.calendar_month, label: duration),
               ],
             ),
             if (pharmGroup.isNotEmpty)
@@ -719,17 +719,37 @@ class _MiniChip extends StatelessWidget {
 
 class _MiniInfo extends StatelessWidget {
   final String label;
+  final IconData? icon;
 
-  const _MiniInfo({required this.label});
+  const _MiniInfo({required this.label, this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 11,
-        color: AppTheme.textSecondary,
-      ),
+    if (icon == null) {
+      return Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: AppTheme.textSecondary,
+        ),
+      );
+    }
+    // Глиф + подпись (правило DS: эмодзи в UI запрещены, глиф — с тинтом).
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: AppTheme.textSecondary),
+        const SizedBox(width: 3),
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

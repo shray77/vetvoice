@@ -193,11 +193,11 @@ class AgeSelector extends StatelessWidget {
         // Кнопки категорий возраста
         Row(
           children: [
-            _buildCategoryButton(AgeCategory.young, '👶 Молодой', AppTheme.safeGreen),
+            _buildCategoryButton(AgeCategory.young, 'Молодой', AppTheme.safeGreen),
             const SizedBox(width: 8),
-            _buildCategoryButton(AgeCategory.adult, '🐕 Взрослый', AppTheme.maleBlue),
+            _buildCategoryButton(AgeCategory.adult, 'Взрослый', AppTheme.maleBlue),
             const SizedBox(width: 8),
-            _buildCategoryButton(AgeCategory.old, '🦳 Пожилой', AppTheme.warningOrange),
+            _buildCategoryButton(AgeCategory.old, 'Пожилой', AppTheme.warningOrange),
           ],
         ),
         
