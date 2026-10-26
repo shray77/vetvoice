@@ -84,7 +84,23 @@ Future<void> _loadRealFonts() async {
   // Inter (5 весов) + Prata — бандл-шрифты приложения (pubspec fonts:);
   // Roboto/MaterialIcons — из кеша Flutter SDK; NotoColorEmoji — системный
   // (✓⚠-подобные знаки в статусах рендерятся как в приложении).
-  final families = <String, List<String>>{
+  // ГРАБЛЯ CI (Task 176): жёсткий путь песочницы не существует у раннера —
+  // шрифты молча не грузились, текст рендерился тофу. Кандидаты путей:
+  // FLUTTER_ROOT (ставит subosito/flutter-action) + песочница разработки.
+  final fr = Platform.environment['FLUTTER_ROOT'] ?? '';
+  final sdkFonts = <String>[
+    if (fr.isNotEmpty) '$fr/bin/cache/artifacts/material_fonts',
+    '/home/z/flutter/bin/cache/artifacts/material_fonts',
+  ];
+  String? resolve(String name) {
+    for (final d in sdkFonts) {
+      final f = File('$d/$name');
+      if (f.existsSync()) return f.path;
+    }
+    return null;
+  }
+
+  final families = <String, List<String?>>{
     'Inter': [
       'assets/fonts/Inter-Regular.ttf',
       'assets/fonts/Inter-Medium.ttf',
@@ -94,18 +110,21 @@ Future<void> _loadRealFonts() async {
     ],
     'Prata': ['assets/fonts/Prata-Regular.ttf'],
     'Roboto': [
-      '/home/z/flutter/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf',
-      '/home/z/flutter/bin/cache/artifacts/material_fonts/Roboto-Medium.ttf',
-      '/home/z/flutter/bin/cache/artifacts/material_fonts/Roboto-Bold.ttf',
+      resolve('Roboto-Regular.ttf'),
+      resolve('Roboto-Medium.ttf'),
+      resolve('Roboto-Bold.ttf'),
       '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf',
     ],
-    'MaterialIcons': [
-      '/home/z/flutter/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
-    ],
+    'MaterialIcons': [resolve('MaterialIcons-Regular.otf')],
   };
   for (final e in families.entries) {
     final loader = FontLoader(e.key);
     for (final path in e.value) {
+      if (path == null) {
+        // ignore: avoid_print
+        print('FONT MISSING: ${e.key}');
+        continue;
+      }
       final f = File(path);
       if (f.existsSync()) {
         loader.addFont(
