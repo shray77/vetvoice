@@ -33,7 +33,7 @@
 //     return DoseCalculatorCard(drug: drug);  // обычный калькулятор
 //   }
 
-import 'package:flutter/foundation.dart';
+
 
 /// Тип вакцины (для иконки и цвета в UI).
 import 'package:flutter/material.dart';

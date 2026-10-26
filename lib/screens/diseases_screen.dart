@@ -565,21 +565,21 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
             children: [
               if (drug.dose.isNotEmpty && drug.dose != 'по инструкции')
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.medication, size: 12, color: AppTheme.textSecondary),
+                  Icon(Icons.medication, size: 12, color: AppTheme.textSecondary),
                   const SizedBox(width: 3),
-                  Flexible(child: Text(drug.dose, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                  Flexible(child: Text(drug.dose, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
                 ]),
               if (drug.route.isNotEmpty && drug.route != 'по инструкции')
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.place, size: 12, color: AppTheme.textSecondary),
+                  Icon(Icons.place, size: 12, color: AppTheme.textSecondary),
                   const SizedBox(width: 3),
-                  Flexible(child: Text(drug.route, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                  Flexible(child: Text(drug.route, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
                 ]),
               if (drug.frequency.isNotEmpty && drug.frequency != 'по инструкции')
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.autorenew, size: 12, color: AppTheme.textSecondary),
+                  Icon(Icons.autorenew, size: 12, color: AppTheme.textSecondary),
                   const SizedBox(width: 3),
-                  Flexible(child: Text(drug.frequency, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
+                  Flexible(child: Text(drug.frequency, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary))),
                 ]),
             ],
           ),

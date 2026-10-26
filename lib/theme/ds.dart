@@ -154,7 +154,7 @@ abstract final class Ds {
 class DsRoute<T> extends PageRouteBuilder<T> {
   DsRoute({required WidgetBuilder builder})
       : super(
-          pageBuilder: (context, _, _) => builder(context),
+          pageBuilder: (context, _, __) => builder(context),
           transitionDuration: Ds.dur,
           reverseTransitionDuration: Ds.dur,
           transitionsBuilder: (context, animation, _, child) {

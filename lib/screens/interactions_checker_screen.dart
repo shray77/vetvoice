@@ -288,7 +288,7 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.science, size: 64, color: AppTheme.textTertiary),
+          Icon(Icons.science, size: 64, color: AppTheme.textTertiary),
           const SizedBox(height: 16),
           Text(
             'Добавьте минимум 2 препарата',

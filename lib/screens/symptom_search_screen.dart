@@ -225,7 +225,7 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.search_off, size: 64, color: AppTheme.textTertiary),
+          Icon(Icons.search_off, size: 64, color: AppTheme.textTertiary),
           const SizedBox(height: 16),
           Text(
             'Ничего не найдено',

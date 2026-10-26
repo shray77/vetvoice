@@ -946,7 +946,7 @@ class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? const DsDark.accentInk
+              ? DsDark.accentInk
               : darkSurfaceLight,
         ),
         trackColor: WidgetStateProperty.resolveWith(
