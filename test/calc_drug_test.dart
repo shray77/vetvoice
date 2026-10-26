@@ -34,7 +34,7 @@ void main() {
         },
       );
 
-      const weight = 400; // КРС 400 кг
+      const weight = 400.0; // КРС 400 кг
       final result = drug.calculateDose(weight, 'КРС');
 
       expect(result.type, DoseType.calculated,
