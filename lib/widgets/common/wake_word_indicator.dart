@@ -25,16 +25,22 @@ class WakeWordIndicator extends StatefulWidget {
 class _WakeWordIndicatorState extends State<WakeWordIndicator>
     with SingleTickerProviderStateMixin {
   final WakeWordService _service = WakeWordService.instance;
-  late final AnimationController _pulse = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1200),
-  );
+  // ГРАБЛЯ (поймал golden-тест 06_shell, Task 176): late final означал
+  // ЛЕНИВУЮ инициализацию — если пульс ни разу не тронули (wake word не
+  // слушал), первое обращение случалось в dispose() → AnimationController
+  // создавался на ДЕАКТИВИРОВАННОМ элементе → «Looking up a deactivated
+  // widget's ancestor is unsafe». Лечится явным созданием в initState.
+  late final AnimationController _pulse;
   StreamSubscription? _subState;
   StreamSubscription? _subListen;
 
   @override
   void initState() {
     super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
     _subState = _service.onStateChanged.listen((_) => _safeSetState());
     _subListen =
         _service.onListeningStateChanged.listen((_) => _safeSetState());

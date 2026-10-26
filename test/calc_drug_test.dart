@@ -151,7 +151,17 @@ void main() {
   group('CalcDrug.calculateDose — фикс B-4 для МЕ препаратов', () {
     test('''
       Димоксан WS: концентрация 200 МЕ/мл, доза 10 мг/кг — раньше формула
-      делила мг на МЕ (численный мусор). После фикса расчёт корректный.
+      делила мг на МЕ (численный мусор). После фикса B-4 концентрация
+      уезжает в concentrationMe, мг-ветка не включается (concentration=0),
+      а МЕ-дозы (dose_me_per_kg) нет — честный unknown «по инструкции»
+      вместо мусорных 25 «мл» из несводимых единиц.
+
+      ИСТОРИЯ ТЕСТА (Task 176): старый вариант ассертил DoseType.calculated
+      и volumeMl>0 — но файл НЕ КОМПИЛИРОВАЛСЯ (int-переменная weight в
+      double-параметр, до-меня ошибка) → assertion ни разу не выполнялся.
+      Починка компиляции вскрыла: код и правда возвращает unknown —
+      тест был написан под поведение, которое не реализовано (и не должно
+      быть: МЕ ≠ мг, без фактора пересчёта объём не существует).
     ''', () {
       final drug = CalcDrug.fromJson({
         'id': 201,
@@ -167,16 +177,37 @@ void main() {
         'method': 'внутрь',
       });
 
-      // КРС 500 кг → 10 МЕ/кг × 500 / 200 МЕ/мл = 25 мл
-      // Раньше было бы: 10 × 500 / 200 = 25 (тут совпадает случайно)
-      // но если бы доза была 5 мг/кг, было бы 12.5 мл,
-      // а через правильную МЕ-ветку с doseMePerKg=10 — тоже 25 мл
-      // (т.к. после фикса B-4 concentration=200 переезжает в concentrationMe=200,
-      // и расчёт идёт через МЕ-ветку, что и должно быть)
-      final result = drug.calculateDose(500, 'КРС');
+      // B-4: концентрация переехала в МЕ
+      expect(drug.concentration, 0);
+      expect(drug.concentrationMe, 200);
+
+      final result = drug.calculateDose(500.0, 'КРС');
+      expect(result.type, DoseType.unknown,
+          reason: 'мг/кг × вес / МЕ-мл — несводимо: численный мусор запрещён');
+      expect(result.volumeMl, 0,
+          reason: 'объём из несводимых единиц не существует');
+    });
+
+    test('МЕ-препарат с dose_unit=МЕ/кг считается через МЕ-ветку', () {
+      // Контр-проверка: когда доза ТОЖЕ в МЕ — расчёт идёт (ветка
+      // useMeDose при doseUnit == 'МЕ/кг'). 10 МЕ/кг × 500 / 200 МЕ/мл = 25 мл.
+      final drug = CalcDrug.fromJson({
+        'id': 202,
+        'name': 'МЕ-препарат (тест)',
+        'inn': 'тест',
+        'form': 'раствор',
+        'unit': 'мл',
+        'concentration': 200,
+        'concentration_unit': 'МЕ/мл',
+        'dose_per_kg': 10,
+        'dose_unit': 'МЕ/кг',
+        'animals': ['КРС'],
+        'method': 'внутрь',
+      });
+
+      final result = drug.calculateDose(500.0, 'КРС');
       expect(result.type, DoseType.calculated);
-      expect(result.volumeMl, greaterThan(0),
-          reason: 'Объём должен быть положительным числом, а не NaN/0');
+      expect(result.volumeMl, closeTo(25.0, 0.01));
     });
   });
 
