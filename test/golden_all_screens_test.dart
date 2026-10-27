@@ -188,10 +188,18 @@ void main() {
           treatmentDatabase: vp.treatmentProtocolDatabase,
           selectedAnimal: null,
         ),
-    '08_withdrawal_light': () =>
-        WithdrawalCalculatorScreen(vetProvider: vp),
-    '09_withdrawal_dark': () =>
-        WithdrawalCalculatorScreen(vetProvider: vp),
+    '08_withdrawal_light': () => WithdrawalCalculatorScreen(
+          vetProvider: vp,
+          // Task 179: детерминизм — дата снятия золотой базы (26.10.2026).
+          // Без инъекции экран рендерит DateTime.now() текстом — голден
+          // краснеет каждый день после снятия базы (молча, пока Test
+          // был под continue-on-error).
+          initialDate: DateTime(2026, 10, 26),
+        ),
+    '09_withdrawal_dark': () => WithdrawalCalculatorScreen(
+          vetProvider: vp,
+          initialDate: DateTime(2026, 10, 26),
+        ),
     '10_fluid_light': () => FluidTherapyScreen(
           db: vp.fluidTherapyDatabase!,
         ),

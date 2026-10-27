@@ -31,9 +31,17 @@ import '../widgets/common/status_chip.dart';
 class WithdrawalCalculatorScreen extends StatefulWidget {
   final VetProvider vetProvider;
 
+  /// Инъекция «сегодня» для golden-тестов (Task 179): экран рендерит
+  /// дату введения текстом (дд.мм.гггг) и производные от неё сроки
+  /// каренции — DateTime.now() по умолчанию делает голден зависимым
+  /// от ДНЯ снятия базы: красный каждый следующий день, молча
+  /// (Task 178–179: вскрыто снятием continue-on-error в CI).
+  final DateTime? initialDate;
+
   const WithdrawalCalculatorScreen({
     super.key,
     required this.vetProvider,
+    this.initialDate,
   });
 
   @override
@@ -45,7 +53,8 @@ class _WithdrawalCalculatorScreenState
     extends State<WithdrawalCalculatorScreen> {
   CalcDrug? _selectedDrug;
   String _selectedAnimal = 'КРС';
-  DateTime _applicationDate = DateTime.now();
+  // детерминизм голденов: инъекция или «сегодня» (см. виджет выше)
+  late DateTime _applicationDate = widget.initialDate ?? DateTime.now();
   List<WithdrawalResult> _results = [];
 
   final List<String> _productAnimals = [
