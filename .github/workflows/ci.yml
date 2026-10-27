@@ -47,12 +47,21 @@ jobs:
         run: flutter pub get
 
       - name: 🔍 Analyze
+        # Task 179: continue-on-error снят — гейт должен держать, а не
+        # «существовать на бумаге». Мягкость оставлена флагами:
+        # info/warning не фатальны, errors валят шаг.
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
-        continue-on-error: true
+
+      - name: 🧪 Precache SDK fonts
+        # material_fonts нужны golden-тестам (FontLoader читает их из кеша
+        # SDK; паттерн vetos Task 176: без предкеша первый тест мог
+        # стартовать раньше фоновой загрузки)
+        run: flutter precache --universal
 
       - name: 🧪 Test
+        # Task 179: continue-on-error снят — красный тест = красный CI.
+        # Голдены (21 кадр) и гейт-кейсы ввода теперь держат каждый push.
         run: flutter test
-        continue-on-error: true
 
       - name: 📋 List dart files
         run: |

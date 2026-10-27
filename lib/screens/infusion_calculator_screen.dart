@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
+import '../utils/decimal_input.dart';
 
 /// InfusionCalculatorScreen — калькулятор скорости инфузии и капель
 class InfusionCalculatorScreen extends StatefulWidget {
@@ -35,10 +36,12 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
   final List<int> _dropOptions = [10, 15, 20, 60];
 
   void _calculate() {
-    final weight = double.tryParse(_weightController.text.replaceAll(',', '.'));
-    final dose = double.tryParse(_doseController.text.replaceAll(',', '.'));
-    final conc = double.tryParse(_concentrationController.text.replaceAll(',', '.'));
-    final volume = double.tryParse(_volumeController.text.replaceAll(',', '.'));
+    // Task 179: единый хелпер вместо инлайн-tryParse — «парсер не судит,
+    // судят гварды» (см. decimal_input.dart). Семантика та же + трим.
+    final weight = parseDecimal(_weightController.text);
+    final dose = parseDecimal(_doseController.text);
+    final conc = parseDecimal(_concentrationController.text);
+    final volume = parseDecimal(_volumeController.text);
 
     // Task 178: гварды «абсурдного, но реального» ввода. Минус на
     // цифровой клавиатуре нажимается случайно, нулевой/отрицательный
