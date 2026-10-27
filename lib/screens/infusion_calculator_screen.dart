@@ -40,7 +40,13 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
     final conc = double.tryParse(_concentrationController.text.replaceAll(',', '.'));
     final volume = double.tryParse(_volumeController.text.replaceAll(',', '.'));
 
-    if (weight == null || dose == null || conc == null || conc == 0) {
+    // Task 178: гварды «абсурдного, но реального» ввода. Минус на
+    // цифровой клавиатуре нажимается случайно, нулевой/отрицательный
+    // вес или доза — мусор, который раньше молча ехал в формулы
+    // («-250 мл/ч»). Отказ = тихий ноль, как и при незаполненных полях.
+    if (weight == null || weight <= 0 ||
+        dose == null || dose <= 0 ||
+        conc == null || conc <= 0) {
       setState(() {
         _result = 0;
         _dropsPerMin = 0;
@@ -62,7 +68,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
         setState(() {
           _result = mlPerHour;
           _dropsPerMin = mlPerHour / 60 * _dropsPerMl;
-          _durationHours = (volume != null && mlPerHour > 0)
+          _durationHours = (volume != null && volume > 0 && mlPerHour > 0)
               ? volume / mlPerHour
               : 0;
         });
@@ -79,7 +85,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
         setState(() {
           _result = mlPerHour;
           _dropsPerMin = mlPerHour / 60 * _dropsPerMl;
-          _durationHours = (volume != null && mlPerHour > 0)
+          _durationHours = (volume != null && volume > 0 && mlPerHour > 0)
               ? volume / mlPerHour
               : 0;
         });
@@ -104,7 +110,7 @@ class _InfusionCalculatorScreenState extends State<InfusionCalculatorScreen> {
     setState(() {
       _result = mlPerHour;
       _dropsPerMin = mlPerHour / 60 * _dropsPerMl;
-      _durationHours = (volume != null && mlPerHour > 0)
+      _durationHours = (volume != null && volume > 0 && mlPerHour > 0)
           ? volume / mlPerHour
           : 0;
     });

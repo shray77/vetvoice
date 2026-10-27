@@ -7,6 +7,7 @@ import '../providers/vet_provider.dart';
 import '../services/speech_service.dart';
 import '../services/wake_word_service.dart';
 import '../utils/app_theme.dart';
+import '../utils/decimal_input.dart';
 // Фаза 3: хаптик на значимых касаниях (wake word и избранное)
 import '../widgets/common/haptics.dart';
 import '../widgets/animal_card.dart';
@@ -571,7 +572,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onWeightChanged(String value) {
-    final weight = double.tryParse(value);
+    // Task 178: RU-локаль даёт запятую — раньше «12,5» молча превращалось
+    // в вес 0 (double.tryParse запятую не принимает, decimal-клавиатура
+    // на русском телефоне даёт именно её).
+    final weight = parseDecimal(value);
     if (weight != null) {
       _vetProvider.setWeight(weight);
       _validateWeight(weight);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fluid_therapy.dart';
 import '../utils/app_theme.dart';
+import '../utils/decimal_input.dart';
 import '../widgets/common/app_scaffold.dart';
 
 class FluidTherapyScreen extends StatefulWidget {
@@ -157,7 +158,9 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
             hintText: 'Вес животного (кг)',
             prefixIcon: Icon(Icons.scale, color: AppTheme.textTertiary),
           ),
-          onChanged: (v) => setState(() => _weightInput = double.tryParse(v)),
+          // Task 178: RU-запятая — раньше «12,5» давало null и поле
+          // просило «Укажите вес» при введённом значении.
+          onChanged: (v) => setState(() => _weightInput = parseDecimal(v)),
         ),
         const SizedBox(height: 24),
         const Text('Поддерживающая доза', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
