@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import '../models/drug.dart';
 import '../models/drug_registry.dart';
 import '../models/calc_drug.dart';
@@ -67,43 +66,32 @@ class LoadResult {
   int get fluidSolutionsCount => fluidTherapyDatabase?.solutions.length ?? 0;
 }
 
-/// Спецификация одной базы: где лежит (assets / сеть) и как парсить.
+/// Спецификация одной базы: где лежит (assets) и как парсить.
 class _DbSpec {
-  final String fileName; // имя файла в дисковом кеше
-  final String assetPath; // путь в бандле (все базы есть в assets)
-  final String? url; // GitLab raw (null — только assets)
+  final String fileName; // имя файла (идентификатор базы)
+  final String assetPath; // путь в бандле
   final Object Function(Map<String, dynamic>) fromJson;
 
   const _DbSpec({
     required this.fileName,
     required this.assetPath,
-    this.url,
     required this.fromJson,
   });
 }
 
 /// Сервис для загрузки баз препаратов.
 ///
-/// v1.16.1 — offline-first с дисковым кешем:
-///  1. Свежий дисковый кеш (< 24 ч) → мгновенный старт БЕЗ сети.
-///  2. Иначе — сеть (параллельно, таймаут 8 с) → кеш обновляется.
-///  3. Нет сети и кеша → assets (как раньше), кеш создаётся из assets.
+/// v1.20.1 — assets-only: сетевого апдейта больше НЕТ.
+/// Прежний механизм (GitLab raw + дисковый кеш 24 ч) вырублен: GitLab-копия
+/// репозитория протухла — GitHub давно мастер, а «обновление» баз с GitLab
+/// могло откатить данные НАЗАД на дорефакторные (фиксы доз Task 182/186
+/// живут только в assets GitHub). Обновление баз теперь = новый релиз APK.
 ///
-/// Дополнительно:
-///  • loadDatabase() мемоизирован — один раз на сессию;
+///  • loadDatabase()/loadCore() мемоизированы — один раз на сессию;
 ///  • тяжёлый jsonDecode больших файлов уходит в background-isolate;
-///  • расхождение старой логики устранено: раньше в онлайн-режиме
-///    терялись unofficial_protocols и verified_dosages (они грузились
-///    только из assets) — теперь assets-only базы добираются всегда.
+///  • staged-загрузка (ядро сразу, вторичные базы после первого кадра)
+///    сохранена — старт дома по-прежнему быстрый.
 class DrugLoaderService {
-  static const String _gitlabBase =
-      'https://gitlab.com/shray77/vetvoice/-/raw/main/assets/data';
-  static const String _advancedDir = '$_gitlabBase/advanced';
-
-  static String get updateUrl => '$_gitlabBase/drugs_calc.json';
-
-  static const Duration _networkTimeout = Duration(seconds: 8);
-  static const Duration _cacheTtl = Duration(hours: 24);
   /// Файлы больше этого размера декодируются в background-isolate.
   static const int _isolateDecodeThreshold = 512 * 1024;
 
@@ -137,70 +125,58 @@ class DrugLoaderService {
     'drugs_registry.json': _DbSpec(
       fileName: 'drugs_registry.json',
       assetPath: 'assets/data/drugs_registry.json',
-      url: '$_gitlabBase/drugs_registry.json',
       fromJson: DrugRegistry.fromJson,
     ),
     'drugs_calc.json': _DbSpec(
       fileName: 'drugs_calc.json',
       assetPath: 'assets/data/drugs_calc.json',
-      url: '$_gitlabBase/drugs_calc.json',
       fromJson: CalcDrugDatabase.fromJson,
     ),
     'drugs.json': _DbSpec(
       fileName: 'drugs.json',
       assetPath: 'assets/data/drugs.json',
-      url: '$_gitlabBase/drugs.json',
       fromJson: DrugDatabase.fromJson,
     ),
     'dosage_database.json': _DbSpec(
       fileName: 'dosage_database.json',
       assetPath: 'assets/data/dosage_database.json',
-      url: '$_gitlabBase/dosage_database.json',
       fromJson: DosageDatabase.fromJson,
     ),
     'drug_interactions.json': _DbSpec(
       fileName: 'drug_interactions.json',
       assetPath: 'assets/data/advanced/drug_interactions.json',
-      url: '$_advancedDir/drug_interactions.json',
       fromJson: InteractionDatabase.fromJson,
     ),
     'antidotes.json': _DbSpec(
       fileName: 'antidotes.json',
       assetPath: 'assets/data/advanced/antidotes.json',
-      url: '$_advancedDir/antidotes.json',
       fromJson: AntidoteDatabase.fromJson,
     ),
     'emergency_protocols.json': _DbSpec(
       fileName: 'emergency_protocols.json',
       assetPath: 'assets/data/advanced/emergency_protocols.json',
-      url: '$_advancedDir/emergency_protocols.json',
       fromJson: EmergencyDatabase.fromJson,
     ),
     'side_effects.json': _DbSpec(
       fileName: 'side_effects.json',
       assetPath: 'assets/data/advanced/side_effects.json',
-      url: '$_advancedDir/side_effects.json',
       fromJson: SideEffectsDatabase.fromJson,
     ),
     'withdrawal_by_product.json': _DbSpec(
       fileName: 'withdrawal_by_product.json',
       assetPath: 'assets/data/advanced/withdrawal_by_product.json',
-      url: '$_advancedDir/withdrawal_by_product.json',
       fromJson: WithdrawalDatabase.fromJson,
     ),
     'dose_adjustments.json': _DbSpec(
       fileName: 'dose_adjustments.json',
       assetPath: 'assets/data/advanced/dose_adjustments.json',
-      url: '$_advancedDir/dose_adjustments.json',
       fromJson: DoseAdjustmentDatabase.fromJson,
     ),
     'fluid_therapy.json': _DbSpec(
       fileName: 'fluid_therapy.json',
       assetPath: 'assets/data/advanced/fluid_therapy.json',
-      url: '$_advancedDir/fluid_therapy.json',
       fromJson: FluidTherapyDatabase.fromJson,
     ),
-    // === Assets-only: в сети их нет, всегда из бандла ===
     'unofficial_protocols.json': _DbSpec(
       fileName: 'unofficial_protocols.json',
       assetPath: 'assets/data/unofficial_protocols.json',
@@ -212,10 +188,6 @@ class DrugLoaderService {
       fromJson: VerifiedDosageDatabase.fromJson,
     ),
   };
-
-  /// Ключи spec'ов по имени файла кеша (для чтения кеша).
-  static Map<String, _DbSpec> get _specsByFileName =>
-      {for (final e in _specs.entries) e.value.fileName: e.value};
 
   // ============================================================
   // Публичный API
@@ -230,7 +202,7 @@ class DrugLoaderService {
   }
 
   /// v1.16.3: СТАДИЯ 1 — только ядро для home (расчёт доз, выбор препарата,
-  /// совместимость). Сырьё всё равно читается целиком (кеш/сеть), но парсинг
+  /// совместимость). Сырьё читается целиком (assets), но парсинг
   /// вторичных баз откладывается до [parseExtended].
   static Future<LoadResult> loadCore() async {
     if (_coreMemo != null) return _coreMemo!;
@@ -352,60 +324,13 @@ class DrugLoaderService {
   // Основной конвейер загрузки
   // ============================================================
 
-  /// v1.16.3: чтение сырья (кеш → сеть → assets) вынесено из _loadOnce,
-  /// чтобы loadCore мог парсить только ядро из того же сырья.
+  /// v1.20.1: чтение сырья — ТОЛЬКО assets. Сети больше нет (см. доккласс):
+  /// GitLab-зеркало протухло, «обновление» с него откатывало бы фиксы данных.
   static Future<Map<String, String>> _loadRaws() async {
-    // 1. Свежий дисковый кеш → мгновенный старт без сети.
-    final cache = await _readDiskCache();
-    final cacheHasCore = cache != null &&
-        (cache.containsKey('assets/data/drugs_calc.json') ||
-            cache.containsKey('assets/data/drugs_registry.json'));
-    if (cache != null && cacheHasCore) {
-      final fresh = await _isCacheFresh();
-      if (fresh) {
-        debugPrint('📦 [DrugLoader] Старт из дискового кеша: ${cache.length} файлов');
-        // v1.18.1: assets-only базы (unofficial_protocols, verified_dosages —
-        // «в сети их нет, всегда из бандла») НЕ попадают в дисковый кеш: туда
-        // пишутся только сетевые raws. Раньше кеш-старт возвращал cache как
-        // есть → этих баз не было в сырье → parseExtended их не парсил →
-        // «Неофициальные протоколы» вечно показывали «Загрузка…» после
-        // первого же перезапуска приложения (полевой отчёт v1.18.0; на первом
-        // старте работало, потому что там шла ветка сети/assets с добором).
-        // Дочитываем assets-only из бандла — как это уже делает сетевая ветка.
-        final assetRaws = await _readAssetRaws(
-          onlyKeys: _specs.values
-              .where((s) => s.url == null)
-              .map((s) => s.assetPath)
-              .toSet(),
-        );
-        _lastLoadWasOnline = false;
-        _lastLoadSource = 'Кеш (офлайн-базы актуальны)';
-        return {...assetRaws, ...cache};
-      }
-      debugPrint('📦 [DrugLoader] Дисковый кеш старше 24 ч — обновляем из сети');
-    }
-
-    // 2. Сеть: параллельная загрузка, короткий таймаут.
-    final netRaws = await _fetchNetworkRaws();
-    if (netRaws.isNotEmpty) {
-      debugPrint('🌐 [DrugLoader] Сетевые базы получены: ${netRaws.length} файлов');
-      // assets-only базы добираем всегда (в сети их нет)
-      final assetRaws = await _readAssetRaws(
-        onlyKeys: _specs.values.where((s) => s.url == null).map((s) => s.assetPath).toSet(),
-      );
-      final allRaws = {...assetRaws, ...netRaws};
-      unawaited(_writeDiskCache(netRaws)); // кеш сетевых — на следующий старт
-      _lastLoadWasOnline = true;
-      _lastLoadSource = null;
-      return allRaws;
-    }
-
-    // 3. Нет сети и/или кеша → assets, кеш не трогаем (пусть лежит старый).
-    debugPrint('📦 [DrugLoader] Офлайн — загрузка из assets');
-    final assetRaws = await _readAssetRaws();
+    debugPrint('📦 [DrugLoader] Загрузка баз из assets (assets-only)');
     _lastLoadWasOnline = false;
-    _lastLoadSource = null;
-    return assetRaws;
+    _lastLoadSource = 'Локальные базы (обновляются вместе с приложением)';
+    return _readAssetRaws();
   }
 
   /// Загружает и парсит ВСЕ базы (legacy-путь; home использует loadCore+parseExtended).
@@ -512,8 +437,7 @@ class DrugLoaderService {
       }
     }
 
-    // База без животных (сетевая или из кеша) — добираем из assets
-    // (наследие фикса «Сетевая база без животных»).
+    // База без животных — добираем из assets (защита от кривого JSON).
     if (calcDatabase != null && calcDatabase.animals.isEmpty) {
       try {
         final localAnimals = await _loadLocalAnimals();
@@ -557,54 +481,8 @@ class DrugLoaderService {
   }
 
   // ============================================================
-  // Источники: сеть, assets, дисковый кеш
+  // Источники: assets
   // ============================================================
-
-  /// Параллельная загрузка сетевых баз. Возвращает assetPath → raw.
-  /// Считаем успехом, если получена хотя бы одна из трёх основных баз.
-  static Future<Map<String, String>> _fetchNetworkRaws() async {
-    final client = HttpClient();
-    client.connectionTimeout = _networkTimeout;
-    final raws = <String, String>{};
-    try {
-      final specs = _specs.values.where((s) => s.url != null).toList();
-      final futures = specs.map((spec) async {
-        try {
-          final req = await client.getUrl(Uri.parse(spec.url!))
-              .timeout(_networkTimeout);
-          final res = await req.close().timeout(_networkTimeout);
-          if (res.statusCode == 200) {
-            final body = await res.transform(utf8.decoder).join();
-            return MapEntry(spec, body);
-          }
-          debugPrint('⚠️ [DrugLoader] HTTP ${res.statusCode}: ${spec.fileName}');
-        } catch (e) {
-          debugPrint('⚠️ [DrugLoader] Сеть недоступна (${spec.fileName}): $e');
-        }
-        return null;
-      });
-
-      final results = await Future.wait(futures);
-      for (final r in results) {
-        if (r != null) raws[r.key.assetPath] = r.value;
-      }
-
-      // Нужна хотя бы одна из основных баз, иначе считаем сеть недоступной
-      final coreOk = raws.containsKey('assets/data/drugs_registry.json') ||
-          raws.containsKey('assets/data/drugs_calc.json') ||
-          raws.containsKey('assets/data/drugs.json');
-      if (!coreOk) {
-        debugPrint('⚠️ [DrugLoader] Основные базы не получены — сеть считается недоступной');
-        return {};
-      }
-    } catch (e) {
-      debugPrint('⚠️ [DrugLoader] Ошибка сети: $e');
-      return {};
-    } finally {
-      client.close(force: true);
-    }
-    return raws;
-  }
 
   /// Чтение всех (или только [onlyKeys]) баз из assets. assetPath → raw.
   static Future<Map<String, String>> _readAssetRaws({Set<String>? onlyKeys}) async {
@@ -618,82 +496,6 @@ class DrugLoaderService {
       }
     }
     return raws;
-  }
-
-  // ============================================================
-  // Дисковый кеш (сетевые базы)
-  // ============================================================
-
-  static Directory? _cacheDir;
-
-  static Future<Directory?> _getCacheDir() async {
-    if (_cacheDir != null) return _cacheDir;
-    try {
-      final base = await getApplicationDocumentsDirectory();
-      final dir = Directory('${base.path}/db_cache');
-      if (!dir.existsSync()) dir.createSync(recursive: true);
-      _cacheDir = dir;
-      return dir;
-    } catch (e) {
-      debugPrint('⚠️ [DrugLoader] Нет доступа к кеш-каталогу: $e');
-      return null;
-    }
-  }
-
-  static Future<Map<String, String>?> _readDiskCache() async {
-    final dir = await _getCacheDir();
-    if (dir == null) return null;
-    final raws = <String, String>{};
-    final byName = _specsByFileName;
-    for (final entry in byName.entries) {
-      final spec = entry.value;
-      if (spec.url == null) continue; // assets-only в кеше не нуждаются
-      try {
-        final f = File('${dir.path}/${entry.key}');
-        if (f.existsSync()) {
-          raws[spec.assetPath] = await f.readAsString();
-        }
-      } catch (e) {
-        debugPrint('⚠️ [DrugLoader] Кеш ${entry.key}: $e');
-      }
-    }
-    return raws.isEmpty ? null : raws;
-  }
-
-  static Future<void> _writeDiskCache(Map<String, String> netRaws) async {
-    final dir = await _getCacheDir();
-    if (dir == null) return;
-    final byAsset = {for (final e in _specs.entries) e.value.assetPath: e.value.fileName};
-    for (final entry in netRaws.entries) {
-      final fileName = byAsset[entry.key];
-      if (fileName == null) continue;
-      try {
-        final f = File('${dir.path}/$fileName');
-        await f.writeAsString(entry.value, flush: true);
-      } catch (e) {
-        debugPrint('⚠️ [DrugLoader] Запись кеша $fileName: $e');
-      }
-    }
-    debugPrint('💾 [DrugLoader] Кеш обновлён: ${netRaws.length} файлов');
-  }
-
-  /// Свежесть кеша: самый новый файл младше [_cacheTtl].
-  static Future<bool> _isCacheFresh() async {
-    final dir = await _getCacheDir();
-    if (dir == null) return false;
-    try {
-      DateTime? newest;
-      for (final f in dir.listSync()) {
-        if (f is File) {
-          final m = f.statSync().modified;
-          if (newest == null || m.isAfter(newest)) newest = m;
-        }
-      }
-      if (newest == null) return false;
-      return DateTime.now().difference(newest) < _cacheTtl;
-    } catch (_) {
-      return false;
-    }
   }
 
   // ============================================================
@@ -741,9 +543,11 @@ class DrugLoaderService {
     }
   }
 
+  /// v1.20.1: сети в загрузчике больше нет — индикатор «устройство онлайн»
+  /// для чипа на home-grid. Базы с DNS не связаны (assets-only).
   static Future<bool> isNetworkAvailable() async {
     try {
-      final result = await InternetAddress.lookup('gitlab.com');
+      final result = await InternetAddress.lookup('github.com');
       return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
     } catch (_) {
       return false;

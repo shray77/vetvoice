@@ -118,9 +118,10 @@ INFUSION_INN = (
 
 
 def is_infusion(inn):
+    # Task 187: инфузионный компонент в ЛЮБОМ месте состава (Виме-Лайт IV —
+    # «тиамин, ..., декстроза»: дексстроза в хвосте, но литры в/в легальны).
     i = str(inn or '').lower()
-    first = i.split(',')[0].strip()
-    return any(t in first for t in INFUSION_INN)
+    return any(t in i for t in INFUSION_INN)
 
 # ── Видовые запреты и видовые потолки (ERROR) ──────────────────────────────
 # (токен INN, вид) -> (потолок мг/кг или None=запрещён целиком, комментарий)
@@ -294,6 +295,24 @@ def route_is_injection(form_type, method):
     return any(t in m for t in INJECTION_TOKENS)
 
 
+# Сепараторы компонентов комбинированных INN (уроки МОНИЗЕНа/Антибак ПРО:
+# «,», «+», «;» и предлог « и » — все четыре признак комбо).
+COMBO_SEPS = (',', '+', ';', ' и ')
+
+
+def is_combo_inn(inn):
+    i = str(inn or '')
+    return any(sep in i for sep in COMBO_SEPS)
+
+
+def first_component_of(inn):
+    """Первый компонент комбинированного INN (по нему дозируется комбо)."""
+    s = str(inn or '').lower()
+    for sep in COMBO_SEPS:
+        s = s.split(sep)[0]
+    return s.strip()
+
+
 def match_critical(inn):
     """INN -> (название группы, (min,max)) для особо опасных.
 
@@ -302,15 +321,16 @@ def match_critical(inn):
     из хвоста комбинации не проверяем (доза 20 мг/кг там — флорфеникол).
     """
     i = str(inn or '').lower()
-    first_component = i.split(',')[0].strip()
+    first_component = first_component_of(i)
+    combo = is_combo_inn(i)
     for token, bounds in CRITICAL_BOUNDS.items():
         if token in i:
-            if ',' in i and token not in first_component:
+            if combo and token not in first_component:
                 continue
             return token, bounds
     for token in INSULIN_TOKENS:
         if token in i:
-            if ',' in i and token not in first_component:
+            if combo and token not in first_component:
                 continue
             return 'инсулин', (INSULIN_MIN, INSULIN_MAX)
     return None, None
@@ -380,8 +400,9 @@ def check_dose_record(rep, file_label, drug_name, inn, species,
                 f'dose_min={dose_min} > dose_max={dose_max}')
         raise_to('ERROR')
 
-    # 3. Единица не указана при числовой дозе
-    if has_num and unit is None:
+    # 3. Единица не указана при числовой дозе. Наружные/фиксированные/
+    # вакцинные записи юнита не требуют (мг/кг там неприменим — Task 187).
+    if has_num and unit is None and not per_kg_irrelevant:
         rep.add('WARN', file_label, drug_name, ctx_species, 'no-unit',
                 f'доза {dose} без dose_unit — «{dose_unit!r}»')
         raise_to('WARN')
@@ -418,10 +439,12 @@ def check_dose_record(rep, file_label, drug_name, inn, species,
             raise_to('ERROR')
 
     # 5. Особо опасные препараты — жёсткие пределы. У КОМБИНИРОВАННЫХ
-    # (инн с запятой) доза относится к одному компоненту — атрибуция
-    # ненадёжна (урок МОНИЗЕНа: 5 мг/кг — празиквантел, не ивермектин),
-    # поэтому комбинам — WARN, монопрепаратам — ERROR.
-    is_combo = any(sep in str(inn or '') for sep in (',', '+', ';'))
+    # (инн с запятой/плюсом/« и ») доза относится к одному компоненту —
+    # атрибуция ненадёжна (урок МОНИЗЕНа: 5 мг/кг — празиквантел, не
+    # ивермектин; урок Антибак ПРО: «энрофлоксацин И метронидазол» —
+    # сепаратор « и » тоже признак комбо), поэтому комбинам — WARN,
+    # монопрепаратам — ERROR.
+    is_combo = is_combo_inn(inn)
     crit_sev = 'WARN' if is_combo else 'ERROR'
     if crit_name and crit_name != 'инсулин' and has_num and unit in (
             'мг/кг', 'мкг/кг', 'мг/кг массы'):
@@ -437,7 +460,10 @@ def check_dose_record(rep, file_label, drug_name, inn, species,
             raise_to(crit_sev)
 
     # 6. Видовые запреты/потолки — действуют и для комбинаций: циперметрин
-    # в спот-оне для кошек опасен при любой атрибуции дозы.
+    # в спот-оне для кошек опасен при любой атрибуции дозы. Но ПОТОЛОК
+    # (cap > 0) у комбо — WARN: доза может относиться к другому компоненту
+    # (урок Task 187: амоксициллин, энрофлоксацин — 15 мг/кг собакам это
+    # амоксициллин, а не энрофлоксациновая передозировка кошке).
     _, rule = match_species_rule(inn, species)
     if rule and has_num and unit in ('мг/кг', 'мг/кг массы', 'мкг/кг'):
         cap, comment = rule
@@ -449,9 +475,11 @@ def check_dose_record(rep, file_label, drug_name, inn, species,
                     f'{comment}: {dose} {unit}')
             raise_to('ERROR')
         elif v > cap:
-            rep.add('ERROR', file_label, drug_name, ctx_species, 'species-cap',
-                    f'{comment}: {dose} {unit} > {cap:g}')
-            raise_to('ERROR')
+            sev = 'WARN' if is_combo else 'ERROR'
+            rep.add(sev, file_label, drug_name, ctx_species, 'species-cap',
+                    f'{comment}: {dose} {unit} > {cap:g}'
+                    + (' (комбинация — атрибуция дозы)' if is_combo else ''))
+            raise_to(sev)
 
     # 7. dose_per_kg внутри собственного диапазона — у комбинированных
     # диапазон может относиться ко второму компоненту (урок ЛоксикVet:
@@ -603,7 +631,11 @@ def validate_verified(data, rep, file_label):
                 rep, file_label, str(name), inn, species,
                 obj.get('dose_per_kg'), obj.get('dose_unit'),
                 obj.get('dose_min'), obj.get('dose_max'),
-                calculator_applicable=True,
+                # Task 187: прежде был захардкожен True — записи с явным
+                # calculator_applicable=false (наружные растворы вроде
+                # Акаромектина) не должны ловить объёмный гейт калькулятора,
+                # который их не показывает. Отсутствие поля = прежний True.
+                calculator_applicable=bool(d.get('calculator_applicable', True)),
                 method=obj.get('method'),
                 conc=conc, conc_unit=conc_unit,
                 dose_ml_per_kg=obj.get('dose_ml_per_kg'))

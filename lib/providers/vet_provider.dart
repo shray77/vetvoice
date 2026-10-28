@@ -512,7 +512,7 @@ class VetProvider {
       if (db != null) {
         final buf = StringBuffer('v${db.version} · ${db.drugs.length} препаратов');
         if (db.lastUpdated.isNotEmpty) buf.write(' · обновлено ${db.lastUpdated}');
-        buf.write(loadResult.fromNetwork ? ' · сеть' : ' · кеш');
+        buf.write(' · в комплекте'); // v1.20.1: assets-only, сетевого апдейта нет
         unawaited(ThemeService().setDatabaseInfo(buf.toString()));
       }
 

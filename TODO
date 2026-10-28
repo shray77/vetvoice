@@ -20,7 +20,7 @@
 ### Сборка
 - ABI split: arm64-v8a (49 МБ), armeabi-v7a (47 МБ)
 - minifyEnabled + shrinkResources + ProGuard
-- Релизы в GitLab Generic Packages
+- Релизы в GitHub Releases (GitLab-зеркало заброшено: GitHub — мастер)
 
 ---
 

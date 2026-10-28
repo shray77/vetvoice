@@ -71,7 +71,7 @@ vetvoice/
 ├── android/
 ├── test/
 ├── pubspec.yaml
-└── .gitlab-ci.yml
+└── .github/workflows/            # CI GitHub Actions: тесты, db-гейт баз, релизы APK
 ```
 
 ## Технологии
