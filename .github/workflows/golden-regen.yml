@@ -1,0 +1,59 @@
+name: Golden regen
+
+# Task 191: канал регенерации голденов vetvoice (закрытие M-1 аудита 183).
+# Данные/тексты меняют пиксели (версия баз, списки животных, ResultCard) —
+# пересъём через workflow_dispatch; пин движка СОВПАДАЕТ с ci.yml (3.27.0),
+# иначе тихий дрейф рендера (урок Task 176). Коммит [skip ci] не будит CI.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: golden-regen
+  cancel-in-progress: false
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter (тот же пин, что в ci.yml)
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Download pub deps
+        run: flutter pub get
+
+      - name: Precache SDK fonts
+        # материал-шрифты нужны golden-тестам (FontLoader читает из кеша SDK)
+        run: flutter precache --universal
+
+      - name: Regenerate goldens
+        run: flutter test --update-goldens
+
+      - name: Commit and push new goldens
+        run: |
+          git config user.name "goldens-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add test/golden/
+          git diff --cached --quiet && echo "Нет изменений голденов" && exit 0
+          git commit -m "chore: regen goldens [skip ci]"
+          git push
