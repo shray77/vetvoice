@@ -669,7 +669,7 @@ class _ResultCardState extends State<ResultCard> {
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
-                    'Рассчитайте дозировку по инструкции производителя',
+                    'Перепроверьте дозу и объём вручную по официальной инструкции препарата',
                     style: TextStyle(fontSize: 14),
                   ),
                 ),

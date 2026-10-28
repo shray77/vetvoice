@@ -107,6 +107,17 @@ CRITICAL_BOUNDS = {
 INSULIN_MIN, INSULIN_MAX = 0.05, 5.0  # МЕ/кг
 INSULIN_TOKENS = ('инсулин',)
 
+# ── Легальные вне-справочные дозы: продукт → причина (Task 191) ──────────────
+# Кросс-сверка идёт по INN, но у отдельных продуктов доза вне справочника
+# легальна — исключаем по имени препарата до сравнения.
+REFERENCE_EXCEPTIONS = {
+    # Цефтиофура кристаллическая кислота (CFA), 200 мг/мл: 1 мл/30 кг
+    # однократно п/к = 6,6 мг/кг, терапевтическая концентрация 7 дней.
+    # Обычный справочник [0,5-2] описывает не-CFA формы (zzr.ru 2015-12-008).
+    'Цефтонит® Форте': 'CFA-форма: 6,6 мг/кг однократно — вне обычного '
+                       'справочника цефтиофура легально',
+}
+
 # Инфузионные/электролитные — объём одного «введения» — это капельница,
 # литры легальны (КРС 5-10 л жидкостей). Объёмный кап неприменим.
 INFUSION_INN = (
@@ -708,12 +719,18 @@ def reference_check(calc_data, verified_data, ref_path, rep):
     def check_pool(data, list_mode, file_label):
         nonlocal matched
         if list_mode:
-            items = [(str(d.get('inn') or ''), d) for d in data.get('drugs_calc', [])]
+            items = [(str(d.get('inn') or ''), d, str(d.get('name') or ''))
+                     for d in data.get('drugs_calc', [])]
         else:
-            items = [(str(d.get('inn') or ''), d) for k, d in data.items()
+            items = [(str(d.get('inn') or ''), d, str(k))
+                     for k, d in data.items()
                      if isinstance(d, dict) and not str(k).startswith('_')]
-        for inn, d in items:
+        for inn, d, item_name in items:
             inn_l = inn.strip().lower()
+            # Легальные вне-справочные продукты (CFA-формы и т.п.) — Task 191
+            if any(ex_name.lower() in item_name.lower()
+                   for ex_name in REFERENCE_EXCEPTIONS):
+                continue
             # Комбинированным препаратам кросс-сверка неприменима: доза
             # относится к одному из компонентов, атрибуции нет (урок
             # «флорфеникол+мелоксикам 20 мг/кг против справочника
