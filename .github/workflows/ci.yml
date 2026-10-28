@@ -92,3 +92,18 @@ jobs:
             exit 1
           fi
           echo "✅ Версия корректна"
+
+
+  db-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: DB-гейт препаратов — числовые базы против физио-пределов (Task 182)
+        # Кейс-мотивация: «не вколоть лошадке 3 л эпинефрина». Канарейки
+        # гейтят сам валидатор; ERROR = абсурдные дозы/объёмы/видовые
+        # запреты; ACK — проверенный долг из known-issues.json.
+        run: python3 scripts/validate_drug_db.py

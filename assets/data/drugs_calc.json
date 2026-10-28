@@ -2811,7 +2811,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -2820,7 +2820,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -2828,7 +2828,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -2838,21 +2838,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -3357,7 +3360,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -3366,7 +3369,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -3375,21 +3378,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -4671,28 +4677,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -5821,7 +5831,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -5830,7 +5840,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -5839,21 +5849,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -5919,7 +5932,7 @@
       "inn": "железо+витамина В12",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": 0.1,
+      "concentration": 100.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -8129,7 +8142,7 @@
       "dose_per_kg": 0.5,
       "dose_min": 0.4,
       "dose_max": 0.6,
-      "dose_unit": "мг/кг",
+      "dose_unit": "МЕ/кг",
       "animals": [
         "КРС",
         "Собаки"
@@ -8170,7 +8183,7 @@
           "dose_per_kg": 0.5,
           "dose_min": 0.4,
           "dose_max": 0.6,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Подкожно",
           "frequency": "2 раза в день",
           "notes": "Инсулин, ЕД/кг, подбирается индивидуально"
@@ -8190,7 +8203,7 @@
       "dose_per_kg": 0.3,
       "dose_min": 0.24,
       "dose_max": 0.36,
-      "dose_unit": "мг/кг",
+      "dose_unit": "МЕ/кг",
       "animals": [
         "КРС",
         "Кошки"
@@ -8231,7 +8244,7 @@
           "dose_per_kg": 0.3,
           "dose_min": 0.24,
           "dose_max": 0.36,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Подкожно",
           "frequency": "2 раза в день",
           "notes": "Лантус, ЕД/кг"
@@ -20051,7 +20064,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -20060,7 +20073,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -20069,21 +20082,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -20762,21 +20778,24 @@
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -28070,28 +28089,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 7 дн"
@@ -28286,35 +28309,40 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -29646,21 +29674,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -31533,8 +31564,7 @@
       "dose_max": 12.0,
       "dose_unit": "мг/кг",
       "animals": [
-        "Собаки",
-        "Кошки"
+        "Собаки"
       ],
       "method": "наружно",
       "frequency": "по показаниям",
@@ -31575,15 +31605,6 @@
           "method": "Spot-on",
           "frequency": "1 раз в месяц",
           "notes": "Адвантикс"
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Spot-on",
-          "frequency": "1 раз в месяц",
-          "notes": "Адвантейдж"
         },
         "КРС": {
           "dose_per_kg": 10,
@@ -38421,7 +38442,7 @@
       "dose_per_kg": 10.0,
       "dose_min": 5,
       "dose_max": 10,
-      "dose_unit": "мл/кг",
+      "dose_unit": "мг/кг",
       "animals": [
         "Собаки",
         "Кошки",
@@ -38456,7 +38477,7 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 10,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 5,
           "dose_max": 10,
           "method": "внутривенно, подкожно",
@@ -38465,7 +38486,7 @@
         },
         "Собаки": {
           "dose_per_kg": 10,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 5,
           "dose_max": 10,
           "method": "внутривенно, подкожно",
@@ -39868,28 +39889,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -40022,7 +40047,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -40031,7 +40056,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -40039,7 +40064,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -40049,21 +40074,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -40689,21 +40717,7 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {
-        "КРС": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Бициллин, МЕ/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день"
-        }
-      }
+      "animal_specific": {}
     },
     {
       "id": 580,
@@ -41060,7 +41074,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -41069,7 +41083,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -41078,21 +41092,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -42082,21 +42099,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -43018,21 +43038,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -52901,7 +52924,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -52910,7 +52933,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -52918,7 +52941,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -52928,21 +52951,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -53925,28 +53951,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -54255,7 +54285,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -54264,28 +54294,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -57662,7 +57696,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -57671,7 +57705,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -57680,14 +57714,16 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -58950,7 +58986,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -58959,7 +58995,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -58967,7 +59003,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -58977,21 +59013,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -59628,7 +59667,7 @@
       "dose_per_kg": 0.5,
       "dose_min": 0.4,
       "dose_max": 0.6,
-      "dose_unit": "мг/кг",
+      "dose_unit": "МЕ/кг",
       "animals": [
         "Лошади",
         "Собаки",
@@ -59670,7 +59709,7 @@
           "dose_per_kg": 0.5,
           "dose_min": 0.4,
           "dose_max": 0.6,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Подкожно",
           "frequency": "2 раза в день",
           "notes": "Инсулин, ЕД/кг, подбирается индивидуально"
@@ -59679,7 +59718,7 @@
           "dose_per_kg": 0.3,
           "dose_min": 0.24,
           "dose_max": 0.36,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Подкожно",
           "frequency": "2 раза в день",
           "notes": "Лантус, ЕД/кг"
@@ -62373,7 +62412,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -62382,7 +62421,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -62391,21 +62430,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -64757,7 +64799,7 @@
       "dose_per_kg": 0.96,
       "dose_min": 0.768,
       "dose_max": 1.152,
-      "dose_unit": "мг/кг",
+      "dose_unit": "мкг/кг",
       "animals": [
         "КРС"
       ],
@@ -68523,21 +68565,7 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {
-        "КРС": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Бициллин, МЕ/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день"
-        }
-      }
+      "animal_specific": {}
     },
     {
       "id": 967,
@@ -80848,7 +80876,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -80857,7 +80885,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -80865,7 +80893,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -80875,21 +80903,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -81123,7 +81154,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -81132,7 +81163,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -81141,21 +81172,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -81939,9 +81973,9 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1.0,
-      "dose_min": 0.8,
-      "dose_max": 1.2,
+      "dose_per_kg": 0.02,
+      "dose_min": 0.016,
+      "dose_max": 0.024,
       "dose_unit": "мг/кг",
       "animals": [
         "Лошади"
@@ -87934,7 +87968,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -87943,7 +87977,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -87952,21 +87986,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -88501,7 +88538,7 @@
           "dose_per_kg": 8000,
           "dose_min": 6400.0,
           "dose_max": 9600.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Инъекционно",
           "frequency": "1 раз в день",
           "notes": "Пенистрепт, МЕ/кг пенициллина"
@@ -88510,7 +88547,7 @@
           "dose_per_kg": 8000,
           "dose_min": 6400.0,
           "dose_max": 9600.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Инъекционно",
           "frequency": "1 раз в день",
           "notes": "МЕ/кг"
@@ -93589,7 +93626,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -93598,7 +93635,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -93607,21 +93644,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -101207,7 +101247,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -101216,7 +101256,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -101235,21 +101275,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -102590,7 +102633,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -102600,28 +102643,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн"
@@ -106331,7 +106378,7 @@
           "dose_per_kg": 8000,
           "dose_min": 6400.0,
           "dose_max": 9600.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Инъекционно",
           "frequency": "1 раз в день",
           "notes": "Пенстреп"
@@ -108673,7 +108720,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -108682,7 +108729,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -108690,7 +108737,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Доза в МЕ/кг, при инфекциях ЖКТ"
@@ -108700,21 +108747,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -109509,7 +109559,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -109518,7 +109568,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -109527,21 +109577,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -110566,7 +110619,7 @@
       "dose_per_kg": 10.0,
       "dose_min": 5,
       "dose_max": 10,
-      "dose_unit": "мл/кг",
+      "dose_unit": "мг/кг",
       "animals": [
         "Собаки",
         "Кошки",
@@ -110612,7 +110665,7 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 10,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 5,
           "dose_max": 10,
           "method": "внутривенно, подкожно",
@@ -110621,7 +110674,7 @@
         },
         "Собаки": {
           "dose_per_kg": 10,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 5,
           "dose_max": 10,
           "method": "внутривенно, подкожно",
@@ -110667,21 +110720,7 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {
-        "КРС": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Бициллин, МЕ/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день"
-        }
-      }
+      "animal_specific": {}
     },
     {
       "id": 1579,
@@ -126035,7 +126074,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -126045,28 +126084,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн"
@@ -137289,21 +137332,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -138731,7 +138777,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -138740,7 +138786,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -138749,14 +138795,16 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -138987,7 +139035,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -138997,21 +139045,24 @@
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -139150,7 +139201,7 @@
       "dose_per_kg": 0.1,
       "dose_min": 0.1,
       "dose_max": 0.1,
-      "dose_unit": "мл/кг",
+      "dose_unit": "мг/кг",
       "animals": [
         "Собаки",
         "Кошки",
@@ -139184,7 +139235,7 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0.1,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 0.1,
           "dose_max": 0.1,
           "method": "внутривенно (медленно), подкожно",
@@ -139193,7 +139244,7 @@
         },
         "Лошади": {
           "dose_per_kg": 0.1,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 0.1,
           "dose_max": 0.1,
           "method": "внутривенно (медленно), подкожно",
@@ -139202,7 +139253,7 @@
         },
         "Свиньи": {
           "dose_per_kg": 0.1,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 0.1,
           "dose_max": 0.1,
           "method": "только внутримышечно",
@@ -139211,7 +139262,7 @@
         },
         "Собаки": {
           "dose_per_kg": 0.1,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 0.1,
           "dose_max": 0.1,
           "method": "внутривенно (медленно), подкожно",
@@ -139220,7 +139271,7 @@
         },
         "Кошки": {
           "dose_per_kg": 0.1,
-          "dose_unit": "мл/кг",
+          "dose_unit": "мг/кг",
           "dose_min": 0.1,
           "dose_max": 0.1,
           "method": "внутривенно (медленно), подкожно",
@@ -141196,7 +141247,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -141205,28 +141256,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -142440,7 +142495,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -142450,28 +142505,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -144438,7 +144497,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -144447,7 +144506,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -144456,14 +144515,16 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -152731,7 +152792,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -152740,28 +152801,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -154314,7 +154379,7 @@
           "dose_per_kg": 8000,
           "dose_min": 6400.0,
           "dose_max": 9600.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Инъекционно",
           "frequency": "1 раз в день",
           "notes": "Пенстреп"
@@ -155141,7 +155206,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -155151,21 +155216,24 @@
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 7 дн"
@@ -157020,7 +157088,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -157029,7 +157097,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -157038,14 +157106,16 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -158663,21 +158733,24 @@
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 7 дн | Осторожно с ионофорами (монензин, салиномицин) -交互作用!"
@@ -159600,21 +159673,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -159951,21 +160027,24 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -160412,7 +160491,7 @@
       "dose_per_kg": 0.96,
       "dose_min": 0.768,
       "dose_max": 1.152,
-      "dose_unit": "мг/кг",
+      "dose_unit": "мкг/кг",
       "animals": [
         "КРС",
         "Свиньи"
@@ -161133,7 +161212,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -161142,28 +161221,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -161978,7 +162061,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "Перорально",
           "frequency": "2 раза в день",
           "notes": "Колистин, МЕ/кг"
@@ -161987,7 +162070,7 @@
           "dose_per_kg": 50000,
           "dose_min": 40000.0,
           "dose_max": 60000.0,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "frequency": "1-2 раза в день",
           "notes": "МЕ/кг через питьевую воду"
         },
@@ -162303,35 +162386,35 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "Бензилпенициллин, МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "Кошки": {
           "dose_per_kg": 25000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "МРС": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "Собаки": {
           "dose_per_kg": 25000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
@@ -162393,28 +162476,32 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Птица": {
           "dose_per_kg": 75000,
           "dose_min": 50000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Кролики": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         },
         "Пушные звери": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки"
+          "frequency": "1 раз в сутки",
+          "dose_unit": "МЕ/кг"
         }
       },
       "withdrawal_text": "Свиньи: мясо: 14 дн | Осторожно с ионофорами (монензин, салиномицин) -交互作用!"
@@ -162462,35 +162549,35 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "Бензилпенициллин, МЕ/кг"
         },
         "Свиньи": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "Кошки": {
           "dose_per_kg": 25000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "МРС": {
           "dose_per_kg": 10000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
         },
         "Собаки": {
           "dose_per_kg": 25000,
-          "dose_unit": "мг/кг",
+          "dose_unit": "МЕ/кг",
           "method": "инъекционно",
           "frequency": "2 раза в день",
           "notes": "МЕ/кг"
@@ -162586,21 +162673,7 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {
-        "КРС": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Бициллин, МЕ/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 8000,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
-          "frequency": "1 раз в день"
-        }
-      }
+      "animal_specific": {}
     },
     {
       "id": 2336,
