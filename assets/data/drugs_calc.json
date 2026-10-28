@@ -166883,7 +166883,7 @@
       "icon": "🐝",
       "description": "Пчёлы",
       "min_weight": 0.001,
-      "max_weight": 100.0,
+      "max_weight": 5.0,
       "weight_hint": "Вес улья: 20-100 кг",
       "pregnancy_term": "Расплод",
       "gestation_days": 21,

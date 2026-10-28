@@ -13,9 +13,11 @@ build_apk:
     - export PATH="$JAVA_HOME/bin:$PATH"
     - java -version
     # Install Flutter
+    # Task 184 (M-9 аудита 183): пин синхронизирован с .github/workflows/ci.yml
+    # и release.yml — единая версия 3.27.0 (тесты и релиз больше не расходятся).
     - if [ ! -d "/opt/flutter" ]; then
         cd /opt &&
-        curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz -o flutter.tar.xz &&
+        curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.0-stable.tar.xz -o flutter.tar.xz &&
         tar xf flutter.tar.xz &&
         rm flutter.tar.xz;
       fi

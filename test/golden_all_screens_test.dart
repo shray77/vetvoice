@@ -86,11 +86,13 @@ Future<void> _loadRealFonts() async {
   // (✓⚠-подобные знаки в статусах рендерятся как в приложении).
   // ГРАБЛЯ CI (Task 176): жёсткий путь песочницы не существует у раннера —
   // шрифты молча не грузились, текст рендерился тофу. Кандидаты путей:
-  // FLUTTER_ROOT (ставит subosito/flutter-action) + песочница разработки.
+  // FLUTTER_ROOT (ставит subosito/flutter-action) + относительный фолбэк
+  // ../flutter (Task 184: без привязки к конкретной дев-машине; не
+  // существует — resolve() молча пропустит и напечатает FONT MISSING).
   final fr = Platform.environment['FLUTTER_ROOT'] ?? '';
   final sdkFonts = <String>[
     if (fr.isNotEmpty) '$fr/bin/cache/artifacts/material_fonts',
-    '/home/z/flutter/bin/cache/artifacts/material_fonts',
+    '../flutter/bin/cache/artifacts/material_fonts',
   ];
   String? resolve(String name) {
     for (final d in sdkFonts) {

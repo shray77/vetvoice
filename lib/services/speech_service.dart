@@ -59,7 +59,8 @@ class SpeechService {
       _isSTTReady = await _stt.initialize(
         onError: _handleSTTError,
         onStatus: _handleSTTStatus,
-        debugLogging: true,
+        // Task 184: шумные логи плагина не нужны в проде — только в debug-сборке.
+        debugLogging: kDebugMode,
       );
 
       if (_isSTTReady) {
@@ -651,7 +652,7 @@ class VoiceInputParser {
       'кошка', 'кошки', 'кошке', 'кошку', 'кошкой',
       'кот', 'кота', 'коту', 'котом',
       'котёнок', 'котенок', 'котенка', 'котёнка', 'котенку', 'котёнку',
-      'кис', 'киса', 'кисы', 'кису',
+      'киса', 'кисы', 'кису',
       'мурка', 'мурки', 'мурке', 'мурку',
       'кошачий', 'кошачья',
     ],
@@ -674,6 +675,13 @@ class VoiceInputParser {
     ],
   };
 
+  // Короткие кличковые алиасы: substring-матч ловит их внутри других
+  // слов («виски», «кислая»), поэтому матчим по границам слов
+  // (Task 184 — см. _containsWord).
+  static final Map<String, List<String>> _animalWordAliases = {
+    'cat': ['кис'],
+  };
+
   // ==========================================
   // ПОЛ - БЕЗ КОНФЛИКТОВ С ЖИВОТНЫМИ
   // ==========================================
@@ -685,10 +693,9 @@ class VoiceInputParser {
     // Видоспецифичные термины (те, что НЕ являются названием животного)
     'жеребец', 'жеребца', 'жеребцу',
     'селезень', 'селезня',
-    // Производные
-    'он', 'его', 'нему',
+    // Производные — местоимения вынесены в _malePronouns (границы слов)
   ];
-  
+
   static final List<String> _femaleKeywords = [
     // Общие термины для самки
     'самка', 'самки', 'самке', 'самку', 'самкой',
@@ -699,9 +706,14 @@ class VoiceInputParser {
     'стельн', 'стельная', 'стельность',
     'яжереб', 'жеребая', 'жеребость',
     'супорос', 'супоросная', 'суягность', 'суягная',
-    // Производные
-    'она', 'её', 'ее', 'ней',
+    // Производные — местоимения вынесены в _femalePronouns (границы слов)
   ];
+
+  // Местоимения пола: substring-матч ловит их внутри других слов
+  // («энрофлон» содержит «он», «коней» — «ней»), поэтому матчим
+  // по границам слов (Task 184 — см. _containsWord).
+  static final List<String> _malePronouns = ['он', 'его', 'нему'];
+  static final List<String> _femalePronouns = ['она', 'её', 'ее', 'ней'];
 
   // ==========================================
   // ВОЗРАСТ - КЛЮЧЕВЫЕ СЛОВА
@@ -1017,6 +1029,18 @@ class VoiceInputParser {
     return prevRow[b.length];
   }
 
+  /// Матчинг [word] по границам слов (Task 184): \b в Dart RegExp —
+  /// ASCII-only и для кириллицы не срабатывает, поэтому «не-буква»
+  /// описана явным классом. Нужен коротким ключам ('он', 'кис'),
+  /// которые substring-матч ловит внутри других слов.
+  static bool _containsWord(String lower, String word) {
+    final re = RegExp(
+      '(^|[^a-zа-яё])' + RegExp.escape(word) + r'($|[^a-zа-яё])',
+      caseSensitive: false,
+    );
+    return re.hasMatch(lower);
+  }
+
   /// Ищет животное в голосовом вводе
   static AnimalMatch? findAnimal(String input) {
     final lower = input.toLowerCase();
@@ -1024,6 +1048,18 @@ class VoiceInputParser {
     for (final entry in _animalKeywords.entries) {
       for (final alias in entry.value) {
         if (lower.contains(alias)) {
+          return AnimalMatch(
+            id: entry.key,
+            matchedAlias: alias,
+          );
+        }
+      }
+    }
+
+    // Короткие кличковые алиасы — по границам слов (см. _animalWordAliases)
+    for (final entry in _animalWordAliases.entries) {
+      for (final alias in entry.value) {
+        if (_containsWord(lower, alias)) {
           return AnimalMatch(
             id: entry.key,
             matchedAlias: alias,
@@ -1048,10 +1084,30 @@ class VoiceInputParser {
         );
       }
     }
+
+    // Женские местоимения — по границам слов (см. _femalePronouns)
+    for (final keyword in _femalePronouns) {
+      if (_containsWord(lower, keyword)) {
+        return GenderMatch(
+          gender: VoiceGender.female,
+          matchedAlias: keyword,
+        );
+      }
+    }
     
     // Потом мужской
     for (final keyword in _maleKeywords) {
       if (lower.contains(keyword)) {
+        return GenderMatch(
+          gender: VoiceGender.male,
+          matchedAlias: keyword,
+        );
+      }
+    }
+
+    // Мужские местоимения — по границам слов (см. _malePronouns)
+    for (final keyword in _malePronouns) {
+      if (_containsWord(lower, keyword)) {
         return GenderMatch(
           gender: VoiceGender.male,
           matchedAlias: keyword,

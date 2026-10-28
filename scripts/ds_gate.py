@@ -84,12 +84,10 @@ def main():
             continue
         ct = core["themes"][th]
         for name, val in d.items():
+            # camelCase → kebab: borderStrong→border-strong, surface2→surface2.
+            # (Task 184: спец-ветки для этих форм были мёртвыми — регекс
+            # уже даёт их, ветки были тождественными no-op.)
             kebab = re.sub(r'([A-Z])', lambda m: '-' + m.group(1).lower(), name).lstrip('-')
-            kebab = ('border-strong' if kebab == 'border-strong'
-                     else 'accent-strong' if kebab == 'accent-strong'
-                     else 'accent-ink' if kebab == 'accent-ink'
-                     else 'accent-text' if kebab == 'accent-text'
-                     else 'surface2' if kebab == 'surface2' else kebab)
             if name in ACCENT_TRIPLE:
                 continue                    # характер приложения
             if kebab in ct and ct[kebab][1:].upper() != val:

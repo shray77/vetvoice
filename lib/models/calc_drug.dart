@@ -534,7 +534,12 @@ class CalcDrug {
         if (lowerW.contains('самц') || lowerW.contains('кабел') || lowerW.contains('производител')) {
           if (gender != 'male') continue; // Пропускаем предупреждения для самцов
         }
-        if (lowerW.contains('самк') || lowerW.contains('тёлк') || lowerW.contains('сука') || lowerW.contains('кошка') && lowerW.contains('беремен')) {
+        // Task 184: скобки вокруг последнего звена — без них приоритет
+        // && резал выражение как a || b || (c && d) «случайно верно».
+        if (lowerW.contains('самк') ||
+            lowerW.contains('тёлк') ||
+            lowerW.contains('сука') ||
+            (lowerW.contains('кошка') && lowerW.contains('беремен'))) {
           if (gender != 'female') continue; // Пропускаем предупреждения для самок
         }
         warnings.add(w);

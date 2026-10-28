@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.21.0+34  # v1.21.0: vet-ds v2.3.2 «Научная периодика» (голос A + зелёный характер) — lib/theme/ds.dart
+version: 1.21.0+34  # v1.21.0: vet-ds v2.4.1 «Научная периодика» (голос A + зелёный характер) — lib/theme/ds.dart
 
 environment:
   sdk: ^3.5.0
@@ -39,7 +39,7 @@ flutter:
     - assets/data/
     - assets/data/advanced/
 
-  # vet-ds v2.3.2 (голос A «Научная периодика»): Inter — текст и цифры
+  # vet-ds v2.4.1 (голос A «Научная периодика»): Inter — текст и цифры
   # данных (tabular-nums, конвенция .ds-body ядра), Prata — дисплей-
   # заголовки (serif периодики; прецедент VetOS Task 166). Бандл —
   # приложение оффлайн, кириллица включена в оба семейства. Manrope

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Перевод vet-ds v2.3.4 в Material-слой VetVoice: голос A «Научная
+/// Перевод vet-ds v2.4.1 в Material-слой VetVoice: голос A «Научная
 /// периодика» — A-light «бумага» (дефолт) + A-dark «Вечерний номер».
 ///
 /// Источник токенов — vet-ds/vet-ds.css, блоки :root и [data-theme="dark"].
 ///
-/// v2.3.4 (Task 176): синхрон с ядром через scripts/ds_gate.py — гейт парсит
+/// v2.4.1: синхрон с ядром через scripts/ds_gate.py — гейт парсит
 /// этот файл против design/tokens.json (срез ядра из vet-ds). Поймал и закрыл
 /// дрейф border-strong v2.3.2 (рамки инпутов были 1.5–1.7:1 — §1.4.11).
 /// VetVoice — полевой справочник («читаешь»: дозы, препараты, болезни),

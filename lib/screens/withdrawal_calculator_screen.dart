@@ -38,10 +38,19 @@ class WithdrawalCalculatorScreen extends StatefulWidget {
   /// (Task 178–179: вскрыто снятием continue-on-error в CI).
   final DateTime? initialDate;
 
+  /// Границы пикера дат для тестов (Task 184): при инъектированном
+  /// [initialDate] живые firstDate/lastDate от DateTime.now() рано или
+  /// поздно дают initialDate > lastDate — assert showDatePicker при
+  /// открытии пикера. null — прежнее живое окно (год назад … +30 дней).
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
   const WithdrawalCalculatorScreen({
     super.key,
     required this.vetProvider,
     this.initialDate,
+    this.firstDate,
+    this.lastDate,
   });
 
   @override
@@ -55,6 +64,11 @@ class _WithdrawalCalculatorScreenState
   String _selectedAnimal = 'КРС';
   // детерминизм голденов: инъекция или «сегодня» (см. виджет выше)
   late DateTime _applicationDate = widget.initialDate ?? DateTime.now();
+  // границы пикера: инъекция или живое окно (см. firstDate/lastDate)
+  DateTime get _pickerFirstDate =>
+      widget.firstDate ?? DateTime.now().subtract(const Duration(days: 365));
+  DateTime get _pickerLastDate =>
+      widget.lastDate ?? DateTime.now().add(const Duration(days: 30));
   List<WithdrawalResult> _results = [];
 
   final List<String> _productAnimals = [
@@ -176,8 +190,11 @@ class _WithdrawalCalculatorScreenState
                   // v1.19.0: русская локаль (flutter_localizations в main) —
                   // календарь «31 декабря 2026» вместо «31 Dec 2026».
                   initialDate: _applicationDate,
-                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                  lastDate: DateTime.now().add(const Duration(days: 30)),
+                  // Task 184: границы инъектируемы (см. firstDate/lastDate) —
+                  // иначе при injected initialDate пикер ловит assert
+                  // «initialDate > lastDate» после ухода «сегодня» за окно.
+                  firstDate: _pickerFirstDate,
+                  lastDate: _pickerLastDate,
                 );
                 if (date != null) {
                   // Фаза 3: дата принята — подтверждение хаптиком.

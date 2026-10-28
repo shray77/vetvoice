@@ -23,6 +23,19 @@ jobs:
       - name: DS-гейт v2 — ds.dart против design/tokens.json (дрейф ядра = красный)
         run: python3 scripts/ds_gate.py
 
+      - name: Const-audit Dart — геттеры AppTheme внутри const (AOT-падение) и баланс скобок
+        # Task 184 (M-5 аудита 183): гейт существовал, но не был подключён —
+        # ловил только локальные запуски. Секундный, гонять на каждый push.
+        run: python3 scripts/dart_const_audit.py lib --balance
+
+      - name: Kotlin lint — баланс скобок/комментариев (kotlin_lint.py)
+        # Task 184 (M-5 аудита 183): kt-файлы вне flutter analyze, гейт
+        # проверяет их синтаксический баланс (незакрытые /* */ и {}).
+        run: |
+          for f in $(find android -name '*.kt' -type f | sort); do
+            python3 scripts/kotlin_lint.py "$f"
+          done
+
 
   analyze:
     runs-on: ubuntu-latest

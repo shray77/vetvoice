@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/ds.dart';
 
-/// VetVoice AI — v1.21.0: дизайн-система экосистемы vet-ds v2.3.2,
+/// VetVoice AI — v1.21.0: дизайн-система экосистемы vet-ds v2.4.1,
 /// голос A «Научная периодика» (A-light «бумага» / A-dark «Вечерний номер»),
 /// зелёный характер бренда поверх ядра — см. lib/theme/ds.dart (DsLight/DsDark).
 /// Сырые константы ниже — алиасы токенов DS: экраны сидят на прежних именах
@@ -250,8 +250,9 @@ class AppTheme {
       spreadRadius: 2,
     ),
   ];
-  /// Полная шкала типографики. Inter — body/title/label, Manrope —
-  /// display/headline (заголовки и крупные цифры дозы, tabular figures).
+  /// Полная шкала типографики. Inter — body/title/label и display
+  /// (крупные цифры дозы, tabular figures), Prata — headline
+  /// (заголовки-витрины периодики; Manrope снят в v1.21.0 — см. pubspec).
   static TextTheme _textTheme({
     required Color headline,
     required Color body,

@@ -72,6 +72,11 @@ class ActiveSubstanceDosage {
   final AnimalDosage? sheep;
   final AnimalDosage? horses;
   final AnimalDosage? poultry;
+  // Task 184: ключи есть в dosage_database.json (12/2/17 МНН-записей),
+  // но не парсились — для Кроликов/Пушных/Рыб ветка всегда «не найдена».
+  final AnimalDosage? rabbits;
+  final AnimalDosage? fish;
+  final AnimalDosage? minks;
 
   const ActiveSubstanceDosage({
     this.dogs,
@@ -81,6 +86,9 @@ class ActiveSubstanceDosage {
     this.sheep,
     this.horses,
     this.poultry,
+    this.rabbits,
+    this.fish,
+    this.minks,
   });
 
   factory ActiveSubstanceDosage.fromJson(Map<String, dynamic> json) {
@@ -106,6 +114,15 @@ class ActiveSubstanceDosage {
       poultry: json['poultry'] != null
           ? AnimalDosage.fromJson(json['poultry'] as Map<String, dynamic>)
           : null,
+      rabbits: json['rabbits'] != null
+          ? AnimalDosage.fromJson(json['rabbits'] as Map<String, dynamic>)
+          : null,
+      fish: json['fish'] != null
+          ? AnimalDosage.fromJson(json['fish'] as Map<String, dynamic>)
+          : null,
+      minks: json['minks'] != null
+          ? AnimalDosage.fromJson(json['minks'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -119,6 +136,9 @@ class ActiveSubstanceDosage {
     if (lower.contains('овц') || lower.contains('sheep')) return sheep;
     if (lower.contains('лошад') || lower.contains('horse')) return horses;
     if (lower.contains('птиц') || lower.contains('poultry') || lower.contains('куриц')) return poultry;
+    if (lower.contains('кролик') || lower.contains('rabbit')) return rabbits;
+    if (lower.contains('норк') || lower.contains('mink') || lower.contains('пушн')) return minks;
+    if (lower.contains('рыб') || lower.contains('fish')) return fish;
     return null;
   }
 
@@ -132,6 +152,9 @@ class ActiveSubstanceDosage {
     if (sheep != null) list.add('Овцы');
     if (horses != null) list.add('Лошади');
     if (poultry != null) list.add('Птица');
+    if (rabbits != null) list.add('Кролики');
+    if (minks != null) list.add('Пушные звери');
+    if (fish != null) list.add('Рыбы');
     return list;
   }
 }

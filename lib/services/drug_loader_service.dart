@@ -701,7 +701,7 @@ class DrugLoaderService {
   // ============================================================
 
   /// jsonDecode с выносом тяжёлых файлов в background-isolate.
-  static Future<Map<String, dynamic>> _decodeMap(String raw, {String hint = ''}) async {
+  static Future<Map<String, dynamic>> _decodeMap(String raw) async {
     if (raw.length > _isolateDecodeThreshold) {
       return compute(_decodeJsonInIsolate, raw);
     }
@@ -712,7 +712,7 @@ class DrugLoaderService {
   static Future<List<Animal>> _loadLocalAnimals() async {
     try {
       final str = await rootBundle.loadString('assets/data/drugs_calc.json');
-      final json = await _decodeMap(str, hint: 'animals');
+      final json = await _decodeMap(str);
       final animalsRaw = json['animals'] as List<dynamic>?;
       if (animalsRaw == null) return [];
       final animals = <Animal>[];
@@ -734,7 +734,7 @@ class DrugLoaderService {
   static Future<Map<String, dynamic>?> loadJsonAsset(String path) async {
     try {
       final str = await rootBundle.loadString(path);
-      return await _decodeMap(str, hint: path.split('/').last);
+      return await _decodeMap(str);
     } catch (e) {
       debugPrint('Error loading $path: $e');
       return null;
