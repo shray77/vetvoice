@@ -1062,7 +1062,7 @@
       "inn": "гонадорелин",
       "form": "Раствор для инъекций",
       "form_type": "vaccine",
-      "concentration": 50.0,
+      "concentration": 0.05,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -1080,7 +1080,7 @@
       "course_days": "однократно",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "По инструкции (доза на животное, не зависит от веса)"
+        "КРС": "50 мкг (1 мл) на корову в/м, схемы по инструкции"
       },
       "calculator_applicable": false,
       "contraindications": {
@@ -1098,13 +1098,13 @@
       "indications": "Назначают для повышения оплодотворяемости и лечения гинекологических болезней (гипофункция яичников и фолликулярные кисты) у коров.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 0.004,
-          "dose_min": 0.003,
-          "dose_max": 0.005,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз",
-          "notes": "Сурфагон, при синхронизации"
+          "dose_per_kg": 0,
+          "dose_min": 10,
+          "dose_max": 50,
+          "dose_unit": "fixed",
+          "method": "внутримышечно",
+          "frequency": "по схеме",
+          "notes": "10-50 мкг на голову (доза на животное, не на кг)"
         },
         "Кошки": {
           "dose_per_kg": 0.01,
@@ -6962,7 +6962,7 @@
       "inn": "гонадорелин",
       "form": "Раствор для инъекций",
       "form_type": "vaccine",
-      "concentration": 0.001,
+      "concentration": 0.01,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -6978,7 +6978,7 @@
       "course_days": "однократно",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "10 мкг (2 мл) в/м однократно"
+        "КРС": "10-50 мкг (1-5 мл) на корову в/м, схемы по инструкции"
       },
       "calculator_applicable": false,
       "contraindications": {
@@ -6996,18 +6996,18 @@
       "indications": "Назначают для повышения оплодотворяемости и лечения гинекологических болезней (гипофункция яичников и фолликулярные кисты) у коров.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 0.004,
-          "dose_min": 0.003,
-          "dose_max": 0.005,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз",
-          "notes": "Сурфагон, при синхронизации"
+          "dose_per_kg": 0,
+          "dose_min": 10,
+          "dose_max": 50,
+          "dose_unit": "fixed",
+          "method": "внутримышечно",
+          "frequency": "по схеме",
+          "notes": "10-50 мкг на голову; схемы по инструкции (синхронизация, кисты и пр.)"
         }
       },
       "vaccine_specific": {
         "single_dose_ml": null,
-        "single_dose_text": "0,001 мг",
+        "single_dose_text": "10 мкг в 1 мл",
         "doses_per_vial": null,
         "doses_per_vial_options": [],
         "route": "",
@@ -42040,24 +42040,27 @@
       "inn": "линкомицин, колистин, бромгексин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": 3.0,
+      "concentration": 100.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Свиньи",
         "Птица"
       ],
-      "method": "внутрь",
-      "frequency": "2 раза в день",
+      "method": "внутрь (с питьевой водой)",
+      "frequency": "1-2 раза в день",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
-      "fixed_dose": null,
-      "calculator_applicable": true,
+      "fixed_dose": {
+        "Свиньи": "поросятам до 3 кг — 1 мл 1 раз/сут 5 дней; 3-5 кг — 1 мл 2 раза/сут 3 дня",
+        "Птица": "1 мл на 2 л питьевой воды, 3-5 дней"
+      },
+      "calculator_applicable": false,
       "contraindications": {
         "warnings": [
           "Нарушение функции почек. НЕФРОТОКСИЧЕН и НЕЙРОТОКСИЧЕН в высоких дозах. Не применять одновременно с аминогликозидами."
@@ -42079,44 +42082,24 @@
       "indications": "назначают поросятам, цыплятам-бройлерам и ремонтному молодняку кур при желудочно-кишечных инфекциях, вызванных: Escherichia coli. Pseudomonas aeruginosa, Haemophilus spp.. Salmonella spp., Pasteurella spp.. Staphylococcus spp. и Streptococcus spp., Enterobacter spp., a также при респираторных заболеваниях вызванных грамположительными бактериями: Staphylococcus spp.. Streptococcus spp. (в т.ч. Streptococcus pneumoniae), Corynebacterium diphtheriae (за исключением Enterococcus faecalis); анаэробными спорообразующими бактериями Clostridium spp., a также грамотрицательными анаэробными бактериями Bacteroides spp.",
       "animal_specific": {
         "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Линкомицин-200"
+          "dose_per_kg": 0,
+          "dose_min": 1,
+          "dose_max": 1,
+          "dose_unit": "fixed",
+          "method": "перорально (с водой)",
+          "frequency": "1-2 раза в день",
+          "notes": "до 3 кг: 1 мл/сут 5 дн; 3-5 кг: 1 мл 2 р/сут 3 дн",
+          "course_days": "3-5 дней"
         },
         "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 16.0,
-          "dose_max": 24.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день"
-        },
-        "КРС": {
-          "dose_per_kg": 50000,
-          "dose_min": 25000,
-          "dose_max": 100000,
+          "dose_per_kg": 0,
+          "dose_min": 1,
+          "dose_max": 1,
+          "dose_unit": "fixed",
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
-        },
-        "Кролики": {
-          "dose_per_kg": 50000,
-          "dose_min": 25000,
-          "dose_max": 100000,
-          "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
-        },
-        "Пушные звери": {
-          "dose_per_kg": 50000,
-          "dose_min": 25000,
-          "dose_max": 100000,
-          "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "1 раз в день",
+          "notes": "1 мл на 2 л питьевой воды",
+          "course_days": "3-5 дней"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -61744,23 +61727,23 @@
       "inn": "флорфеникол, мелоксикам",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": 5.0,
+      "concentration": 400.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 20.0,
-      "dose_min": 16.0,
-      "dose_max": 24.0,
+      "dose_per_kg": 40,
+      "dose_min": 40,
+      "dose_max": 40,
       "dose_unit": "мг/кг",
       "animals": [
         "КРС"
       ],
-      "method": "инъекционно",
-      "frequency": "1 раз в день",
-      "course_days": "3-5 дней",
-      "withdrawal_days": 28,
+      "method": "подкожно",
+      "frequency": "однократно",
+      "course_days": "однократно",
+      "withdrawal_days": 56,
       "fixed_dose": {
-        "КРС": "2 мл в/м однократно"
+        "КРС": "1 мл на 10 кг массы подкожно, однократно"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -61785,33 +61768,19 @@
       "indications": "применяют крупному рогатому скоту для лечения респираторных болезней бактериальной этиологии, вызванных чувствительными  к флорфениколу микроорганизмами",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 20,
-          "dose_min": 16.0,
-          "dose_max": 24.0,
+          "dose_per_kg": 40,
+          "dose_min": 40,
+          "dose_max": 40,
           "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Ресфлор"
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно (шея)",
-          "frequency": "2 раза с интервалом 48ч"
-        },
-        "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 15,
-          "dose_max": 30,
-          "method": "перорально (с водой)",
-          "frequency": "1-2 раза в сутки"
+          "method": "подкожно",
+          "frequency": "однократно",
+          "notes": "Зелерис (Ceva): флорфеникол 400 мг/мл + мелоксикам; 1 мл/10 кг п/к однократно, только КРС"
         }
       },
       "pregnancy_contraindicated_animals": [
         "КРС"
       ],
-      "withdrawal_text": "КРС: мясо: 30 дн, молоко: НЕ ДЛЯ ДОЙНЫХ! дн | Длительный срок! Планировать заранее."
+      "withdrawal_text": "КРС: мясо: 56 дн, молоко: НЕ ДЛЯ ДОЙНЫХ!"
     },
     {
       "id": 874,
@@ -64832,9 +64801,9 @@
           "dose_per_kg": 0.96,
           "dose_min": 0.768,
           "dose_max": 1.152,
-          "dose_unit": "мг/кг",
+          "dose_unit": "мкг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Геставет Прост"
+          "notes": "0,25 мг D-клопростенола/мл: 2 мл (0,5 мг) на корову в/м однократно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -69519,14 +69488,14 @@
       "inn": "бутафосфан, цианокобаламин",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": 0.05,
+      "concentration": 100.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "Лошади",
@@ -69537,19 +69506,20 @@
         "Пушные звери",
         "Кролики"
       ],
-      "method": "внутримышечно, внутривенно",
-      "frequency": "1-2 раза в день",
+      "method": "внутримышечно, подкожно, внутривенно",
+      "frequency": "1 раз в сутки",
       "course_days": "2-3 дня",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "25.0 мл",
-        "Лошади": "25.0 мл",
-        "Свиньи": "10.0 мл",
-        "Собаки": "5.0 мл",
-        "Кошки": "2.0 мл",
-        "Пушные звери": "2.5 мл"
+        "КРС": "10-25 мл на животное",
+        "Лошади": "10-25 мл на животное",
+        "Свиньи": "взрослым 2,5-10 мл; поросятам 1-2,5 мл",
+        "Собаки": "0,5-5 мл на животное",
+        "Кошки": "0,5-2,5 мл на животное",
+        "Пушные звери": "0,5-2,5 мл на животное",
+        "Птица": "2-3 мл на 1 л питьевой воды (куры); цыплята 1-1,5 мл/л"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -69565,75 +69535,76 @@
       "indications": "Назначают крупному и мелкому рогатому скоту, лошадям, свиньям, собакам, кошкам, пушным зверям и сельскохозяйственной птице при нарушениях обмена веществ различной этиологии, а также в качестве стимулирующего и тонизирующего средства: - для повышения сопротивляемости организма к заболеваниям различной этиологии; - как дополнительное средство при лечении заболеваний, обусловленных недостатком в организме кальция и магния; - в целях активизации родовой деятельности и профилактики послеродовых осложнений (тетания матки, родовой парез); - при тяжелых физических нагрузках и повышенной физической активности у спортивных лошадей (за 2-3 дня до соревнований).",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-3 раза с интервалом",
-          "notes": "Катозал, 1 раз в 1-3 дня"
+          "dose_per_kg": 0,
+          "dose_min": 10,
+          "dose_max": 25,
+          "dose_unit": "fixed",
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "10-25 мл на животное; при хроническом течении — 1/2 дозы"
         },
         "Лошади": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-3 раза"
+          "dose_per_kg": 0,
+          "dose_min": 10,
+          "dose_max": 25,
+          "dose_unit": "fixed",
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "10-25 мл на животное"
         },
         "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-3 раза"
+          "dose_per_kg": 0,
+          "dose_min": 2.5,
+          "dose_max": 10,
+          "dose_unit": "fixed",
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "взрослым 2,5-10 мл; поросятам-сосунам 1-2,5 мл"
         },
         "Птица": {
           "dose_per_kg": 0,
-          "dose_min": 2.5,
-          "dose_max": 5.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1-2 раза в день",
-          "route": "внутримышечно, внутривенно",
-          "notes": "2.5-5 мг/кг",
-          "course_days": "2-3 дня"
+          "dose_min": 1,
+          "dose_max": 3,
+          "dose_unit": "fixed",
+          "method": "перорально (с питьевой водой)",
+          "frequency": "1 раз в сутки",
+          "notes": "куры 2-3 мл/л воды; цыплята 1-1,5 мл/л"
         },
         "Собаки": {
-          "dose_per_kg": 5,
-          "dose_min": 4.0,
-          "dose_max": 6.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-3 раза"
+          "dose_per_kg": 0,
+          "dose_min": 0.5,
+          "dose_max": 5,
+          "dose_unit": "fixed",
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "0,5-5 мл на животное"
         },
         "Кошки": {
-          "dose_per_kg": 5,
-          "dose_min": 4.0,
-          "dose_max": 6.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-3 раза"
+          "dose_per_kg": 0,
+          "dose_min": 0.5,
+          "dose_max": 2.5,
+          "dose_unit": "fixed",
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "0,5-2,5 мл на животное"
         },
         "Пушные звери": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.5,
+          "dose_max": 2.5,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "внутримышечно, внутривенно",
-          "notes": "2,5 мл/10 кг массы тела, в/м, 1 раз в сутки, 3-5 дней",
-          "course_days": "2-3 дня"
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "0,5-2,5 мл (2,5 мл на 10 кг массы)"
         },
         "Кролики": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.5,
+          "dose_max": 2.5,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "внутримышечно, внутривенно",
-          "notes": "2,5 мл/10 кг массы тела, в/м, 1 раз в сутки, 3-5 дней",
-          "course_days": "2-3 дня"
+          "method": "в/м, п/к, в/в",
+          "frequency": "1 раз в сутки",
+          "notes": "0,5-2,5 мл на 10 кг массы"
         }
       }
     },
@@ -71299,10 +71270,10 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "Лошади",
@@ -71310,18 +71281,18 @@
         "Собаки",
         "Кошки"
       ],
-      "method": "по инструкции",
-      "frequency": "1–2 раза в сутки",
+      "method": "наружно/местно",
+      "frequency": "1-2 раза в сутки",
       "course_days": "по инструкции",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "по инструкции препарата",
-        "Лошади": "по инструкции препарата",
-        "Свиньи": "по инструкции препарата",
-        "Собаки": "по инструкции препарата",
-        "Кошки": "по инструкции препарата"
+        "КРС": "наружно на повреждённый участок 1-2 раза в сутки",
+        "Лошади": "наружно на повреждённый участок 1-2 раза в сутки",
+        "Свиньи": "наружно на повреждённый участок 1-2 раза в сутки",
+        "Собаки": "наружно на повреждённый участок 1-2 раза в сутки",
+        "Кошки": "наружно на повреждённый участок 1-2 раза в сутки"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -71337,50 +71308,49 @@
       "indications": "Применяют собакам и кошкам, а также крупному рогатому скоту, лошадям и свиньям наружно или местно для стимулирования регенерации при лечении повреждений и воспалительных процессов кожи, серозных и слизистых оболочек различной этиологии, включая: • заболевания глаз (в том числе кератит, конъюнктивит, увеит); • заболевания полости рта и носа (в том числе стоматит, гингивит, пародонтит, ринит, синусит); • раны, ожоги, язвы, укусы, раздражения, трещины, обморожения, пролежни; • постоперационные хирургические раны. Применение  повышает эффективность и сокращает сроки лечения, а также предотвращает развитие осложнений.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "КРС, 3-5 дней"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно",
+          "frequency": "1-2 раза в сутки",
+          "notes": "на повреждённый участок кожи/слизистых; дозы на площадь, не на массу"
         },
         "Лошади": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
-          "frequency": "1–2 раза в сутки",
-          "route": "по инструкции",
-          "notes": "по инструкции препарата",
-          "course_days": "по инструкции"
+          "method": "местно",
+          "frequency": "1-2 раза в сутки",
+          "notes": "на повреждённый участок кожи/слизистых; дозы на площадь, не на массу"
         },
         "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Свиньи, 3-5 дней"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно",
+          "frequency": "1-2 раза в сутки",
+          "notes": "на повреждённый участок кожи/слизистых; дозы на площадь, не на массу"
         },
         "Собаки": {
-          "dose_per_kg": 12.5,
-          "dose_min": 10.0,
-          "dose_max": 15.0,
-          "dose_unit": "мг/кг",
-          "method": "Перорально",
-          "frequency": "2 раза в день",
-          "notes": "Пенициллиновый антибиотик широкого спектра"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно",
+          "frequency": "1-2 раза в сутки",
+          "notes": "на повреждённый участок кожи/слизистых; дозы на площадь, не на массу"
         },
         "Кошки": {
-          "dose_per_kg": 12.5,
-          "dose_min": 10.0,
-          "dose_max": 15.0,
-          "dose_unit": "мг/кг",
-          "method": "Перорально",
-          "frequency": "2 раза в день",
-          "notes": "Пенициллиновый антибиотик широкого спектра"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно",
+          "frequency": "1-2 раза в сутки",
+          "notes": "на повреждённый участок кожи/слизистых; дозы на площадь, не на массу"
         }
       }
     },
@@ -74899,22 +74869,23 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
-      "dose_per_kg": 0.5,
-      "dose_min": 0.4,
-      "dose_max": 0.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Птица",
         "КРС"
       ],
-      "method": "внутрь, внутримышечно",
-      "frequency": "1-2 раза в день",
-      "course_days": "5-10 дней",
+      "method": "внутрь (с кормом или питьевой водой)",
+      "frequency": "1 раз в день",
+      "course_days": "4-8 дней",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "Птица": "по инструкции (с кормом)"
+        "Птица": "по инструкции: 125-250 г/1000 л воды или 250-500 г/т корма",
+        "КРС": "по инструкции: 250-500 г/т корма или 125-250 г/1000 л воды"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "warnings": [
           "Гипервитаминоз A."
@@ -74936,33 +74907,39 @@
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "внутрь, внутримышечно",
-          "notes": "по инструкции (с кормом)",
-          "course_days": "5-10 дней"
+          "method": "внутрь (с кормом/водой)",
+          "frequency": "1 раз в день",
+          "notes": "125-250 г/1000 л воды или 250-500 г/т корма, 4-8 дней",
+          "course_days": "4-8 дней"
         },
         "КРС": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.4,
-          "dose_max": 0.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "по схеме",
-          "notes": "Витамин А"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутрь (с кормом/водой)",
+          "frequency": "1 раз в день",
+          "notes": "250-500 г/т корма или 125-250 г/1000 л воды",
+          "course_days": "4-8 дней"
         },
         "Свиньи": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
-          "method": "внутримышечно",
-          "frequency": "по схеме"
+          "dose_unit": "fixed",
+          "method": "внутрь (с кормом/водой)",
+          "frequency": "1 раз в день",
+          "notes": "по инструкции (с кормом или водой)",
+          "course_days": "4-8 дней"
         },
         "Собаки": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
-          "method": "перорально",
-          "frequency": "по схеме"
+          "dose_unit": "fixed",
+          "method": "внутрь (с кормом)",
+          "frequency": "по схеме",
+          "notes": "по инструкции"
         }
       }
     },
@@ -94397,17 +94374,17 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 3,
-      "dose_min": 2.4,
-      "dose_max": 3.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "Лошади",
         "Собаки",
         "Кошки"
       ],
-      "method": "местно в глаз",
+      "method": "местно в глаз/нос",
       "frequency": "2-3 раза в день",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
@@ -94417,7 +94394,7 @@
         "Собаки": "1-2 капли в глаз/нос",
         "Кошки": "1 капля в глаз/нос"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": true,
         "lactation": true,
@@ -94444,54 +94421,44 @@
       "indications": "применяют собакам и кошкам для лечения острых и хронических конъюнктивитов, кератитов, кератоко-конъюнктивитов, блефаритов, иридоциклитов, дакриоциститов, септических язв роговицы, ринитов, устранения вторичной бактериальной микрофлоры при лечении вирусных болезней, поражающих глаза и нос, санации и обеззараживания ран конъюнктивы, век, крыльев носа, носовых ходов, профилактики и лечения бактериальных инфекций после травм и попадания инородных тел в глаза и нос, профилактики и лечения бактериальных инфекций глаз и носа до и после хирургических вмешательств, лечения поверхностных дерматитов области вокруг глаз и носа бактериальной этиологии",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 3,
-          "dose_min": 2.4,
-          "dose_max": 3.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-2 раза в день",
-          "notes": "Гентам"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно в глаз/нос",
+          "frequency": "2-3 раза в день",
+          "notes": "2-3 капли в глаз/нос",
+          "course_days": "3-5 дней"
         },
         "Лошади": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
+          "method": "местно в глаз/нос",
           "frequency": "2-3 раза в день",
-          "route": "местно в глаз",
-          "notes": "2-4 мг/кг",
+          "notes": "2-3 капли в глаз/нос",
           "course_days": "3-5 дней"
         },
         "Собаки": {
-          "dose_per_kg": 3,
-          "dose_min": 2.4,
-          "dose_max": 3.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день",
-          "notes": "Гентамагент"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно в глаз/нос",
+          "frequency": "2-3 раза в день",
+          "notes": "1-2 капли в глаз/нос",
+          "course_days": "3-5 дней"
         },
         "Кошки": {
-          "dose_per_kg": 3,
-          "dose_min": 2.4,
-          "dose_max": 3.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
-        },
-        "Свиньи": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки"
-        },
-        "Птица": {
-          "dose_per_kg": 5,
-          "dose_min": 3,
-          "dose_max": 10,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "местно в глаз/нос",
+          "frequency": "2-3 раза в день",
+          "notes": "1 капля в глаз/нос",
+          "course_days": "3-5 дней"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -99160,23 +99127,23 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 4,
-      "dose_min": 2,
-      "dose_max": 6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Собаки",
         "Пушные звери",
         "Кролики"
       ],
-      "method": "внутрь",
-      "frequency": "1 раз в день",
+      "method": "местно в каждое ухо",
+      "frequency": "2 раза в день",
       "course_days": "4-8 недель",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "Собаки": "3-5 капель в ухо"
+        "Собаки": "3-5 капель в каждое ухо"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": true,
         "lactation": true,
@@ -99202,63 +99169,31 @@
       "indications": "для лечения острых и хронических форм отита, поверхностных дерматитов наружного уха и слухового прохода бактериальной, грибковой и паразитарной этиологии у собак, кошек и пушных зверей и для снятия аллергических реакций",
       "animal_specific": {
         "Собаки": {
-          "dose_per_kg": 14.0,
+          "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "20-40 мг/кг",
-          "course_days": "4-8 недель",
-          "method": "внутримышечно"
+          "dose_unit": "fixed",
+          "method": "местно в ухо",
+          "frequency": "2 раза в день",
+          "notes": "3-5 капель в каждое ухо"
         },
         "Пушные звери": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "0,1-0,5 мг/кг, в/м/в/в, по показаниям",
-          "course_days": "4-8 недель"
-        },
-        "Кошки": {
-          "dose_per_kg": 3,
-          "dose_min": 2,
-          "dose_max": 4,
-          "method": "внутримышечно / подкожно",
-          "frequency": "2 раза в сутки"
-        },
-        "КРС": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки"
-        },
-        "Свиньи": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки"
-        },
-        "Птица": {
-          "dose_per_kg": 5,
-          "dose_min": 3,
-          "dose_max": 10,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки"
+          "method": "местно в ухо",
+          "frequency": "2 раза в день",
+          "notes": "по инструкции"
         },
         "Кролики": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "0,1-0,5 мг/кг, в/м/в/в, по показаниям",
-          "course_days": "4-8 недель"
+          "method": "местно в ухо",
+          "frequency": "2 раза в день",
+          "notes": "по инструкции"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -100889,26 +100824,26 @@
       "name": "Импровак",
       "inn": "#####",
       "form": "Раствор для инъекций",
-      "form_type": "injection",
+      "form_type": "vaccine",
       "concentration": 0.4,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Свиньи"
       ],
-      "method": "по инструкции",
-      "frequency": "Однократно",
-      "course_days": "по инструкции",
+      "method": "подкожно",
+      "frequency": "двукратно",
+      "course_days": "двукратно с интервалом не менее 4 недель",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "Свиньи": "по инструкции препарата"
+        "Свиньи": "0,2 мл подкожно; двукратно с интервалом не менее 4 недель"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -100925,14 +100860,25 @@
       "indications": "для иммунологической кастрации хряков",
       "animal_specific": {
         "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Свиньи, 3-5 дней"
+          "dose_per_kg": 0,
+          "dose_min": 0.2,
+          "dose_max": 0.2,
+          "dose_unit": "fixed",
+          "method": "подкожно",
+          "frequency": "двукратно (интервал ≥4 недель)",
+          "notes": "иммунологическая кастрация хряков: 0,2 мл на свинью, не зависит от массы"
         }
+      },
+      "vaccine_specific": {
+        "single_dose_ml": 0.2,
+        "single_dose_text": "0,2 мл на свинью",
+        "doses_per_vial": null,
+        "doses_per_vial_options": [],
+        "route": "подкожно",
+        "schedule": "1-я инъекция — с 10-дневного возраста; 2-я — не ранее чем через 4 недели",
+        "animal": "Свиньи",
+        "vaccine_type": "иммунологическая кастрация",
+        "notes": ""
       }
     },
     {
@@ -145228,19 +145174,21 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 100.0,
-      "dose_min": 80.0,
-      "dose_max": 120.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Свиньи"
       ],
       "method": "внутримышечно",
-      "frequency": "однократно",
+      "frequency": "1-2 раза в неделю",
       "course_days": "однократно",
       "withdrawal_days": 0,
-      "fixed_dose": null,
-      "calculator_applicable": true,
+      "fixed_dose": {
+        "Свиньи": "поросятам на 3-7 день жизни 5 мл; повтор через 7-10 дней 10 мл; перед отъёмом 10-20 мл"
+      },
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -145256,11 +145204,13 @@
       "indications": "для профилактики и лечения железодефицитной анемии, отёчной болезни, повышения резистентности организма, восстановления нарушения белкового обмена у животных",
       "animal_specific": {
         "Свиньи": {
-          "dose_per_kg": 100,
-          "dose_unit": "мг/кг",
-          "method": "внутримышечно",
-          "frequency": "однократно",
-          "notes": "Препараты железа для поросят"
+          "dose_per_kg": 0,
+          "dose_min": 5,
+          "dose_max": 20,
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
+          "frequency": "1-2 раза в неделю",
+          "notes": "поросятам 5-20 мл на животное по инструкции"
         }
       }
     },
@@ -150053,20 +150003,23 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 7.0,
-      "dose_min": 5.6,
-      "dose_max": 8.4,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "Свиньи"
       ],
-      "method": "внутрь",
-      "frequency": "1 раз в сутки",
+      "method": "внутримышечно",
+      "frequency": "по схеме",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
-      "fixed_dose": null,
-      "calculator_applicable": true,
+      "fixed_dose": {
+        "КРС": "по инструкции: дозы в МЕ на животное",
+        "Свиньи": "по инструкции: дозы в МЕ на животное"
+      },
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -150082,16 +150035,22 @@
       "indications": "для лечения и профилактики гиповитаминозов у сельскохозяйственных животных",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 7.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в сутки",
-          "notes": "Из файла: Аквитин®"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно",
+          "frequency": "по схеме",
+          "notes": "дозы в МЕ на животное по инструкции"
         },
         "Свиньи": {
-          "dose_per_kg": 7.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в сутки",
-          "notes": "Из файла: Аквитин®"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно",
+          "frequency": "по схеме",
+          "notes": "дозы в МЕ на животное по инструкции"
         }
       },
       "withdrawal_text": "КРС: мясо: 9 дн, молоко: 4 дн | МРС: мясо: 9 дн, молоко: 4 дн | Свиньи: мясо: 9 дн"
@@ -152295,22 +152254,22 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 7.75,
-      "dose_min": 6.2,
-      "dose_max": 9.3,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "Свиньи",
         "Птица",
         "Собаки"
       ],
-      "method": "инъекционно",
+      "method": "внутримышечно, подкожно",
       "frequency": "по схеме",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
       "fixed_dose": null,
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "warnings": [
           "Гипервитаминоз A."
@@ -152328,46 +152287,58 @@
       "indications": "для профилактики и лечения гиповитаминозов и заболеваний развивающихся на их фоне у сельскохозяйственных животных",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 1,
-          "dose_unit": "мг/кг",
-          "method": "инъекционно",
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
           "frequency": "по схеме",
-          "notes": "Витамин Е"
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
+        },
+        "Лошади": {
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
+          "frequency": "по схеме",
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
         },
         "Свиньи": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
-          "method": "внутримышечно",
-          "frequency": "по схеме"
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
+          "frequency": "по схеме",
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
         },
         "Птица": {
           "dose_per_kg": 0,
           "dose_min": 0,
           "dose_max": 0,
+          "dose_unit": "fixed",
           "method": "перорально (с водой)",
-          "frequency": "по схеме"
+          "frequency": "по схеме",
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
         },
         "Собаки": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "1 раз в день",
-          "notes": "Витамин E. 10-20 МЕ/кг"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
+          "frequency": "по схеме",
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
         },
         "Кошки": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "1 раз в день",
-          "notes": "Витамин E"
-        },
-        "Лошади": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "1 раз в день",
-          "notes": "Витамин E"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутримышечно, подкожно",
+          "frequency": "по схеме",
+          "notes": "жирорастворимые витамины: дозы в МЕ на животное по инструкции"
         }
       }
     },
@@ -157274,9 +157245,9 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1.0,
-      "dose_min": 0.8,
-      "dose_max": 1.2,
+      "dose_per_kg": 0.2,
+      "dose_min": 0.1,
+      "dose_max": 0.3,
       "dose_unit": "мг/кг",
       "animals": [
         "Птица"
@@ -157309,47 +157280,52 @@
       "indications": "для лечения и профилактики нематодозов и арахно-энтомозов у ремонтного молодняка кур",
       "animal_specific": {
         "Птица": {
-          "dose_per_kg": 1.0,
-          "dose_min": 0.8,
-          "dose_max": 1.2,
+          "dose_per_kg": 0.2,
+          "dose_min": 0.1,
+          "dose_max": 0.3,
           "dose_unit": "мг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Неомек"
+          "notes": "0,2 мг/кг внутрь (с питьевой водой), однократно; при необходимости повторить через 10-14 дней"
         },
         "КРС": {
           "dose_per_kg": 0.2,
           "dose_min": 0.1,
           "dose_max": 0.3,
           "method": "подкожно",
-          "frequency": "однократно"
+          "frequency": "однократно",
+          "dose_unit": "мг/кг"
         },
         "МРС": {
           "dose_per_kg": 0.2,
           "dose_min": 0.1,
           "dose_max": 0.3,
           "method": "подкожно",
-          "frequency": "однократно"
+          "frequency": "однократно",
+          "dose_unit": "мг/кг"
         },
         "Свиньи": {
           "dose_per_kg": 0.3,
           "dose_min": 0.2,
           "dose_max": 0.3,
           "method": "подкожно",
-          "frequency": "однократно"
+          "frequency": "однократно",
+          "dose_unit": "мг/кг"
         },
         "Собаки": {
           "dose_per_kg": 0.006,
           "dose_min": 0.003,
           "dose_max": 0.01,
           "method": "подкожно / перорально",
-          "frequency": "однократно"
+          "frequency": "однократно",
+          "dose_unit": "мг/кг"
         },
         "Лошади": {
           "dose_per_kg": 0.2,
           "dose_min": 0.1,
           "dose_max": 0.3,
           "method": "перорально",
-          "frequency": "однократно"
+          "frequency": "однократно",
+          "dose_unit": "мг/кг"
         }
       },
       "withdrawal_text": "КРС: мясо: 28 дн, молоко: НЕ ДЛЯ ДОЙНЫХ! дн | МРС: мясо: 28 дн, молоко: НЕ ДЛЯ ДОЙНЫХ! дн | Свиньи: мясо: 28 дн | Лошади: мясо: 28 дн | Только сухостой или эприномектин для дойных."
@@ -160484,7 +160460,7 @@
       "inn": "d-клопростенол",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": 0.05,
+      "concentration": 0.25,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -160527,17 +160503,17 @@
           "dose_per_kg": 0.96,
           "dose_min": 0.768,
           "dose_max": 1.152,
-          "dose_unit": "мг/кг",
+          "dose_unit": "мкг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Геставет Прост"
+          "notes": "0,25 мг D-клопростенола/мл; КРС — 2 мл (0,5 мг) в/м однократно"
         },
         "Свиньи": {
           "dose_per_kg": 0.96,
           "dose_min": 0.768,
           "dose_max": 1.152,
-          "dose_unit": "мг/кг",
+          "dose_unit": "мкг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Геставет Прост"
+          "notes": "0,25 мг D-клопростенола/мл; КРС — 2 мл (0,5 мг) в/м однократно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -161450,23 +161426,25 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
-      "dose_per_kg": 7.0,
-      "dose_min": 5.6,
-      "dose_max": 8.4,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0,
+      "dose_max": 0,
+      "dose_unit": "fixed",
       "animals": [
         "Птица",
         "КРС",
         "Свиньи"
       ],
-      "method": "внутрь, внутримышечно",
+      "method": "внутрь (с кормом или питьевой водой)",
       "frequency": "1 раз в день",
       "course_days": "5-10 дней",
       "withdrawal_days": 28,
       "fixed_dose": {
-        "Птица": "по инструкции"
+        "Птица": "по инструкции (с кормом или водой)",
+        "КРС": "по инструкции (с кормом или водой)",
+        "Свиньи": "по инструкции (с кормом или водой)"
       },
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -161486,24 +161464,30 @@
           "dose_min": 0,
           "dose_max": 0,
           "dose_unit": "fixed",
+          "method": "внутрь (с кормом/водой)",
           "frequency": "1 раз в день",
-          "route": "внутрь, внутримышечно",
           "notes": "по инструкции",
           "course_days": "5-10 дней"
         },
         "КРС": {
-          "dose_per_kg": 7.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в сутки"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутрь (с кормом/водой)",
+          "frequency": "1 раз в день",
+          "notes": "по инструкции (с кормом или водой)",
+          "course_days": "5-10 дней"
         },
         "Свиньи": {
-          "dose_per_kg": 50,
-          "dose_min": 40.0,
-          "dose_max": 60.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз",
-          "notes": "Ферродекстрин, новорождённым"
+          "dose_per_kg": 0,
+          "dose_min": 0,
+          "dose_max": 0,
+          "dose_unit": "fixed",
+          "method": "внутрь (с кормом/водой)",
+          "frequency": "1 раз в день",
+          "notes": "по инструкции (с кормом или водой)",
+          "course_days": "5-10 дней"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 3 дн | МРС: мясо: 10 дн, молоко: 3 дн | Свиньи: мясо: 10 дн"
@@ -164590,24 +164574,26 @@
       "inn": "каберголин",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": 0.017,
+      "concentration": 0.05,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 0.0267,
-      "dose_min": 0.0213,
-      "dose_max": 0.032,
+      "dose_per_kg": 0.005,
+      "dose_min": 0.005,
+      "dose_max": 0.005,
       "dose_unit": "мг/кг",
       "animals": [
         "Собаки",
-        "КРС",
         "Кошки"
       ],
-      "method": "внутримышечно",
-      "frequency": "1 раз в 24 часа",
-      "course_days": "3-7 дней",
-      "withdrawal_days": 28,
-      "fixed_dose": {},
+      "method": "перорально",
+      "frequency": "1 раз в сутки",
+      "course_days": "4-6 дней",
+      "withdrawal_days": 0,
+      "fixed_dose": {
+        "Собаки": "0,1 мл (3 капли) на 1 кг массы внутрь, 4-6 дней",
+        "Кошки": "0,1 мл (3 капли) на 1 кг массы внутрь, 4-6 дней"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
@@ -164617,7 +164603,6 @@
           "индивидуальная  чувст-ть животного к каберголину. Запрещается  беременным сукам, лактактирующим сукам, животным при почечной и печеночной недостаточности, а также животным в состоянии гипотензии. Только для непродуктивных жив-ных"
         ],
         "pregnancy_contraindicated_animals": [
-          "КРС",
           "Кошки",
           "Собаки"
         ]
@@ -164633,14 +164618,7 @@
           "dose_unit": "мг/кг",
           "method": "перорально",
           "frequency": "однократно",
-          "notes": "Для подавления лактации, 5 мкг/кг"
-        },
-        "КРС": {
-          "dose_per_kg": 0.07,
-          "dose_unit": "мг/кг",
-          "method": "внутримышечно",
-          "frequency": "однократно",
-          "notes": "Для подавления лактации"
+          "notes": "0,1 мл (3 капли) на 1 кг массы (5 мкг/кг) внутрь 4-6 дней"
         },
         "Кошки": {
           "dose_per_kg": 0.005,
