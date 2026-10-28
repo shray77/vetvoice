@@ -1253,33 +1253,49 @@ class VoiceInputParser {
   /// Парсит вес из голосового ввода
   static double? parseWeight(String input) {
     final lower = input.toLowerCase();
-    
-    // Сначала ищем явное указание веса с ключевыми словами
-    final explicitWeightPatterns = [
-      RegExp(r'(?:вес|весит|масса|весом)\s*(\d+(?:[.,]\d+)?)'),
-      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:килограмм|кило|кг|kg)(?:\s|$)'),
-      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:грамм|гр|г)(?:\s|$)'), // для мелких животных
-      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:тонн|тонны|т)(?:\s|$)'), // для крупных
-    ];
-    
-    for (final pattern in explicitWeightPatterns) {
-      final match = pattern.firstMatch(lower);
+
+    // ⚠ Фикс M-6 (Task 183): юнит веса берётся из САМОГО матча, а не из
+    // глобальных contains по всей фразе. «котёнок 400 г» (граммы в КОНЦЕ
+    // строки) раньше возвращал 400 КГ: contains(' г ') не матчит конец
+    // строки, конверсия не срабатывала — для кошек/кроликов срезала
+    // валидация вида, для КРС 400 «кг» ехали в расчёт. Порядок: сначала
+    // юнит-явные паттерны (кг → тонны → граммы), затем «голое» число
+    // после слов веса (по умолчанию килограммы — прежняя семантика).
+    final unitPatterns = <RegExp, double>{
+      // «12.5 кг», «12,5 кило», «30 kg» → кг
+      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:килограмм|кило|кг|kg)(?:\s|$)'): 1,
+      // «0.5 т», «2 тонны» → ×1000 (лимита нет, как и раньше)
+      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:тонн|тонны|т)(?:\s|$)'): 1000,
+      // «400 г», «35 гр», «полтора грамма» → ×0.001 (мелкие животные)
+      RegExp(r'(\d+(?:[.,]\d+)?)\s*(?:грамм|гр|г)(?:\s|$)'): 0.001,
+    };
+
+    for (final entry in unitPatterns.entries) {
+      final match = entry.key.firstMatch(lower);
       if (match != null) {
-        var weightStr = match.group(1)!.replaceAll(',', '.');
-        weightStr = weightStr.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+        final weightStr = match.group(1)!.replaceAll(',', '.');
         final weight = double.tryParse(weightStr);
         if (weight != null && weight > 0) {
-          // Конвертируем в килограммы если нужно
-          if (lower.contains('грамм') || lower.contains(' гр') || lower.contains(' г ')) {
-            return weight / 1000; // граммы в кг
-          }
-          if (lower.contains('тонн') || lower.contains(' тонны') || lower.contains(' т')) {
-            return weight * 1000; // тонны в кг
-          }
-          if (weight < 2000) { // разумный предел для кг
-            return weight;
+          final kg = weight * entry.value;
+          if (entry.value == 1) {
+            if (kg < 2000) return kg; // разумный предел для кг
+          } else {
+            return kg; // тонны/граммы конвертируются как есть (прежняя семантика)
           }
         }
+      }
+    }
+
+    // «вес/весит/масса N» без юнита — по умолчанию килограммы
+    final bareWeight =
+        RegExp(r'(?:вес|весит|масса|весом)\s*(\d+(?:[.,]\d+)?)');
+    final bareMatch = bareWeight.firstMatch(lower);
+    if (bareMatch != null) {
+      var weightStr = bareMatch.group(1)!.replaceAll(',', '.');
+      weightStr = weightStr.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+      final weight = double.tryParse(weightStr);
+      if (weight != null && weight > 0 && weight < 2000) {
+        return weight;
       }
     }
     

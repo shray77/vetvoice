@@ -858,12 +858,20 @@ class VetProvider {
   void setCustomDose(double customDosePerKg) {
     final drug = _selectedCalcDrug;
     if (drug == null || _weight <= 0) return;
-    
+
     double volumeMl = 0;
-    if (drug.concentration > 0) {
+    // ⚠ Фикс S-2 (Task 183): ручная корректировка дозы обязана повторять
+    // ветвление CalcDrug.calculateDose — объёмная доза (мл/кг) НЕ делится
+    // на концентрацию (раньше слайдер пересчитывал мл/кг-препараты в
+    // мусор: Рингер-Локк/Гамавит — те же ×9/×50, что и в основном расчёте).
+    if (drug.doseUnit.contains('мл/кг')) {
+      volumeMl = customDosePerKg * _weight;
+    } else if (drug.doseUnit.contains('мл/животное')) {
+      volumeMl = customDosePerKg; // фикс на животное — вес не умножается
+    } else if (drug.concentration > 0) {
       volumeMl = (customDosePerKg * _weight) / drug.concentration;
     }
-    
+
     _result = _result.copyWith(
       volume: volumeMl,
       dosePerKg: customDosePerKg,

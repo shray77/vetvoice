@@ -95,6 +95,13 @@ class CalcDrug {
   final String unit; // мл, г, таблетки
   final double concentration;
   final String concentrationUnit;
+
+  /// ⚠ Фикс S-1 (Task 183): сырая строка концентрации, если в базе она
+  /// НЕ число («5 МЕ, 10 МЕ», «10 г», «#####» — 218 записей xlsx-конверта).
+  /// Расчёт через такую концентрацию невозможен (concentration=0,
+  /// калькулятор честно уходит в «по инструкции»), но строка хранится
+  /// для отображения в справочнике и диагностики данных.
+  final String? concentrationText;
   final double dosePerKg;
   final double doseMin;
   final double doseMax;
@@ -137,6 +144,7 @@ class CalcDrug {
     this.unit = 'мл',
     required this.concentration,
     required this.concentrationUnit,
+    this.concentrationText,
     required this.dosePerKg,
     this.doseMin = 0,
     this.doseMax = 0,
@@ -179,16 +187,27 @@ class CalcDrug {
       });
     }
 
+    // ⚠ Фикс S-1 (Task 183): concentration в xlsx-конверте бывает СТРОКОЙ
+    // («5 МЕ, 10 МЕ», «6 000 000 МЕ; 12 000 000 МЕ», «10 г», «#####»).
+    // Жёсткий каст `as num?` кидал TypeError, per-item catch в
+    // CalcDrugDatabase.fromJson глотал запись ЦЕЛИКОМ — препараты молча
+    // исчезали из калькулятора (Окситоцин, Канинсулин, Гепарин, Катозал,
+    // Фоллимаг...). Теперь: число — как раньше; строка — НЕ числовая
+    // концентрация для расчёта (0 + сырая строка в concentrationText).
+    final concJson = json['concentration'];
+    final double concentrationRaw = concJson is num ? concJson.toDouble() : 0.0;
+    final String? concentrationTextValue = concJson is String ? concJson : null;
+    final concentrationUnit = json['concentration_unit'] as String? ?? 'мг/мл';
+    final concentrationMeRaw = (json['concentration_me'] as num?)?.toDouble() ?? 0;
+
     // ⚠ Фикс B-4: если concentration_unit содержит "МЕ" (международные единицы),
     // но в JSON concentration_me не задан — значение в поле concentration
     // на самом деле является концентрацией в МЕ/мл. Переносим его в concentrationMe,
     // чтобы calculateDose() корректно считал объём через МЕ-ветку.
     // Это затрагивает 18 препаратов (Димоксан WS, Энроколи, Интроцил, Авидокс и т.д.),
     // у которых ранее (доза мг/кг × вес) / concentration_МЕ = численный мусор.
-    final concentrationUnit = json['concentration_unit'] as String? ?? 'мг/мл';
-    final concentrationRaw = (json['concentration'] as num?)?.toDouble() ?? 0;
-    final concentrationMeRaw = (json['concentration_me'] as num?)?.toDouble() ?? 0;
-
+    // (S-1: строковые концентрации в перенос не участвуют — там числового
+    // значения нет вовсе, concentrationRaw=0.)
     double concentration = concentrationRaw;
     double concentrationMe = concentrationMeRaw;
     if (concentrationUnit.contains('МЕ') && concentrationMe == 0 && concentrationRaw > 0) {
@@ -205,6 +224,7 @@ class CalcDrug {
       unit: json['unit'] as String? ?? 'мл',
       concentration: concentration,
       concentrationUnit: concentrationUnit,
+      concentrationText: concentrationTextValue,
       dosePerKg: (json['dose_per_kg'] as num?)?.toDouble() ?? 0,
       doseMin: (json['dose_min'] as num?)?.toDouble() ?? (json['dose_per_kg'] as num?)?.toDouble() ?? 0,
       doseMax: (json['dose_max'] as num?)?.toDouble() ?? (json['dose_per_kg'] as num?)?.toDouble() ?? 0,
@@ -343,9 +363,39 @@ class CalcDrug {
       );
     }
 
-    // Расчёт: (доза мг/кг × вес) / концентрация = объем
-    if (concentration > 0 && actualDosePerKg > 0) {
-      final volume = (actualDosePerKg * weightKg) / concentration;
+    // ⚠ Фикс S-2 (Task 183): ОБЪЁМНАЯ доза (мл/кг, мл/животное) проверяется
+    // ДО массовой ветки с делением на концентрацию. Раньше ветка
+    // «(доза × вес) / концентрация» стояла выше и молча делила объёмные
+    // дозы на концентрацию активного вещества:
+    //   Натрия хлорид 0.9% — корова 500 кг получала «5.6 мл» вместо 50 (×9);
+    //   Кофеин-бензоат 20% — занижение ×200;
+    //   Гамавит (мусорная conc 0.02 мг/мл) — 250 мл вместо 5 (×50, передоз).
+    // Объёмная доза уже выражена в объёме на единицу — концентрация в ней
+    // не участвует. Гвард согласованности юнитов: если доза животного
+    // записана в ДРУГОЙ системе (МЕ/кг при топовом мл/кг — записи-смешения
+    // xlsx-конверта вроде «30000 МЕ; 40000 МЕ; 20 мг»), объём из неё не
+    // существует → честный unknown, а не численный мусор (философия B-4:
+    // несводимые юниты не делятся).
+    final animalDoseUnit = animalDose?.doseUnit ?? '';
+    final volumeUnitsOk = animalDose == null ||
+        animalDoseUnit.isEmpty ||
+        animalDoseUnit.contains('мл/кг') ||
+        animalDoseUnit.contains('мл/животное');
+    if (volumeUnitsOk && doseUnit.contains('мл/животное')) {
+      // Фиксированный объём на животное — на вес не умножается.
+      final volume = actualDosePerKg;
+      return DoseCalculation(
+        type: DoseType.calculated,
+        displayText: _formatVolume(volume, 'мл'),
+        volumeMl: unit == 'г' ? 0.0 : volume,
+        volumeGrams: unit == 'г' ? volume : 0.0,
+        note: doseUnit,
+        dosePerKg: actualDosePerKg,
+        frequency: animalFrequency,
+      );
+    }
+    if (volumeUnitsOk && doseUnit.contains('мл/кг')) {
+      final volume = actualDosePerKg * weightKg;
       String note = '${actualDosePerKg} ${doseUnit}';
       if (actualDoseMin != actualDoseMax && actualDoseMin > 0) {
         note = '$actualDoseMin-$actualDoseMax ${doseUnit}';
@@ -366,15 +416,25 @@ class CalcDrug {
       );
     }
 
-    // Если доза в мл/кг или мл/животное
-    if (doseUnit.contains('мл/кг') || doseUnit.contains('мл/животное')) {
-      final volumeMl = actualDosePerKg * weightKg;
+    // Расчёт: (доза мг/кг × вес) / концентрация = объем
+    if (concentration > 0 && actualDosePerKg > 0) {
+      final volume = (actualDosePerKg * weightKg) / concentration;
+      String note = '${actualDosePerKg} ${doseUnit}';
+      if (actualDoseMin != actualDoseMax && actualDoseMin > 0) {
+        note = '$actualDoseMin-$actualDoseMax ${doseUnit}';
+      }
+      if (doseNote.isNotEmpty) {
+        note += '\n$doseNote';
+      }
       return DoseCalculation(
         type: DoseType.calculated,
-        displayText: _formatVolume(volumeMl, 'мл'),
-        volumeMl: volumeMl,
-        note: doseUnit,
+        displayText: _formatVolume(volume, unit),
+        volumeMl: unit == 'мл' ? volume : 0,
+        volumeGrams: unit == 'г' ? volume : 0,
+        note: note,
         dosePerKg: actualDosePerKg,
+        doseMin: actualDoseMin,
+        doseMax: actualDoseMax,
         frequency: animalFrequency,
       );
     }
@@ -670,10 +730,12 @@ class CalcContraindications {
       lactation: json['lactation'] as bool? ?? false,
       young: json['young'] as bool? ?? false,
       old: json['old'] as bool? ?? false,
-      warnings: (json['warnings'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+      // ⚠ Фикс S-1 (Task 183): warnings бывает СТРОКОЙ, а не списком
+      // («КАТЕГОРИЧЕСКИ ЗАПРЕЩЁН ЛОШАДЯМ (фатальный энтероколит)...») —
+      // ещё 233 записи валились на `as List` и глотались per-item catch
+      // (второй класс молчаливых потерь после concentration-строк).
+      // Строка = одно предупреждение целиком.
+      warnings: _parseStringList(json['warnings']),
       animalWarnings: animalWarnings,
       animalSideEffects: animalSideEffects,
       maleWarnings: maleWarnings,
@@ -683,6 +745,14 @@ class CalcContraindications {
     );
   }
   
+  /// Список строк из JSON-поля, которое бывает и списком, и одиночной
+  /// строкой (S-1: xlsx-конверт кладёт текст предупреждения строкой).
+  static List<String> _parseStringList(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String && raw.isNotEmpty) return [raw];
+    return [];
+  }
+
   /// Получить все предупреждения для конкретного животного
   List<String> getWarningsForAnimal(String animalName) {
     final result = <String>[...warnings];
