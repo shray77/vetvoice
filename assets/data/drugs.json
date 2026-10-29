@@ -469,6 +469,154 @@
           "description": "Старше 3 лет"
         }
       ]
+    },
+    {
+      "id": "dog",
+      "name": "Собаки",
+      "icon": "dog",
+      "description": "Собаки",
+      "min_weight": 1,
+      "max_weight": 100,
+      "weight_hint": "Щенок мелкой породы: 1-10 кг, щенок крупной: 10-25 кг, взрослая мелкая: 2-15 кг, взрослая крупная: 25-60 кг",
+      "pregnancy_term": "Беременность",
+      "gestation_days": 63,
+      "age_groups": [
+        {
+          "name": "Щенок",
+          "category": "young",
+          "max_months": 12,
+          "description": "До 12 месяцев"
+        },
+        {
+          "name": "Молодая",
+          "category": "young",
+          "max_months": 24,
+          "description": "1-2 года"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 96,
+          "description": "2-8 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 192,
+          "description": "Старше 8 лет"
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "name": "Кошки",
+      "icon": "cat",
+      "description": "Кошки",
+      "min_weight": 0.5,
+      "max_weight": 15,
+      "weight_hint": "Котенок: 0.5-2 кг, взрослая кошка: 3-6 кг, крупный кот: 6-10 кг",
+      "pregnancy_term": "Беременность",
+      "gestation_days": 63,
+      "age_groups": [
+        {
+          "name": "Котенок",
+          "category": "young",
+          "max_months": 12,
+          "description": "До 12 месяцев"
+        },
+        {
+          "name": "Молодая",
+          "category": "young",
+          "max_months": 24,
+          "description": "1-2 года"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 132,
+          "description": "2-11 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 240,
+          "description": "Старше 11 лет"
+        }
+      ]
+    },
+    {
+      "id": "rabbit",
+      "name": "Кролики",
+      "icon": "rabbit",
+      "description": "Кролики",
+      "min_weight": 0.5,
+      "max_weight": 8,
+      "weight_hint": "Молодняк: 0.5-1.5 кг, взрослый кролик: 2-5 кг, великан: 5-8 кг",
+      "pregnancy_term": "Беременность",
+      "gestation_days": 30,
+      "age_groups": [
+        {
+          "name": "Крольчонок",
+          "category": "young",
+          "max_months": 3,
+          "description": "До 3 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 6,
+          "description": "3-6 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 60,
+          "description": "0.5-5 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 108,
+          "description": "Старше 5 лет"
+        }
+      ]
+    },
+    {
+      "id": "fur",
+      "name": "Пушные звери",
+      "icon": "fur",
+      "description": "Пушные звери (норки, лисицы, песцы)",
+      "min_weight": 0.5,
+      "max_weight": 15,
+      "weight_hint": "Норка: 0.5-2.5 кг, песец: 3-5 кг, лисица: 4-8 кг",
+      "pregnancy_term": "Беременность",
+      "gestation_days": 52,
+      "age_groups": [
+        {
+          "name": "Щенок",
+          "category": "young",
+          "max_months": 6,
+          "description": "До 6 месяцев"
+        },
+        {
+          "name": "Молодняк",
+          "category": "young",
+          "max_months": 12,
+          "description": "6-12 месяцев"
+        },
+        {
+          "name": "Взрослое",
+          "category": "adult",
+          "max_months": 72,
+          "description": "1-6 лет"
+        },
+        {
+          "name": "Пожилое",
+          "category": "old",
+          "max_months": 120,
+          "description": "Старше 6 лет"
+        }
+      ]
     }
   ]
 }

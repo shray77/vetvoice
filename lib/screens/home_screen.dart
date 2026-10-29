@@ -865,13 +865,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Task 194: заголовок вкладки «Калькулятор» — Prata (дисплей DS,
+            // как на всех AppBar); раньше жил на Inter w700.
             Text(
               'VetVoice AI',
               style: TextStyle(
+                fontFamily: AppTheme.fontDisplay,
                 fontSize: AppTheme.fontSizeTitle,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w400,
                 color: AppTheme.textPrimary,
-                letterSpacing: -0.5,
+                letterSpacing: -0.2,
               ),
             ),
             // v1.16.3: компактный ряд системных контролов. Раньше здесь же

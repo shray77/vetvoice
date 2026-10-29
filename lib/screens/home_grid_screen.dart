@@ -323,12 +323,16 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // --- Шапка ---
+              // Task 194: заголовок вкладки «Главная» — Prata (дисплей DS,
+              // как на всех AppBar); раньше жил на Inter w800 и выбивался
+              // из serif-периодики приложения.
               Text(
                 'VetVoice',
                 style: TextStyle(
+                  fontFamily: AppTheme.fontDisplay,
                   fontSize: AppTheme.fontSizeTitle,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: -0.2,
                   color: AppTheme.textPrimary,
                 ),
               ),

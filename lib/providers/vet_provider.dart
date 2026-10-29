@@ -200,6 +200,20 @@ class VetProvider {
   static final VetProvider _instance = VetProvider._internal();
   factory VetProvider() => _instance;
 
+  /// Тестовый шов (Task 194): подсадить базы без DrugLoaderService —
+  /// проверять фильтры поиска и реестровый путь на реальных данных
+  /// из файлов (паттерн real_database_test).
+  @visibleForTesting
+  void debugSetCore({
+    required CalcDrugDatabase calcDatabase,
+    DrugRegistry? registry,
+    DosageDatabase? dosageDatabase,
+  }) {
+    _calcDatabase = calcDatabase;
+    _registry = registry;
+    _dosageDatabase = dosageDatabase;
+  }
+
   bool _initialized = false;
 
   CalcDrugDatabase? _calcDatabase;
@@ -311,7 +325,14 @@ class VetProvider {
     
     if (_calcDatabase != null) {
       // Фильтруем - скрываем шампуни, ошейники и т.д.
-      all.addAll(_calcDatabase!.drugs.where((d) => d.calculatorApplicable));
+      // Task 194: но НЕ прячем записи с фиксированными дозами (вакцины,
+      // МЕ-препараты): окситоцин после медсверки Task 191 носит
+      // calculator_applicable=false и исчезал из поиска — юзера
+      // уводило в реестровую запись с нулями («0.000 мл» на любом весе,
+      // полевой репорт по КРС). fixed_dose по видам — полноценный
+      // результат калькулятора.
+      all.addAll(_calcDatabase!.drugs.where(
+          (d) => d.calculatorApplicable || (d.fixedDose?.isNotEmpty ?? false)));
     }
     
     if (_registry != null) {
@@ -409,8 +430,10 @@ class VetProvider {
     
     if (_calcDatabase != null) {
       // Фильтруем - скрываем шампуни, ошейники и т.д.
+      // Task 194: фиксированные дозы — не повод прятать (см. allDrugs).
       final calcDrugs = _calcDatabase!.getDrugsForAnimal(animalName)
-          .where((d) => d.calculatorApplicable)
+          .where((d) =>
+              d.calculatorApplicable || (d.fixedDose?.isNotEmpty ?? false))
           .toList();
       debugPrint('📊 CalcDrugs для $animalName: ${calcDrugs.length} шт');
       filtered.addAll(calcDrugs);
@@ -795,12 +818,16 @@ class VetProvider {
       );
     }
 
+    // Task 194: концентрация не распарсилась и мл/кг-дозы нет — раньше
+    // возвращали volume=0 с hasDosage=true, и карточка печатала огромное
+    // зелёное «0.000 мл» на любом весе (полевой репорт: окситоцин на КРС).
+    // Честный результат — инфо-карточка «по инструкции» с дозой из реестра.
     return DoseResult(
       drugName: drug.tradeName,
       drugForm: drug.form,
       method: animalDosage.route,
       frequency: animalDosage.frequency,
-      hasDosage: true,
+      hasDosage: false,
       hasResult: true,
       registryDrug: drug,
       note: 'Дозировка: ${animalDosage.formattedDose}\n${animalDosage.notes}\n\n${drug.indications}',

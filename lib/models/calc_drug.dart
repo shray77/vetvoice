@@ -332,8 +332,11 @@ class CalcDrug {
       if (animalDose.frequency.isNotEmpty) {
         animalFrequency = animalDose.frequency;
       }
-    } else if (doseUnit == 'МЕ/кг' && concentrationMe > 0) {
+    } else if (doseUnit == 'МЕ/кг' && concentrationMe > 0 && dosePerKg > 0) {
       // 🆕 Базовая доза в МЕ
+      // Task 194: dosePerKg > 0 — иначе actualDoseMePerKg=0 давал
+      // «рассчитанные» 0.000 мл (латентный класс бага «нулей», агентский
+      // аудит); честнее уйти в unknown → «по инструкции».
       useMeDose = true;
       actualDoseMePerKg = dosePerKg;
       actualDoseMeMin = doseMin > 0 ? doseMin : dosePerKg;

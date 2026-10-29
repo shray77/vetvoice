@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/drug_interaction.dart';
-import '../utils/app_theme.dart';
+import '../theme/ds.dart';
 
+// Task 194: тёмная тема взаимодействий. Блок жил на светлых Material-островах
+// (red/orange/blue/green shade50-100): в графите это светлые пятна
+// со светлым текстом и невидимыми shade200-рамками («не хватает границ»).
+// Семантика переводится на DS-токены: цвет по серьёзности + альфа-фон,
+// в тёмной теме — DsDark.* (тёплые светлые значения на графите).
 class InteractionWarning extends StatelessWidget {
   final List<DrugInteraction> interactions;
   final VoidCallback? onDismiss;
@@ -19,22 +24,23 @@ class InteractionWarning extends StatelessWidget {
     final critical = interactions.where((i) => i.isCritical).toList();
     final warnings = interactions.where((i) => i.isWarning).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final redFg = isDark ? DsDark.red : DsLight.red;
+    final orangeFg = isDark ? DsDark.orange : DsLight.orange;
+    final blueFg = isDark ? DsDark.blue : DsLight.blue;
+    final greenFg = isDark ? DsDark.green : DsLight.green;
+    final textFg = isDark ? DsDark.text : DsLight.text;
+
+    final hasCritical = critical.isNotEmpty;
+    final hasWarnings = warnings.isNotEmpty;
+    final fg = hasCritical ? redFg : (hasWarnings ? orangeFg : blueFg);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: critical.isNotEmpty 
-            ? Colors.red.shade50 
-            : warnings.isNotEmpty 
-                ? Colors.orange.shade50 
-                : Colors.blue.shade50,
+        color: fg.withOpacity(isDark ? 0.12 : 0.07),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: critical.isNotEmpty 
-              ? Colors.red.shade200 
-              : warnings.isNotEmpty 
-                  ? Colors.orange.shade200 
-                  : Colors.blue.shade200,
-        ),
+        border: Border.all(color: fg.withOpacity(isDark ? 0.45 : 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,50 +49,47 @@ class InteractionWarning extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: critical.isNotEmpty 
-                  ? Colors.red.shade100 
-                  : warnings.isNotEmpty 
-                      ? Colors.orange.shade100 
-                      : Colors.blue.shade100,
+              color: fg.withOpacity(isDark ? 0.18 : 0.12),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
             ),
             child: Row(
               children: [
                 Icon(
-                  critical.isNotEmpty 
-                      ? Icons.dangerous 
-                      : warnings.isNotEmpty 
-                          ? Icons.warning_amber 
+                  hasCritical
+                      ? Icons.dangerous
+                      : hasWarnings
+                          ? Icons.warning_amber
                           : Icons.info_outline,
-                  color: critical.isNotEmpty 
-                      ? AppTheme.errorRed 
-                      : warnings.isNotEmpty 
-                          ? AppTheme.warningOrange 
-                          : AppTheme.info,
+                  color: fg,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  critical.isNotEmpty 
-                      ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ!' 
-                      : warnings.isNotEmpty 
-                          ? '⚠ Взаимодействие препаратов' 
+                  hasCritical
+                      ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ!'
+                      : hasWarnings
+                          ? '⚠ Взаимодействие препаратов'
                           : 'Информация',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: critical.isNotEmpty 
-                        ? AppTheme.errorRed 
-                        : warnings.isNotEmpty 
-                            ? AppTheme.warningOrange 
-                            : AppTheme.info,
+                    color: fg,
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // Список взаимодействий
-          ...interactions.map((interaction) => _buildInteractionItem(interaction)),
-          
+          ...interactions.map(
+            (interaction) => _buildInteractionItem(
+              interaction,
+              isDark: isDark,
+              redFg: redFg,
+              orangeFg: orangeFg,
+              greenFg: greenFg,
+              textFg: textFg,
+            ),
+          ),
+
           if (onDismiss != null)
             Padding(
               padding: const EdgeInsets.all(8),
@@ -100,7 +103,19 @@ class InteractionWarning extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractionItem(DrugInteraction interaction) {
+  Widget _buildInteractionItem(
+    DrugInteraction interaction, {
+    required bool isDark,
+    required Color redFg,
+    required Color orangeFg,
+    required Color greenFg,
+    required Color textFg,
+  }) {
+    final effectFg = interaction.isCritical
+        ? redFg
+        : interaction.isWarning
+            ? orangeFg
+            : textFg;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -109,70 +124,67 @@ class InteractionWarning extends StatelessWidget {
           // Пара препаратов
           Text(
             '${interaction.drug1} + ${interaction.drug2}',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
+              color: textFg,
             ),
           ),
           const SizedBox(height: 4),
-          
+
           // Эффект
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: interaction.isCritical 
-                  ? Colors.red.shade100 
-                  : interaction.isWarning 
-                      ? Colors.orange.shade100 
-                      : Colors.grey.shade100,
+              color: effectFg.withOpacity(isDark ? 0.16 : 0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               interaction.effect,
               style: TextStyle(
                 fontSize: 13,
-                color: interaction.isCritical 
-                    ? Colors.red.shade900 
-                    : Colors.grey.shade800,
+                color: effectFg,
               ),
             ),
           ),
           const SizedBox(height: 6),
-          
+
           // Последствия
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('→ ', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('→ ',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: textFg)),
               Expanded(
                 child: Text(
                   interaction.consequence,
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 13, color: textFg),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          
+
           // Рекомендация
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: greenFg.withOpacity(isDark ? 0.14 : 0.08),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.green.shade200),
+              border: Border.all(
+                  color: greenFg.withOpacity(isDark ? 0.4 : 0.3)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.lightbulb_outline, size: 16, color: Colors.green.shade700),
+                Icon(Icons.lightbulb_outline, size: 16, color: greenFg),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     interaction.recommendation,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.green.shade900,
+                      color: isDark ? DsDark.text : DsLight.text,
                     ),
                   ),
                 ),

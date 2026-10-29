@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
+import '../theme/ds.dart';
 import 'interaction_warning.dart';
 import '../services/favorites_service.dart';  // 🆕
 import '../services/history_service.dart';    // 🆕
@@ -135,25 +136,29 @@ class _ResultCardState extends State<ResultCard> {
   }
 
   Widget _buildError() {
+    // Task 194: тёмная тема — errorRed (светлый токен DS) на графите
+    // давал ~2:1; баннер переводится на тёмную семантику DsDark.red.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final redFg = isDark ? DsDark.red : DsLight.red;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: AppTheme.errorRed.withOpacity(0.1),
+        color: redFg.withOpacity(isDark ? 0.14 : 0.1),
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
-        border: Border.all(color: AppTheme.errorRed.withOpacity(0.3)),
+        border: Border.all(color: redFg.withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: AppTheme.errorRed, size: 28),
+          Icon(Icons.error_outline, color: redFg, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               widget.result.error,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: AppTheme.errorRed,
+                color: redFg,
               ),
             ),
           ),
@@ -168,6 +173,14 @@ class _ResultCardState extends State<ResultCard> {
     final hasInteractions = widget.result.hasInteractions;
     final hasSideEffects = widget.result.hasSideEffects;
     final hasDoseRange = widget.result.hasDoseRange;
+    // Task 194: тёмная тема основной карточки — рамка safeGreen и доза
+    // (светлые токены, ~2.5:1 на графите) переводятся на DsDark.accent;
+    // каренция и подписи — на тёплую семантику DS.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? DsDark.accent : DsLight.accent;
+    final faint = isDark ? DsDark.faint : Colors.grey.shade600;
+    final orangeFg = isDark ? DsDark.orange : DsLight.orange;
+    final redFg = isDark ? DsDark.red : DsLight.red;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,15 +195,15 @@ class _ResultCardState extends State<ResultCard> {
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
           decoration: BoxDecoration(
             color: hasRiskWarnings
-                ? AppTheme.errorRed.withOpacity(0.05)
+                ? redFg.withOpacity(isDark ? 0.12 : 0.05)
                 : Theme.of(context).brightness == Brightness.dark
                     ? AppTheme.darkSurface
                     : AppTheme.white,
             borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
             border: Border.all(
               color: hasRiskWarnings
-                  ? AppTheme.errorRed.withOpacity(0.3)
-                  : AppTheme.safeGreen.withOpacity(0.2),
+                  ? redFg.withOpacity(0.3)
+                  : accent.withOpacity(isDark ? 0.35 : 0.2),
             ),
             boxShadow: [
               BoxShadow(
@@ -239,7 +252,10 @@ class _ResultCardState extends State<ResultCard> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.orange.shade100,
+                        // Task 194: тёмная тема — оранжевый чип каренции
+                        color: isDark
+                            ? DsDark.orange.withOpacity(0.18)
+                            : Colors.orange.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -248,7 +264,7 @@ class _ResultCardState extends State<ResultCard> {
                             : '⏱ ${widget.result.withdrawalDays} дн.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.orange.shade800,
+                          color: orangeFg,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -263,7 +279,7 @@ class _ResultCardState extends State<ResultCard> {
                   widget.result.drugForm,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade600,
+                    color: faint,
                   ),
                 ),
               ],
@@ -274,7 +290,7 @@ class _ResultCardState extends State<ResultCard> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.safeGreen.withOpacity(0.1),
+                  color: accent.withOpacity(isDark ? 0.12 : 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -287,10 +303,10 @@ class _ResultCardState extends State<ResultCard> {
                           Flexible(
                             child: Text(
                               widget.result.fixedDoseText,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.safeGreen,
+                                color: accent,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -298,10 +314,10 @@ class _ResultCardState extends State<ResultCard> {
                         else
                           Text(
                             widget.result.formattedVolume,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.safeGreen,
+                              color: accent,
                             ),
                           ),
                       ],
@@ -325,7 +341,7 @@ class _ResultCardState extends State<ResultCard> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.gps_fixed, size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.gps_fixed, size: 16, color: faint),
                   const SizedBox(width: 4),
                   Text(
                     widget.result.method,
@@ -337,7 +353,7 @@ class _ResultCardState extends State<ResultCard> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                    Icon(Icons.schedule, size: 16, color: faint),
                     const SizedBox(width: 4),
                     Text(
                       widget.result.frequency,
@@ -350,7 +366,7 @@ class _ResultCardState extends State<ResultCard> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                    Icon(Icons.calendar_today, size: 16, color: faint),
                     const SizedBox(width: 4),
                     Text(
                       'Курс: ${widget.result.courseDays}',
@@ -366,23 +382,31 @@ class _ResultCardState extends State<ResultCard> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    // Task 194: тёмная тема — оранжевый остров shade50/200
+                    // оставался светлым пятном на графите.
+                    color: isDark
+                        ? DsDark.orange.withOpacity(0.14)
+                        : Colors.orange.shade50,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.shade200),
+                    border: Border.all(
+                      color: isDark
+                          ? DsDark.orange.withOpacity(0.35)
+                          : Colors.orange.shade200,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.schedule, size: 16, color: Colors.orange.shade700),
+                          Icon(Icons.schedule, size: 16, color: orangeFg),
                           const SizedBox(width: 6),
                           Text(
                             'Сроки ожидания (каренция)',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Colors.orange.shade800,
+                              color: orangeFg,
                             ),
                           ),
                         ],
@@ -392,7 +416,10 @@ class _ResultCardState extends State<ResultCard> {
                         padding: const EdgeInsets.only(left: 22, top: 2),
                         child: Text(
                           part,
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? DsDark.text : Colors.grey.shade800,
+                          ),
                         ),
                       )),
                     ],
@@ -409,7 +436,7 @@ class _ResultCardState extends State<ResultCard> {
                   'Корректировка дозы:',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: faint,
                   ),
                 ),
                 Slider(
@@ -425,7 +452,7 @@ class _ResultCardState extends State<ResultCard> {
                 ),
                 Text(
                   '${widget.result.doseMin}-${widget.result.doseMax} ${widget.result.doseUnit}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: faint),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -433,40 +460,58 @@ class _ResultCardState extends State<ResultCard> {
               // === НОВОЕ: Побочные эффекты ===
               if (hasSideEffects) ...[
                 const SizedBox(height: 16),
-                InkWell(
+                // Task 194: побочные эффекты — тёмная тема. Раньше
+                // amber.shade50-остров оставался светлым в графите,
+                // буллеты без цвета наследовали светлый текст темы
+                // (свет-на-свете), заголовок жил с дефолтными 14/w500
+                // мимо DS-типографики.
+                Builder(builder: (context) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final amberFg = isDark ? DsDark.amber : DsLight.amber;
+                  final amberBg =
+                      isDark ? DsDark.amber.withOpacity(0.14) : Colors.amber.shade50;
+                  return InkWell(
                   onTap: () => setState(() => _showSideEffects = !_showSideEffects),
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
+                      color: amberBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.warning_amber, size: 16, color: Colors.amber.shade700),
+                        Icon(Icons.warning_amber, size: 16, color: amberFg),
                         const SizedBox(width: 8),
                         Text(
                           'Побочные эффекты (${widget.result.sideEffects.length})',
                           style: TextStyle(
-                            color: Colors.amber.shade900,
-                            fontWeight: FontWeight.w500,
+                            color: amberFg,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
                         const Spacer(),
                         Icon(
                           _showSideEffects ? Icons.expand_less : Icons.expand_more,
-                          color: Colors.amber.shade700,
+                          color: amberFg,
                         ),
                       ],
                     ),
                   ),
-                ),
+                );
+                }),
                 if (_showSideEffects) ...[
                   const SizedBox(height: 8),
-                  Container(
+                  Builder(builder: (context) {
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final amberFg = isDark ? DsDark.amber : DsLight.amber;
+                    final amberBg =
+                        isDark ? DsDark.amber.withOpacity(0.14) : Colors.amber.shade50;
+                    final bulletColor = isDark ? DsDark.text : DsLight.muted;
+                    return Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
+                      color: amberBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -474,36 +519,47 @@ class _ResultCardState extends State<ResultCard> {
                       children: widget.result.sideEffects.take(5).map((se) => 
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
-                          child: Text('• $se', style: const TextStyle(fontSize: 12)),
+                          child: Text('• $se',
+                              style: TextStyle(fontSize: 12, color: bulletColor)),
                         ),
                       ).toList(),
                     ),
-                  ),
+                  );
+                  }),
                 ],
               ],
 
               // КРИТИЧЕСКИЕ предупреждения
+              // Task 194: тёмная тема — красный errorRed на графите
+              // давал ~2:1; буллеты без цвета — свет-на-свете.
               if (hasRiskWarnings) ...[
                 const SizedBox(height: 16),
-                Container(
+                Builder(builder: (context) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final redFg = isDark ? DsDark.red : DsLight.red;
+                  final redBg = isDark
+                      ? DsDark.red.withOpacity(0.16)
+                      : DsLight.red.withOpacity(0.1);
+                  final bulletColor = isDark ? DsDark.text : DsLight.muted;
+                  return Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.errorRed.withOpacity(0.1),
+                    color: redBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.errorRed.withOpacity(0.3)),
+                    border: Border.all(color: redFg.withOpacity(0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.dangerous, color: AppTheme.errorRed),
+                          Icon(Icons.dangerous, color: redFg),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'ЗАПРЕЩЕНО!',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.errorRed,
+                              color: redFg,
                             ),
                           ),
                         ],
@@ -511,20 +567,32 @@ class _ResultCardState extends State<ResultCard> {
                       const SizedBox(height: 8),
                       ...widget.result.riskWarnings.map((w) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: Text('• $w', style: const TextStyle(fontSize: 13)),
+                        child: Text('• $w',
+                            style: TextStyle(fontSize: 13, color: bulletColor)),
                       )),
                     ],
                   ),
-                ),
+                );
+                }),
               ],
 
               // Обычные предупреждения
+              // Task 194: меры предосторожности — тёмная тема (симметрично
+              // побочным эффектам): раньше orange.shade50-остров + буллеты
+              // без цвета (свет-на-свете в графите).
               if (hasWarnings && !hasRiskWarnings) ...[
                 const SizedBox(height: 12),
-                Container(
+                Builder(builder: (context) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final orangeFg = isDark ? DsDark.orange : DsLight.orange;
+                  final orangeBg = isDark
+                      ? DsDark.orange.withOpacity(0.14)
+                      : Colors.orange.shade50;
+                  final bulletColor = isDark ? DsDark.text : DsLight.muted;
+                  return Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: orangeBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -532,13 +600,14 @@ class _ResultCardState extends State<ResultCard> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.info_outline, size: 16, color: Colors.orange.shade700),
+                          Icon(Icons.info_outline, size: 16, color: orangeFg),
                           const SizedBox(width: 4),
                           Text(
                             'Меры предосторожности',
                             style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.orange.shade900,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: orangeFg,
                             ),
                           ),
                         ],
@@ -547,12 +616,14 @@ class _ResultCardState extends State<ResultCard> {
                       ...widget.result.contraindications.take(3).map((c) => 
                         Padding(
                           padding: const EdgeInsets.only(bottom: 2),
-                          child: Text('• $c', style: const TextStyle(fontSize: 12)),
+                          child: Text('• $c',
+                              style: TextStyle(fontSize: 12, color: bulletColor)),
                         ),
                       ),
                     ],
                   ),
-                ),
+                );
+                }),
               ],
             ],
           ),
@@ -609,7 +680,7 @@ class _ResultCardState extends State<ResultCard> {
                   _savedToHistory ? Icons.check : Icons.history_edu,
                   size: 18,
                   color: _savedToHistory
-                      ? AppTheme.safeGreen
+                      ? accent
                       : AppTheme.textSecondary,
                 ),
                 label: Text(
@@ -617,7 +688,7 @@ class _ResultCardState extends State<ResultCard> {
                   style: TextStyle(
                     fontSize: 13,
                     color: _savedToHistory
-                        ? AppTheme.safeGreen
+                        ? accent
                         : AppTheme.textSecondary,
                   ),
                 ),
@@ -628,6 +699,11 @@ class _ResultCardState extends State<ResultCard> {
   }
 
   Widget _buildInfo() {
+    // Task 194: тёмная тема инфо-блока — рамка safeGreen (светлый токен,
+    // ~2:1 на графите) и синий shade50-остров переводятся на DS-семантику.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? DsDark.accent : DsLight.accent;
+    final blueFg = isDark ? DsDark.blue : DsLight.blue;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
@@ -637,7 +713,7 @@ class _ResultCardState extends State<ResultCard> {
             ? AppTheme.darkSurface
             : AppTheme.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
-        border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
+        border: Border.all(color: accent.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,19 +729,19 @@ class _ResultCardState extends State<ResultCard> {
             const SizedBox(height: 4),
             Text(
               widget.result.drugForm,
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: isDark ? DsDark.faint : Colors.grey.shade600),
             ),
           ],
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: isDark ? DsDark.blue.withOpacity(0.14) : Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue.shade700),
+                Icon(Icons.info_outline, color: blueFg),
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
