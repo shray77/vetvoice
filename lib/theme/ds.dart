@@ -64,7 +64,8 @@ abstract final class DsDark {
   static const Color surface2 = Color(0xFF34302A);
   static const Color border = Color(0xFF3F3A32);
   static const Color borderStrong = Color(0xFF857F6E);
-  static const Color rule = Color(0xFF6E685C);
+  // v2.5.0 (Task 198): кромка 3.002:1 → 3.18:1 (§1.4.11, лотерея на границе)
+  static const Color rule = Color(0xFF726C5E);
 
   // -- Текст ---------------------------------------------------------------
   static const Color text = Color(0xFFEDE9E0);

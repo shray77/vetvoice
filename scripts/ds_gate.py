@@ -86,7 +86,9 @@ def main():
         for name, val in d.items():
             # camelCase → kebab: borderStrong→border-strong, surface2→surface2.
             # (Task 184: спец-ветки для этих форм были мёртвыми — регекс
-            # уже даёт их, ветки были тождественными no-op.)
+            # уже даёт их, ветки были тождественными no-op. Task 198: шаблон
+            # выровнен с вычищенными гейтами портов — раскладка больше не
+            # регрессит мёртвыми ветками.)
             kebab = re.sub(r'([A-Z])', lambda m: '-' + m.group(1).lower(), name).lstrip('-')
             if name in ACCENT_TRIPLE:
                 continue                    # характер приложения
