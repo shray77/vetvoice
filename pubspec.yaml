@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.21.0+34  # v1.21.0: vet-ds v2.4.1 «Научная периодика» (голос A + зелёный характер) — lib/theme/ds.dart
+version: 1.22.0+35  # v1.22.0: WHO MIA 2024 — stewardship-плашки в карточке и чекере (идея №4) — assets/data/mia_*.json
 
 environment:
   sdk: ^3.5.0

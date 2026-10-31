@@ -16,6 +16,7 @@ import '../models/dose_adjustment.dart';
 import '../models/unofficial_protocol.dart';
 import '../models/fluid_therapy.dart';
 import '../models/verified_dosage.dart';
+import '../models/mia.dart';
 
 /// Результат загрузки баз
 class LoadResult {
@@ -187,6 +188,18 @@ class DrugLoaderService {
       assetPath: 'assets/data/verified_dosages.json',
       fromJson: VerifiedDosageDatabase.fromJson,
     ),
+    // Идея №4: WHO MIA 2024 — таблица классов + сгенерированный гейтом
+    // слой решений. Dart НЕ резолвит INN сам: lookup по id препарата.
+    'mia_classes.json': _DbSpec(
+      fileName: 'mia_classes.json',
+      assetPath: 'assets/data/mia_classes.json',
+      fromJson: MiaDatabase.fromJson,
+    ),
+    'mia_drugs.json': _DbSpec(
+      fileName: 'mia_drugs.json',
+      assetPath: 'assets/data/mia_drugs.json',
+      fromJson: MiaDrugMap.fromJson,
+    ),
   };
 
   // ============================================================
@@ -250,6 +263,8 @@ class DrugLoaderService {
     UnofficialProtocolDatabase? unofficialDatabase;
     FluidTherapyDatabase? fluidTherapyDatabase;
     VerifiedDosageDatabase? verifiedDosageDatabase;
+    MiaDatabase? miaDatabase;
+    MiaDrugMap? miaDrugMap;
     for (final parsed in parsedList) {
       if (parsed == null) continue;
       if (parsed is DrugDatabase) {
@@ -278,10 +293,18 @@ class DrugLoaderService {
       } else if (parsed is VerifiedDosageDatabase) {
         verifiedDosageDatabase = parsed;
         debugPrint('✅ Верифицированные дозировки: ${verifiedDosageDatabase.dosages.length} препаратов');
+      } else if (parsed is MiaDatabase) {
+        miaDatabase = parsed;
+        debugPrint('✅ WHO MIA: ${miaDatabase.classes.length} классов (издание 2024)');
+      } else if (parsed is MiaDrugMap) {
+        miaDrugMap = parsed;
+        debugPrint('✅ WHO MIA: слой на ${miaDrugMap.entries.length} препаратов базы');
       }
     }
     return ExtendedDatabases(
       database: database,
+      miaDatabase:
+          miaDatabase?.withDrugMap(miaDrugMap ?? const MiaDrugMap({})),
       antidoteDatabase: antidoteDatabase,
       emergencyDatabase: emergencyDatabase,
       sideEffectsDatabase: sideEffectsDatabase,
@@ -580,9 +603,11 @@ class ExtendedDatabases {
   final UnofficialProtocolDatabase? unofficialDatabase;
   final FluidTherapyDatabase? fluidTherapyDatabase;
   final VerifiedDosageDatabase? verifiedDosageDatabase;
+  final MiaDatabase? miaDatabase;
 
   const ExtendedDatabases({
     this.database,
+    this.miaDatabase,
     this.antidoteDatabase,
     this.emergencyDatabase,
     this.sideEffectsDatabase,

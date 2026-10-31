@@ -1,0 +1,588 @@
+{
+  "version": "1.0",
+  "meta": {
+    "title": "WHO Medically Important Antimicrobials — таблица классов и категорий",
+    "edition": "WHO List of Medically Important Antimicrobials (MIA), 2024",
+    "source_title": "WHO List of Medically Important Antimicrobials — A risk management tool for mitigating antimicrobial resistance due to non-human use",
+    "source_isbn": "978-92-4-008461-2 (electronic)",
+    "source_url": "https://cdn.who.int/media/docs/default-source/gcp/who-mia-list-2024-lv.pdf",
+    "source_news": "https://www.who.int/news/item/08-02-2024-who-medically-important-antimicrobial-list-2024",
+    "source_license": "CC BY-NC-SA 3.0 IGO",
+    "verified": "2026-10-31",
+    "convention": "Категории и классы воспроизводят таблицы 1-4 официального списка ВОЗ 2024; члены классов (who_members) — сокращённая выборка примеров из официального текста, не полный список. Сопоставление русских компонентов (components) — наша работа поверх базы ветвойс. Таблица классификации ВОЗ — фактические данные, атрибуция обязательна.",
+    "categories_note": "Порядок важности: humans_only и hp наверху, далее cia > hia > ia; nmi — вне медицины человека. Категория humans_only (таблица 2 ВОЗ) — классы, разрешённые только у людей."
+  },
+  "categories": {
+    "humans_only": {
+      "rank": 6,
+      "short": "ВОЗ: только для людей",
+      "label": "Класс разрешён только для применения у людей",
+      "hint": "По ВОЗ MIA 2024 класс не разрешён к применению у животных. Использование у животных — вне зарегистрированного использования класса: обосновать клинически и юридически."
+    },
+    "hp": {
+      "rank": 5,
+      "short": "ВОЗ: критически важный, наивысший приоритет",
+      "label": "Критически важный антимикробный для медицины человека — наивысший приоритет (HPCIA)",
+      "hint": "HPCIA по ВОЗ: беречь эффективность для людей. Применять только по обоснованию (посев/чувствительность), не рутинно и не для профилактики."
+    },
+    "cia": {
+      "rank": 4,
+      "short": "ВОЗ: критически важный",
+      "label": "Критически важный антимикробный для медицины человека (CIA)",
+      "hint": "CIA по ВОЗ: применение в животноводстве повышает риск резистентности у людей. Когда клинически равноценно — предпочесть класс ниже."
+    },
+    "hia": {
+      "rank": 3,
+      "short": "ВОЗ: высоковажный",
+      "label": "Высоковажный антимикробный для медицины человека (HIA)",
+      "hint": "HIA по ВОЗ: разумное использование — подтверждённый диагноз, минимальные курс и доза."
+    },
+    "ia": {
+      "rank": 2,
+      "short": "ВОЗ: важный",
+      "label": "Важный антимикробный для медицины человека (IA)",
+      "hint": "IA по ВОЗ: стандартные меры разумного использования антимикробных."
+    },
+    "nmi": {
+      "rank": 1,
+      "short": "ВОЗ: не применяется у людей",
+      "label": "Не применяется в медицине человека",
+      "hint": "Класс не разрешён у людей и не создаёт риска для человеческой терапии (ВОЗ MIA 2024, таблица 4)."
+    },
+    "out": {
+      "rank": 0,
+      "short": "Вне классификации ВОЗ",
+      "label": "Вне классификации WHO MIA",
+      "hint": "Компонент не входит в классификацию medically important antimicrobials (антисептик, противогрибковый и т.п.)."
+    }
+  },
+  "classes": [
+    {
+      "id": "quinolones",
+      "name": "Хинолоны (фторхинолоны)",
+      "name_en": "Quinolones",
+      "category": "hp",
+      "who_members": [
+        "ciprofloxacin",
+        "enrofloxacin",
+        "marbofloxacin",
+        "danofloxacin",
+        "difloxacin",
+        "orbifloxacin",
+        "norfloxacin",
+        "levofloxacin",
+        "gatifloxacin",
+        "ofloxacin",
+        "flumequine",
+        "oxolinic acid",
+        "nalidixic acid"
+      ],
+      "stewardship": "Наивысший приоритет: ограниченная терапия кампилобактериоза, инвазивного сальмонеллёза; резистентные Enterobacterales передаются от животных по пищевой цепи. Не первая линия эмпирически, не для профилактики."
+    },
+    {
+      "id": "ceph_34",
+      "name": "Цефалоспорины 3-4 поколения",
+      "name_en": "Cephalosporins (3rd, 4th generation)",
+      "category": "hp",
+      "who_members": [
+        "cefotaxime",
+        "ceftazidime",
+        "cefepime",
+        "ceftriaxone",
+        "ceftiofur",
+        "cefquinome",
+        "cefoperazone"
+      ],
+      "stewardship": "Наивысший приоритет: терапия бактериального менингита и МЛУ-Enterobacterales у людей. Ветеринарные цефтиофур/цефкином — беречь; расширенный спектр не повод для рутинного применения."
+    },
+    {
+      "id": "polymyxins",
+      "name": "Полимиксины",
+      "name_en": "Polymyxins",
+      "category": "hp",
+      "who_members": [
+        "colistin",
+        "polymyxin B"
+      ],
+      "stewardship": "Наивысший приоритет: колистин — последняя линия при МЛУ-Enterobacterales у людей; гены резистентности mcr передаются по пищевой цепи. Ветеринарное применение — максимум обоснования."
+    },
+    {
+      "id": "phosphonic",
+      "name": "Производные фосфоновой кислоты",
+      "name_en": "Phosphonic acid derivatives",
+      "category": "hp",
+      "who_members": [
+        "fosfomycin"
+      ],
+      "stewardship": "Наивысший приоритет (поднят в 2024): терапия инфекций мочевыводящих путей; плазмидная резистентность E. coli описана у животных."
+    },
+    {
+      "id": "aminoglycosides",
+      "name": "Аминогликозиды",
+      "name_en": "Aminoglycosides",
+      "category": "cia",
+      "who_members": [
+        "gentamicin",
+        "amikacin",
+        "neomycin",
+        "streptomycin",
+        "kanamycin",
+        "paromomycin",
+        "apramycin",
+        "dihydrostreptomycin",
+        "framycetin"
+      ],
+      "stewardship": "Критически важный класс: часть терапии энтерококкового эндокардита и МЛУ-туберкулёза; резистентные Enterococcus и Enterobacterales передаются от животных."
+    },
+    {
+      "id": "ansamycins",
+      "name": "Ансамицины (рифамицины)",
+      "name_en": "Ansamycins",
+      "category": "cia",
+      "who_members": [
+        "rifampicin",
+        "rifabutin",
+        "rifaximin"
+      ],
+      "stewardship": "Критически важный класс: основа терапии туберкулёза; монотерапия быстро селектирует резистентность. Комбинировать, не применять изолированно."
+    },
+    {
+      "id": "macrolides",
+      "name": "Макролиды (14-, 15-, 16-членные)",
+      "name_en": "Macrolides (14-, 15-, 16-membered ring)",
+      "category": "cia",
+      "who_members": [
+        "erythromycin",
+        "azithromycin",
+        "clarithromycin",
+        "tylosin",
+        "tilmicosin",
+        "tulathromycin",
+        "tylvalosin",
+        "tildipirosin",
+        "spiramycin",
+        "kitasamycin",
+        "gamithromycin"
+      ],
+      "stewardship": "Критически важный класс (в 2024 понижен из HPCIA, не ослабление контроля): терапия кампилобактериоза и МЛУ-сальмонеллёза; резистентность Campylobacter возникает после применения в животных."
+    },
+    {
+      "id": "amphenicols",
+      "name": "Амфениколы",
+      "name_en": "Amphenicols",
+      "category": "hia",
+      "who_members": [
+        "chloramphenicol",
+        "florfenicol",
+        "thiamphenicol"
+      ],
+      "stewardship": "Высоковажный класс: хлорамфеникол в ветеринарии ограничен (каренция, апластическая анемия у людей); флорфеникол — ветеринарная замена, применять по показаниям."
+    },
+    {
+      "id": "ceph_12",
+      "name": "Цефалоспорины 1-2 поколения и цефамицины",
+      "name_en": "Cephalosporins (1st and 2nd generation) and cephamycins",
+      "category": "hia",
+      "who_members": [
+        "cefalexin",
+        "cefazolin",
+        "cefapirin",
+        "cefalotin",
+        "cefuroxime",
+        "cefaclor"
+      ],
+      "stewardship": "Высоковажный класс: резистентные Enterobacterales передаются от животных; узкий спектр — разумный выбор, но не повод для рутинного применения."
+    },
+    {
+      "id": "lincosamides",
+      "name": "Линкозамиды",
+      "name_en": "Lincosamides",
+      "category": "hia",
+      "who_members": [
+        "lincomycin",
+        "clindamycin",
+        "pirlimycin"
+      ],
+      "stewardship": "Высоковажный класс: передача Enterococcus и S. aureus (включая MRSA) от животных задокументирована."
+    },
+    {
+      "id": "nitroimidazoles",
+      "name": "Нитроимидазолы",
+      "name_en": "Nitroimidazoles",
+      "category": "hia",
+      "who_members": [
+        "metronidazole",
+        "ronidazole",
+        "ornidazole",
+        "tinidazole"
+      ],
+      "stewardship": "Высоковажный класс (поднят из IA в 2024): ограниченная терапия анаэробных инфекций, включая C. difficile."
+    },
+    {
+      "id": "tetracyclines",
+      "name": "Тетрациклины",
+      "name_en": "Tetracyclines",
+      "category": "hia",
+      "who_members": [
+        "tetracycline",
+        "oxytetracycline",
+        "chlortetracycline",
+        "doxycycline"
+      ],
+      "stewardship": "Высоковажный класс: терапия бруцеллёза, хламидиоза, риккетсиозов; массивное применение в животноводстве — исторический драйвер резистентности. Курс — минимально достаточный."
+    },
+    {
+      "id": "pen_narrow",
+      "name": "Пенициллины узкого спектра",
+      "name_en": "Penicillins (narrow spectrum)",
+      "category": "hia",
+      "who_members": [
+        "benzylpenicillin",
+        "phenoxymethylpenicillin",
+        "penethamate",
+        "benzathine benzylpenicillin",
+        "procaine benzylpenicillin"
+      ],
+      "stewardship": "Высоковажный класс: терапия стрептококковых инфекций, лептоспироза; узкий спектр — приемлемый выбор, чувствительность снижается годами."
+    },
+    {
+      "id": "pen_amino",
+      "name": "Пенициллины (аминопенициллины)",
+      "name_en": "Penicillins (amidinopenicillins and aminopenicillins)",
+      "category": "hia",
+      "who_members": [
+        "amoxicillin",
+        "ampicillin",
+        "pivmecillinam"
+      ],
+      "stewardship": "Высоковажный класс (в 2024 понижен из CIA, но резистентность E. coli от животных передаётся людям): первая линия там, где чувствительность сохранена."
+    },
+    {
+      "id": "pen_amino_i",
+      "name": "Пенициллины (аминопенициллины с ингибиторами бета-лактамаз)",
+      "name_en": "Penicillins (aminopenicillins with β-lactamase inhibitors)",
+      "category": "hia",
+      "who_members": [
+        "amoxicillin-clavulanic acid",
+        "ampicillin-sulbactam"
+      ],
+      "stewardship": "Высоковажный класс: ингибиторная защита — ресурс против бета-лактамаз; не расходовать на эмпирику, где достаточно амоксициллина."
+    },
+    {
+      "id": "pen_staph",
+      "name": "Пенициллины (антистафилококковые)",
+      "name_en": "Penicillins (anti-staphylococcal)",
+      "category": "hia",
+      "who_members": [
+        "cloxacillin",
+        "oxacillin",
+        "nafcillin",
+        "dicloxacillin"
+      ],
+      "stewardship": "Высоковажный класс: терапия стафилококковых инфекций; MRSA передаётся от животных. Контроль чувствительности при маститах."
+    },
+    {
+      "id": "streptogramins",
+      "name": "Стрептограмины",
+      "name_en": "Streptogramins",
+      "category": "hia",
+      "who_members": [
+        "virginiamycin",
+        "pristinamycin",
+        "quinupristin-dalfopristin"
+      ],
+      "stewardship": "Высоковажный класс: комбинация квинупристин/далфопристин — терапия инфекций, вызванных резистентными грамположительными; виргиниамицин в животных — под контролем."
+    },
+    {
+      "id": "sulfonamides",
+      "name": "Сульфаниламиды, ингибиторы дигидрофолатредуктазы и комбинации",
+      "name_en": "Sulfonamides, dihydrofolate reductase inhibitors and combinations",
+      "category": "hia",
+      "who_members": [
+        "sulfadiazine",
+        "sulfadimidine",
+        "sulfadimethoxine",
+        "sulfamethoxazole",
+        "trimethoprim",
+        "ormetoprim"
+      ],
+      "stewardship": "Высоковажный класс: в отдельных регионах — ограниченная терапия менингита и нетиофидального сальмонеллёза; резистентность распространена широко — проверять локальную карту."
+    },
+    {
+      "id": "fusidanes",
+      "name": "Фузиданы",
+      "name_en": "Fusidanes",
+      "category": "hia",
+      "who_members": [
+        "fusidic acid"
+      ],
+      "stewardship": "Высоковажный класс: пероральная комбинированная терапия MRSA-инфекций; монотерапия селектирует резистентность быстро."
+    },
+    {
+      "id": "aminocyclitols",
+      "name": "Аминоциклитолы",
+      "name_en": "Aminocyclitols",
+      "category": "ia",
+      "who_members": [
+        "spectinomycin"
+      ],
+      "stewardship": "Важный класс: в отдельных регионах — одна из оставшихся активных опций против гонореи. Место в ветеринарии ограничено."
+    },
+    {
+      "id": "cyclic_polypeptides",
+      "name": "Циклические полипептиды",
+      "name_en": "Cyclic polypeptides",
+      "category": "ia",
+      "who_members": [
+        "bacitracin",
+        "enramycin"
+      ],
+      "stewardship": "Важный класс: бацитрацин в основном наружное/кормовое применение; перекрёстной значимости для человеческой терапии немного."
+    },
+    {
+      "id": "heterocyclic",
+      "name": "Гетероциклические соединения",
+      "name_en": "Heterocyclic compounds",
+      "category": "ia",
+      "who_members": [
+        "methenamine"
+      ],
+      "stewardship": "Важный класс: антисептик мочевыводящих путей (метенамин); значимость для AMR низкая."
+    },
+    {
+      "id": "nitrofurans",
+      "name": "Производные нитрофуранов",
+      "name_en": "Nitrofuran derivatives",
+      "category": "ia",
+      "who_members": [
+        "nitrofural",
+        "nitrofurantoin",
+        "furazolidone",
+        "furaltadone"
+      ],
+      "stewardship": "Важный класс: нитрофурантоин — терапия инфекций мочевыводящих путей. В животноводстве нитрофураны ограничены (остатки в продукции)."
+    },
+    {
+      "id": "pleuromutilins",
+      "name": "Плевромутилины",
+      "name_en": "Pleuromutilins",
+      "category": "ia",
+      "who_members": [
+        "tiamulin",
+        "valnemulin",
+        "retapamulin",
+        "lefamulin"
+      ],
+      "stewardship": "Важный класс: лефамулин — новая системная опция у людей; тиамулин в животноводстве считается разумной альтернативой классам выше."
+    },
+    {
+      "id": "hydroxy_nitroquinolines",
+      "name": "8-гидрокси-5-нитрохинолины",
+      "name_en": "8-Hydroxy-5-nitroquinolines",
+      "category": "humans_only",
+      "who_members": [
+        "nitroxoline"
+      ],
+      "stewardship": "По ВОЗ класс разрешён только у людей (таблица 2): применение в ветеринарии не входит в зарегистрированное использование класса."
+    },
+    {
+      "id": "aminocoumarins",
+      "name": "Аминокумарины",
+      "name_en": "Aminocoumarins",
+      "category": "nmi",
+      "who_members": [
+        "novobiocin"
+      ],
+      "stewardship": "Не применяется в медицине человека; риска для человеческой терапии класс не создаёт (ВОЗ, таблица 4)."
+    },
+    {
+      "id": "arsenicals",
+      "name": "Мышьякорганические соединения",
+      "name_en": "Arsenicals",
+      "category": "nmi",
+      "who_members": [
+        "nitarsone",
+        "roxarsone"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4)."
+    },
+    {
+      "id": "bicyclomycins",
+      "name": "Бицикломицины",
+      "name_en": "Bicyclomycins",
+      "category": "nmi",
+      "who_members": [
+        "bicozamycin"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4)."
+    },
+    {
+      "id": "halogenated_hq",
+      "name": "Галогенированные 8-гидроксихинолины",
+      "name_en": "Halogenated 8-hydroxyquinolines",
+      "category": "nmi",
+      "who_members": [
+        "halquinol"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4)."
+    },
+    {
+      "id": "ionophores",
+      "name": "Ионофоры (полиэфиры)",
+      "name_en": "Ionophores (including polyethers)",
+      "category": "nmi",
+      "who_members": [
+        "monensin",
+        "salinomycin",
+        "lasalocid",
+        "narasin",
+        "maduramicin",
+        "semduramicin"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4): кокцидиостатики-ионофоры не создают риска для человеческой терапии. Токсичность для непереносимых видов (лошади) — отдельная забота."
+    },
+    {
+      "id": "orthosomycins",
+      "name": "Ортозомицины",
+      "name_en": "Orthosomycins",
+      "category": "nmi",
+      "who_members": [
+        "avilamycin"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4): кормовой антибиотик роста без человеческого аналога."
+    },
+    {
+      "id": "phosphoglycolipids",
+      "name": "Фосфогликолипиды",
+      "name_en": "Phosphoglycolipids",
+      "category": "nmi",
+      "who_members": [
+        "bambermycin (flavophospholipol)",
+        "moenomycin"
+      ],
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4): кормовой антибиотик роста без человеческого аналога."
+    },
+    {
+      "id": "quinoxalines",
+      "name": "Хиноксалины",
+      "name_en": "Quinoxalines",
+      "category": "nmi",
+      "who_members": [
+        "carbadox",
+        "olaquindox"
+      ],
+      "note": "ВОЗ называет в классе карбадокс и олакиндокс. Диоксидин (гидроксиметилхиноксалиндиоксид) в официальном списке не поименован — отнесён сюда по химическому классу (хиноксалин-1,4-ди-N-оксид).",
+      "stewardship": "Не применяется в медицине человека (ВОЗ, таблица 4); карбадокс/олакиндокс сняты в ЕС из-за канцерогенности."
+    }
+  ],
+  "components": {
+    "авиламицин": "orthosomycins",
+    "азитромицин": "macrolides",
+    "амоксициллин": "pen_amino",
+    "амоксициллина тригидрат": "pen_amino",
+    "ампициллин": "pen_amino",
+    "ампициллина тригидрат": "pen_amino",
+    "апрамицин": "aminoglycosides",
+    "бацитрацин": "cyclic_polypeptides",
+    "бензатина бензилпенициллин": "pen_narrow",
+    "бензилпенициллин": "pen_narrow",
+    "бензилпенициллин прокаина": "pen_narrow",
+    "бензилпенициллина натриевая соль": "pen_narrow",
+    "бензилпенициллина прокаин": "pen_narrow",
+    "гатифлоксацин": "quinolones",
+    "гентамицин": "aminoglycosides",
+    "гентамицина сульфат": "aminoglycosides",
+    "гидроксиметилхиноксалиндиоксид": "quinoxalines",
+    "гидроксиметилхиноксилиндиоксид": "quinoxalines",
+    "дигидрострептомицин": "aminoglycosides",
+    "дигидрострептомицина сульфат": "aminoglycosides",
+    "доксициклин": "tetracyclines",
+    "доксициклин гиклат": "tetracyclines",
+    "доксициклина гиклат": "tetracyclines",
+    "канамицин": "aminoglycosides",
+    "китасамицин": "macrolides",
+    "клиндамицин": "lincosamides",
+    "клоксациллин": "pen_staph",
+    "клоксациллина бензатиновая соль": "pen_staph",
+    "колистин": "polymyxins",
+    "колистина метансульфонат": "polymyxins",
+    "колистина сульфат": "polymyxins",
+    "левомицетин": "amphenicols",
+    "левофлоксацин": "quinolones",
+    "линкомицин": "lincosamides",
+    "мадурамицин": "ionophores",
+    "марбофлоксацин": "quinolones",
+    "метронидазол": "nitroimidazoles",
+    "монензин": "ionophores",
+    "наразин": "ionophores",
+    "нафциллин": "pen_staph",
+    "неомицин": "aminoglycosides",
+    "неомицина сульфат": "aminoglycosides",
+    "нитроксолин": "hydroxy_nitroquinolines",
+    "нитрофурал": "nitrofurans",
+    "новобиоцин": "aminocoumarins",
+    "норфлоксацин": "quinolones",
+    "окситетрациклин": "tetracyclines",
+    "офлоксацин": "quinolones",
+    "паромомицин": "aminoglycosides",
+    "пенициллин": "pen_narrow",
+    "пенициллин g": "pen_narrow",
+    "полимиксин в": "polymyxins",
+    "прокаина бензилпенициллин": "pen_narrow",
+    "рифампицин": "ansamycins",
+    "салиномицин": "ionophores",
+    "спектиномицин": "aminocyclitols",
+    "спирамицин": "macrolides",
+    "стрептомицин": "aminoglycosides",
+    "стрептоцид": "sulfonamides",
+    "сульфадиазин": "sulfonamides",
+    "сульфадимезин": "sulfonamides",
+    "сульфадиметоксин": "sulfonamides",
+    "сульфадимидин": "sulfonamides",
+    "сульфаметазин": "sulfonamides",
+    "сульфаметоксазол": "sulfonamides",
+    "сульфаметоксипиридазин": "sulfonamides",
+    "сульфамонометоксин": "sulfonamides",
+    "сульфамонометоксин натрия": "sulfonamides",
+    "сульфаниламид": "sulfonamides",
+    "тетрациклин": "tetracyclines",
+    "тиамулин": "pleuromutilins",
+    "тиамулин гидроген фумарат": "pleuromutilins",
+    "тиамулина фумарат": "pleuromutilins",
+    "тилвалозин": "macrolides",
+    "тилмикозин": "macrolides",
+    "тилозин": "macrolides",
+    "триметоприм": "sulfonamides",
+    "тулатромицин": "macrolides",
+    "ульфадиметоксин": "sulfonamides",
+    "феноксиметилпенициллин": "pen_narrow",
+    "флавофосфолипол": "phosphoglycolipids",
+    "флорфеникол": "amphenicols",
+    "хлорамфеникол": "amphenicols",
+    "хлортетрациклин": "tetracyclines",
+    "хлортетрациклин гидрохлорид": "tetracyclines",
+    "цефалексин": "ceph_12",
+    "цефалексина моногидрат": "ceph_12",
+    "цефапирин": "ceph_12",
+    "цефкином": "ceph_34",
+    "цефтиофур": "ceph_34",
+    "цефтиофура гидрохлорид": "ceph_34",
+    "цефуроксим": "ceph_12",
+    "ципрофлоксацин": "quinolones",
+    "энрамицин": "cyclic_polypeptides",
+    "энрофлоксацин": "quinolones",
+    "эритромицин": "macrolides"
+  },
+  "out_of_scope": {
+    "хлоргексидин": "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует",
+    "генцианвиолет": "антисептический краситель: вне классификации ВОЗ MIA",
+    "генциан виолет": "антисептический краситель: вне классификации ВОЗ MIA",
+    "йодоформ": "антисептик: вне классификации ВОЗ MIA",
+    "карбетопендициний": "ЧАС-антисептик: вне классификации ВОЗ MIA",
+    "миконазол": "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA",
+    "клотримазол": "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA",
+    "тербинафин": "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA",
+    "флуконазол": "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA",
+    "нафтифин": "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+  }
+}

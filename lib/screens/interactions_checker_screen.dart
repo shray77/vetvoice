@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/calc_drug.dart';
 import '../models/drug_interaction.dart';
+import '../models/mia.dart';
+import '../theme/ds.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
 
@@ -349,6 +351,140 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          // Идея №4: stewardship-напоминание и при «чистом» результате —
+          // взаимодействий нет, а классы важности ВОЗ остаются фактом.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: _buildStewardshipSection(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Идея №4: выбранные препараты с MIA-классами (для stewardship-блока).
+  /// Машина напоминает, человек решает: классы важности ВОЗ выводятся
+  /// наравне с фармакологическими взаимодействиями.
+  List<(CalcDrug, MiaInfo)> get _miaEntries {
+    final db = widget.vetProvider.miaDatabase;
+    if (db == null) return const [];
+    final out = <(CalcDrug, MiaInfo)>[];
+    for (final d in _selectedDrugs) {
+      final info = db.resolve(d.id);
+      if (info != null && info.hasClasses) out.add((d, info));
+    }
+    return out;
+  }
+
+  Color _miaColor(BuildContext context, String categoryId) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    switch (categoryId) {
+      case 'humans_only':
+      case 'hp':
+        return isDark ? DsDark.red : DsLight.red;
+      case 'cia':
+        return isDark ? DsDark.orange : DsLight.orange;
+      case 'nmi':
+        return isDark ? DsDark.green : DsLight.green;
+      default:
+        return isDark ? DsDark.blue : DsLight.blue;
+    }
+  }
+
+  Widget _buildStewardshipSection() {
+    final entries = _miaEntries;
+    if (entries.isEmpty) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final topCount = entries
+        .where((e) => (e.$2.worstCategory?.rank ?? 0) >= 4)
+        .length;
+    final fg = isDark ? DsDark.blue : DsLight.blue;
+    final textFg = isDark ? DsDark.text : DsLight.text;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: fg.withOpacity(isDark ? 0.10 : 0.06),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: fg.withOpacity(isDark ? 0.40 : 0.30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.health_and_safety_outlined, color: fg, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Разумное использование антимикробных (ВОЗ MIA 2024)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: fg,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final (drug, info) in entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 4, right: 8),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _miaColor(
+                          context, info.worstCategory?.id ?? 'hia'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        text: '${drug.name} — ',
+                        style: TextStyle(fontSize: 12.5, color: textFg),
+                        children: [
+                          TextSpan(
+                            text: info.classNamesLine,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text:
+                                ' (${info.worstCategory?.short ?? ''})',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: isDark ? DsDark.faint : Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 6),
+          Text(
+            topCount > 0
+                ? 'В комбинации $topCount препаратов классов, важных для '
+                    'медицины человека: обоснование клинически, посев/чувствительность, '
+                    'минимально достаточный курс. Напоминание, не запрет.'
+                : 'Классы важности ВОЗ — ориентир при выборе: машина напоминает, '
+                    'человек решает.',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? DsDark.faint : Colors.grey.shade600,
+            ),
+          ),
         ],
       ),
     );
@@ -362,10 +498,12 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
           (severityOrder[a.severity] ?? 4)
               .compareTo(severityOrder[b.severity] ?? 4));
 
+    final hasStewardship = _miaEntries.isNotEmpty;
     return ListView.builder(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
-      itemCount: sorted.length,
+      itemCount: sorted.length + (hasStewardship ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index == sorted.length) return _buildStewardshipSection();
         return _InteractionCard(interaction: sorted[index]);
       },
     );

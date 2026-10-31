@@ -1,0 +1,3825 @@
+{
+ "version": "1.0",
+ "db_version": "7.6",
+ "source": "WHO List of Medically Important Antimicrobials, 2024",
+ "generated_by": "scripts/mia_gate.py",
+ "drugs": {
+  "2": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "3": {
+   "c": [
+    "sulfonamides",
+    "tetracyclines"
+   ]
+  },
+  "4": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "5": {
+   "c": [
+    "tetracyclines",
+    "nitroimidazoles"
+   ]
+  },
+  "9": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "12": {
+   "c": [
+    "ceph_12"
+   ],
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "15": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "22": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "25": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "26": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "31": {
+   "c": [
+    "sulfonamides",
+    "macrolides"
+   ]
+  },
+  "37": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "38": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "39": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "40": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "43": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "46": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "51": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "52": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "63": {
+   "c": [
+    "macrolides",
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "70": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "71": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "73": {
+   "c": [
+    "macrolides",
+    "polymyxins"
+   ]
+  },
+  "74": {
+   "c": [
+    "orthosomycins"
+   ]
+  },
+  "78": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "82": {
+   "c": [
+    "tetracyclines",
+    "aminoglycosides",
+    "cyclic_polypeptides"
+   ]
+  },
+  "85": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "88": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "96": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "102": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "103": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "104": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "106": {
+   "c": [
+    "quinolones",
+    "ceph_34"
+   ]
+  },
+  "111": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "123": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "126": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "129": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "130": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "131": {
+   "c": [
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "132": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "140": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "141": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "142": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "143": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "146": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "147": {
+   "c": [
+    "amphenicols",
+    "nitrofurans"
+   ]
+  },
+  "154": {
+   "c": [
+    "aminoglycosides",
+    "pen_amino"
+   ],
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "155": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "156": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "158": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "159": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "163": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "164": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "166": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "170": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "171": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "172": {
+   "c": [
+    "polymyxins"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "180": {
+   "c": [
+    "orthosomycins"
+   ]
+  },
+  "183": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "185": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "187": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "188": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "190": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "191": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "201": {
+   "c": [
+    "pen_amino",
+    "polymyxins"
+   ]
+  },
+  "203": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "204": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "205": {
+   "c": [
+    "pen_staph",
+    "pen_amino"
+   ]
+  },
+  "209": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "214": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "216": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "221": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "222": {
+   "c": [
+    "cyclic_polypeptides"
+   ]
+  },
+  "224": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "225": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "232": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "235": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "244": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "247": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "248": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "254": {
+   "c": [
+    "aminocyclitols",
+    "lincosamides"
+   ]
+  },
+  "255": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "256": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "258": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "261": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "268": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "274": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "276": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "282": {
+   "c": [
+    "quinolones",
+    "pleuromutilins"
+   ]
+  },
+  "283": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "286": {
+   "c": [
+    "polymyxins"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "288": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "293": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "294": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "298": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "299": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "301": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "302": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "303": {
+   "c": [
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "320": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "322": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "324": {
+   "c": [
+    "nitrofurans"
+   ]
+  },
+  "326": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "334": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "335": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "337": {
+   "c": [
+    "quinolones",
+    "sulfonamides"
+   ]
+  },
+  "339": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "341": {
+   "c": [
+    "hydroxy_nitroquinolines"
+   ]
+  },
+  "347": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "359": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "362": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "363": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "367": {
+   "c": [
+    "phosphoglycolipids"
+   ]
+  },
+  "369": {
+   "c": [
+    "pen_staph"
+   ]
+  },
+  "376": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "381": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "385": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "389": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "390": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "391": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "392": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "393": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "394": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "396": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "397": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "400": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "406": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "409": {
+   "c": [
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "410": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "416": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "417": {
+   "c": [
+    "aminocyclitols",
+    "lincosamides"
+   ]
+  },
+  "421": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "427": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "428": {
+   "c": [
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "431": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "433": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "434": {
+   "c": [
+    "lincosamides",
+    "sulfonamides"
+   ]
+  },
+  "438": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "439": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "447": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "452": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "453": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "456": {
+   "c": [
+    "cyclic_polypeptides"
+   ]
+  },
+  "457": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "458": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "461": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "462": {
+   "c": [
+    "tetracyclines",
+    "macrolides"
+   ]
+  },
+  "463": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "467": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "468": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "469": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "473": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "475": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "477": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "480": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "481": {
+   "c": [
+    "macrolides",
+    "polymyxins"
+   ]
+  },
+  "484": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "485": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "488": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "492": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "507": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "511": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "527": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "529": {
+   "c": [
+    "macrolides",
+    "tetracyclines"
+   ]
+  },
+  "530": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "532": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "533": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "535": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "538": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "542": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "554": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "556": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "559": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "563": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "564": {
+   "c": [
+    "nitroimidazoles"
+   ]
+  },
+  "565": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "568": {
+   "c": [
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "570": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "571": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "573": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "574": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "575": {
+   "c": [
+    "quinoxalines"
+   ]
+  },
+  "576": {
+   "c": [
+    "pen_amino",
+    "quinolones"
+   ]
+  },
+  "586": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "589": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "590": {
+   "c": [
+    "lincosamides"
+   ]
+  },
+  "591": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "594": {
+   "c": [
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "598": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "599": {
+   "c": [
+    "lincosamides",
+    "polymyxins"
+   ]
+  },
+  "601": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "606": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "608": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "609": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "610": {
+   "c": [
+    "nitroimidazoles"
+   ]
+  },
+  "611": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "615": {
+   "c": [
+    "tetracyclines",
+    "macrolides"
+   ]
+  },
+  "617": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "641": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "643": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "646": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "651": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "653": {
+   "c": [
+    "lincosamides"
+   ]
+  },
+  "656": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "657": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "659": {
+   "c": [
+    "tetracyclines"
+   ],
+   "o": [
+    "антисептический краситель: вне классификации ВОЗ MIA"
+   ]
+  },
+  "660": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "661": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "670": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "672": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "677": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "680": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "681": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "691": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "702": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "710": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "715": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "724": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "731": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "743": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "752": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "754": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "755": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "756": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "757": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "759": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "765": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "768": {
+   "c": [
+    "aminocyclitols",
+    "polymyxins"
+   ]
+  },
+  "771": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "773": {
+   "c": [
+    "polymyxins",
+    "aminoglycosides"
+   ]
+  },
+  "784": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "789": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "795": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "796": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "797": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "802": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "807": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "814": {
+   "c": [
+    "ceph_12",
+    "aminoglycosides"
+   ]
+  },
+  "817": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "820": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "821": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "824": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "827": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "829": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "830": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "836": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "840": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "844": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "851": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "852": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "853": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "854": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "855": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "856": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "858": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "862": {
+   "c": [
+    "lincosamides"
+   ]
+  },
+  "864": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "869": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "870": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "873": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "880": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "882": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "884": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "886": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "887": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "890": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "891": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "893": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "894": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "895": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "896": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "900": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "901": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "902": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "904": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "906": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "908": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "910": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "912": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "913": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "916": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "917": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "918": {
+   "c": [
+    "pen_amino",
+    "pen_staph"
+   ]
+  },
+  "920": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides",
+    "pen_staph"
+   ]
+  },
+  "925": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "926": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "928": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "929": {
+   "c": [
+    "tetracyclines",
+    "aminoglycosides",
+    "cyclic_polypeptides"
+   ]
+  },
+  "931": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "936": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "937": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "939": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "944": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "949": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "950": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "962": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "968": {
+   "c": [
+    "pleuromutilins",
+    "tetracyclines"
+   ]
+  },
+  "975": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "990": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "992": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "994": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1002": {
+   "c": [
+    "quinoxalines"
+   ]
+  },
+  "1005": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "1008": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1012": {
+   "c": [
+    "tetracyclines",
+    "sulfonamides"
+   ]
+  },
+  "1016": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1017": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1020": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1023": {
+   "c": [
+    "quinolones",
+    "sulfonamides"
+   ]
+  },
+  "1024": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "1033": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1036": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1038": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1042": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1043": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "1058": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1062": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1070": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "1071": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1079": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1081": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1082": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1084": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1085": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1088": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1100": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1112": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1115": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1118": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1119": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1121": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1132": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1134": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1135": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1138": {
+   "c": [
+    "tetracyclines",
+    "ansamycins"
+   ]
+  },
+  "1144": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1145": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "1146": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1147": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1148": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1150": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1151": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "1154": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1165": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1166": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1174": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1182": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1185": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1187": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1191": {
+   "c": [
+    "macrolides",
+    "nitroimidazoles"
+   ]
+  },
+  "1202": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1204": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1206": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1220": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1223": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1229": {
+   "c": [
+    "cyclic_polypeptides"
+   ]
+  },
+  "1235": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1239": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1240": {
+   "c": [
+    "tetracyclines",
+    "macrolides"
+   ]
+  },
+  "1243": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1244": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1247": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1248": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1249": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1250": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1254": {
+   "c": [
+    "phosphoglycolipids"
+   ]
+  },
+  "1258": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "1269": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1288": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1301": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1314": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1315": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1318": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1319": {
+   "c": [
+    "nitroimidazoles"
+   ],
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1321": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1329": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1335": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1341": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1342": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1344": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "1345": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1349": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1352": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1354": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1355": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "1356": {
+   "c": [
+    "pen_amino",
+    "pen_staph"
+   ]
+  },
+  "1357": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1358": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1359": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1361": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1366": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1367": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1372": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1373": {
+   "c": [
+    "pen_staph"
+   ]
+  },
+  "1374": {
+   "c": [
+    "quinolones"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1378": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1379": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1381": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1389": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1390": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1396": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1400": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1404": {
+   "c": [
+    "phosphoglycolipids"
+   ]
+  },
+  "1405": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1406": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1408": {
+   "c": [
+    "orthosomycins"
+   ]
+  },
+  "1413": {
+   "c": [
+    "aminoglycosides"
+   ],
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1417": {
+   "c": [
+    "lincosamides",
+    "tetracyclines"
+   ]
+  },
+  "1418": {
+   "c": [
+    "quinolones",
+    "polymyxins",
+    "sulfonamides"
+   ]
+  },
+  "1421": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1422": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1423": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1426": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1431": {
+   "c": [
+    "quinoxalines"
+   ]
+  },
+  "1437": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1443": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1444": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1449": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1451": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1452": {
+   "c": [
+    "amphenicols",
+    "nitroimidazoles"
+   ]
+  },
+  "1453": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1455": {
+   "c": [
+    "quinoxalines",
+    "amphenicols"
+   ]
+  },
+  "1457": {
+   "c": [
+    "sulfonamides",
+    "macrolides"
+   ]
+  },
+  "1459": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1462": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1468": {
+   "c": [
+    "polymyxins"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1484": {
+   "c": [
+    "quinolones"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1493": {
+   "c": [
+    "quinolones"
+   ],
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1494": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1497": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1498": {
+   "c": [
+    "tetracyclines",
+    "aminoglycosides"
+   ]
+  },
+  "1499": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1500": {
+   "c": [
+    "tetracyclines",
+    "aminoglycosides"
+   ]
+  },
+  "1503": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1507": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1508": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1509": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1512": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "1513": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1515": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1516": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1521": {
+   "o": [
+    "противогрибковый (аллиламин): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1522": {
+   "c": [
+    "tetracyclines",
+    "macrolides"
+   ]
+  },
+  "1524": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1530": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1541": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1548": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1549": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1551": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "1558": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1559": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1561": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1563": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1565": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1569": {
+   "c": [
+    "quinolones"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1574": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1576": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1579": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1581": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1585": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1587": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1596": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1602": {
+   "c": [
+    "aminocoumarins",
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "1606": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1607": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1610": {
+   "c": [
+    "nitroimidazoles",
+    "tetracyclines"
+   ]
+  },
+  "1613": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1615": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1617": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1621": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1629": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1632": {
+   "c": [
+    "lincosamides"
+   ]
+  },
+  "1634": {
+   "c": [
+    "lincosamides",
+    "aminocyclitols"
+   ]
+  },
+  "1635": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1636": {
+   "c": [
+    "tetracyclines",
+    "lincosamides"
+   ]
+  },
+  "1637": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1641": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1644": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1646": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1647": {
+   "c": [
+    "cyclic_polypeptides"
+   ]
+  },
+  "1650": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1653": {
+   "c": [
+    "lincosamides",
+    "aminocyclitols"
+   ]
+  },
+  "1654": {
+   "c": [
+    "tetracyclines",
+    "pleuromutilins"
+   ]
+  },
+  "1655": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1656": {
+   "c": [
+    "sulfonamides",
+    "tetracyclines"
+   ]
+  },
+  "1658": {
+   "c": [
+    "aminocyclitols",
+    "lincosamides"
+   ]
+  },
+  "1659": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1660": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1661": {
+   "c": [
+    "macrolides",
+    "sulfonamides"
+   ]
+  },
+  "1664": {
+   "c": [
+    "aminoglycosides"
+   ],
+   "o": [
+    "ЧАС-антисептик: вне классификации ВОЗ MIA"
+   ]
+  },
+  "1666": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "1667": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1675": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1676": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1678": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1685": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1698": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1701": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1702": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1705": {
+   "c": [
+    "pen_staph"
+   ]
+  },
+  "1707": {
+   "c": [
+    "pen_staph"
+   ]
+  },
+  "1717": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1718": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1720": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1723": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1729": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1731": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1733": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1734": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1735": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1744": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1748": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "1750": {
+   "c": [
+    "pen_amino",
+    "quinolones"
+   ]
+  },
+  "1751": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1755": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1757": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1766": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1768": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1770": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1778": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1783": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1790": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1796": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1797": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1799": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1803": {
+   "c": [
+    "polymyxins",
+    "aminoglycosides"
+   ]
+  },
+  "1804": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1806": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1807": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1808": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1809": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1810": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1811": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1814": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1828": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1833": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "1844": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1846": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1847": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1848": {
+   "c": [
+    "pen_amino",
+    "polymyxins"
+   ]
+  },
+  "1851": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1858": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1866": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1868": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "1872": {
+   "c": [
+    "quinolones"
+   ],
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "1873": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1874": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1876": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1883": {
+   "c": [
+    "tetracyclines",
+    "amphenicols"
+   ]
+  },
+  "1892": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1893": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1894": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1895": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1896": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1898": {
+   "c": [
+    "pen_amino",
+    "ansamycins"
+   ]
+  },
+  "1899": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1900": {
+   "c": [
+    "phosphoglycolipids"
+   ]
+  },
+  "1901": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1902": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1906": {
+   "c": [
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "1908": {
+   "c": [
+    "hydroxy_nitroquinolines"
+   ]
+  },
+  "1909": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1912": {
+   "c": [
+    "pleuromutilins",
+    "tetracyclines"
+   ]
+  },
+  "1913": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1915": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1917": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "1931": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1937": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "1946": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "1947": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1949": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1950": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1961": {
+   "c": [
+    "quinoxalines",
+    "lincosamides"
+   ]
+  },
+  "1962": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "1963": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1964": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1965": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "1966": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "1967": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1968": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1969": {
+   "c": [
+    "aminoglycosides",
+    "tetracyclines"
+   ]
+  },
+  "1971": {
+   "c": [
+    "polymyxins",
+    "lincosamides"
+   ]
+  },
+  "1974": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1975": {
+   "c": [
+    "lincosamides",
+    "aminocyclitols"
+   ]
+  },
+  "1976": {
+   "c": [
+    "nitroimidazoles"
+   ]
+  },
+  "1977": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "1983": {
+   "c": [
+    "macrolides",
+    "polymyxins"
+   ]
+  },
+  "1985": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "1986": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "1987": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "1989": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "1990": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "1991": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "1993": {
+   "c": [
+    "polymyxins",
+    "sulfonamides"
+   ]
+  },
+  "1997": {
+   "c": [
+    "macrolides",
+    "tetracyclines"
+   ]
+  },
+  "1999": {
+   "c": [
+    "quinoxalines",
+    "aminoglycosides"
+   ]
+  },
+  "2000": {
+   "c": [
+    "quinoxalines",
+    "aminoglycosides"
+   ]
+  },
+  "2002": {
+   "c": [
+    "quinoxalines",
+    "tetracyclines"
+   ]
+  },
+  "2003": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2004": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2007": {
+   "c": [
+    "quinoxalines",
+    "quinolones"
+   ]
+  },
+  "2008": {
+   "c": [
+    "quinolones",
+    "quinoxalines"
+   ]
+  },
+  "2010": {
+   "c": [
+    "quinolones",
+    "quinoxalines"
+   ]
+  },
+  "2018": {
+   "c": [
+    "aminoglycosides",
+    "lincosamides"
+   ]
+  },
+  "2021": {
+   "c": [
+    "tetracyclines",
+    "pleuromutilins"
+   ]
+  },
+  "2023": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "2028": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2030": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2033": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2034": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2038": {
+   "c": [
+    "pleuromutilins",
+    "tetracyclines"
+   ]
+  },
+  "2039": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2040": {
+   "c": [
+    "polymyxins",
+    "sulfonamides"
+   ]
+  },
+  "2041": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2043": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "2045": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2046": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2047": {
+   "o": [
+    "антисептик-биоцид (бигуанид): не системный антибактериальный, в классификации ВОЗ MIA не участвует"
+   ]
+  },
+  "2048": {
+   "c": [
+    "tetracyclines",
+    "polymyxins"
+   ]
+  },
+  "2050": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2052": {
+   "c": [
+    "pen_staph",
+    "aminoglycosides"
+   ]
+  },
+  "2053": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2054": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2059": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2063": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2065": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2066": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "2068": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2069": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2071": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2073": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "2078": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2079": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "2082": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "2084": {
+   "c": [
+    "macrolides",
+    "tetracyclines",
+    "aminoglycosides",
+    "polymyxins"
+   ]
+  },
+  "2087": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2090": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2093": {
+   "c": [
+    "pen_amino",
+    "quinolones"
+   ]
+  },
+  "2095": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "2100": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2102": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2103": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "2104": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "2107": {
+   "c": [
+    "ceph_12"
+   ]
+  },
+  "2108": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2110": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2114": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2118": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2120": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2123": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2125": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2128": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2139": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2143": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2144": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2145": {
+   "c": [
+    "quinolones",
+    "polymyxins"
+   ]
+  },
+  "2148": {
+   "c": [
+    "sulfonamides"
+   ],
+   "o": [
+    "антисептик: вне классификации ВОЗ MIA"
+   ]
+  },
+  "2154": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2159": {
+   "c": [
+    "aminoglycosides"
+   ],
+   "o": [
+    "ЧАС-антисептик: вне классификации ВОЗ MIA"
+   ]
+  },
+  "2160": {
+   "c": [
+    "ceph_34"
+   ]
+  },
+  "2161": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2171": {
+   "c": [
+    "pen_staph",
+    "aminoglycosides"
+   ]
+  },
+  "2182": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2187": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "2189": {
+   "c": [
+    "tetracyclines",
+    "polymyxins"
+   ]
+  },
+  "2191": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2192": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2194": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2195": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2203": {
+   "c": [
+    "amphenicols"
+   ],
+   "o": [
+    "антисептический краситель: вне классификации ВОЗ MIA"
+   ]
+  },
+  "2212": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "2225": {
+   "c": [
+    "sulfonamides",
+    "tetracyclines"
+   ]
+  },
+  "2226": {
+   "c": [
+    "polymyxins",
+    "sulfonamides"
+   ]
+  },
+  "2227": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2235": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2239": {
+   "c": [
+    "lincosamides",
+    "aminocyclitols"
+   ]
+  },
+  "2244": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2245": {
+   "c": [
+    "lincosamides",
+    "aminocyclitols"
+   ]
+  },
+  "2253": {
+   "c": [
+    "pen_amino",
+    "pen_staph"
+   ]
+  },
+  "2255": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "2256": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2259": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2263": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "2271": {
+   "c": [
+    "aminocyclitols",
+    "lincosamides"
+   ]
+  },
+  "2274": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2275": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "2279": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2280": {
+   "c": [
+    "pleuromutilins",
+    "polymyxins"
+   ]
+  },
+  "2281": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2285": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2287": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2291": {
+   "c": [
+    "pen_staph",
+    "aminoglycosides",
+    "sulfonamides"
+   ]
+  },
+  "2292": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "2293": {
+   "c": [
+    "lincosamides",
+    "sulfonamides",
+    "polymyxins"
+   ]
+  },
+  "2294": {
+   "c": [
+    "quinolones",
+    "aminoglycosides"
+   ]
+  },
+  "2296": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2297": {
+   "c": [
+    "pleuromutilins",
+    "polymyxins"
+   ]
+  },
+  "2298": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2301": {
+   "c": [
+    "pen_narrow",
+    "tetracyclines",
+    "aminoglycosides"
+   ]
+  },
+  "2316": {
+   "c": [
+    "polymyxins"
+   ]
+  },
+  "2317": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2322": {
+   "c": [
+    "pen_narrow",
+    "aminoglycosides"
+   ]
+  },
+  "2324": {
+   "c": [
+    "tetracyclines",
+    "aminoglycosides"
+   ]
+  },
+  "2326": {
+   "c": [
+    "pen_amino",
+    "pen_staph"
+   ]
+  },
+  "2327": {
+   "c": [
+    "polymyxins",
+    "tetracyclines",
+    "macrolides",
+    "aminoglycosides"
+   ]
+  },
+  "2328": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2330": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2331": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "2332": {
+   "c": [
+    "pleuromutilins",
+    "polymyxins"
+   ]
+  },
+  "2333": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "2337": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2338": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2340": {
+   "c": [
+    "aminoglycosides"
+   ]
+  },
+  "2342": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2343": {
+   "c": [
+    "tetracyclines"
+   ]
+  },
+  "2353": {
+   "c": [
+    "pleuromutilins"
+   ]
+  },
+  "2356": {
+   "c": [
+    "pen_narrow"
+   ]
+  },
+  "2358": {
+   "c": [
+    "sulfonamides"
+   ]
+  },
+  "2365": {
+   "o": [
+    "противогрибковый (азол): вне антибактериальной классификации ВОЗ MIA"
+   ]
+  },
+  "2366": {
+   "c": [
+    "ceph_12",
+    "aminoglycosides"
+   ]
+  },
+  "2380": {
+   "c": [
+    "pen_amino",
+    "aminoglycosides"
+   ]
+  },
+  "2388": {
+   "c": [
+    "quinolones",
+    "nitroimidazoles"
+   ]
+  }
+ }
+}

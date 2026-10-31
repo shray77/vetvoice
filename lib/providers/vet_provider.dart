@@ -15,6 +15,7 @@ import '../models/dose_adjustment.dart';
 import '../models/unofficial_protocol.dart';
 import '../models/fluid_therapy.dart';
 import '../models/verified_dosage.dart';
+import '../models/mia.dart';
 import '../services/drug_loader_service.dart';
 import '../services/theme_service.dart';
 import '../utils/concentration_parser.dart';
@@ -47,6 +48,9 @@ class DoseResult {
   // === НОВОЕ: Взаимодействия ===
   final List<DrugInteraction> interactions;
   final String? antidoteInfo;
+
+  // === НОВОЕ (идея №4): WHO MIA — stewardship-слой на препарате ===
+  final MiaInfo? miaInfo;
   
   // Для регулировки дозы
   final double dosePerKg;
@@ -85,6 +89,7 @@ class DoseResult {
     this.riskWarnings = const [],
     this.interactions = const [],
     this.antidoteInfo,
+    this.miaInfo,
     this.dosePerKg = 0,
     this.doseMin = 0,
     this.doseMax = 0,
@@ -104,6 +109,7 @@ class DoseResult {
   bool get hasRiskWarnings => riskWarnings.isNotEmpty;
   bool get hasDoseRange => doseMin > 0 && doseMax > 0 && doseMin < doseMax;
   bool get hasInteractions => interactions.isNotEmpty;
+  bool get hasMia => miaInfo != null;
 
   String get formattedVolume {
     if (volume >= 100) return '${volume.toStringAsFixed(0)} $unit';
@@ -134,6 +140,7 @@ class DoseResult {
     List<String>? riskWarnings,
     List<DrugInteraction>? interactions,
     String? antidoteInfo,
+    MiaInfo? miaInfo,
     double? dosePerKg,
     double? doseMin,
     double? doseMax,
@@ -166,6 +173,7 @@ class DoseResult {
       riskWarnings: riskWarnings ?? this.riskWarnings,
       interactions: interactions ?? this.interactions,
       antidoteInfo: antidoteInfo ?? this.antidoteInfo,
+      miaInfo: miaInfo ?? this.miaInfo,
       dosePerKg: dosePerKg ?? this.dosePerKg,
       doseMin: doseMin ?? this.doseMin,
       doseMax: doseMax ?? this.doseMax,
@@ -233,6 +241,7 @@ class VetProvider {
   EmergencyDatabase? _emergencyDatabase;
   SideEffectsDatabase? _sideEffectsDatabase;
   TreatmentProtocolDatabase? _treatmentProtocolDatabase;
+  MiaDatabase? _miaDatabase;
   
   String? _selectedAnimalId;
   CalcDrug? _selectedCalcDrug;
@@ -277,6 +286,7 @@ class VetProvider {
   EmergencyDatabase? get emergencyDatabase => _emergencyDatabase;
   SideEffectsDatabase? get sideEffectsDatabase => _sideEffectsDatabase;
   TreatmentProtocolDatabase? get treatmentProtocolDatabase => _treatmentProtocolDatabase;
+  MiaDatabase? get miaDatabase => _miaDatabase;
   List<String> get selectedDrugHistory => _selectedDrugHistory;
 
   /// Публичный доступ к базе расчётных препаратов (для favorites и др.).
@@ -573,6 +583,7 @@ class VetProvider {
         _antidoteDatabase = ext.antidoteDatabase;
         _emergencyDatabase = ext.emergencyDatabase;
         _sideEffectsDatabase = ext.sideEffectsDatabase;
+        _miaDatabase = ext.miaDatabase;
         _withdrawalDatabase = ext.withdrawalDatabase;
         _doseAdjustmentDatabase = ext.doseAdjustmentDatabase;
         _unofficialDatabase = ext.unofficialDatabase;
@@ -1004,6 +1015,7 @@ class VetProvider {
       concentration: drug.concentration,
       isFixedDose: isFixed,
       fixedDoseText: fixedText,
+      miaInfo: _miaDatabase?.resolve(drug.id),
     );
   }
 

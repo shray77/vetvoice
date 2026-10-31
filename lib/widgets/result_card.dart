@@ -6,6 +6,8 @@ import 'interaction_warning.dart';
 import '../services/favorites_service.dart';  // 🆕
 import '../services/history_service.dart';    // 🆕
 import 'vaccine_card.dart';  // 🆕
+import '../models/mia.dart';
+import 'mia_plaque.dart';
 
 /// Карточка результата с возможностью корректировки дозы
 class ResultCard extends StatefulWidget {
@@ -283,7 +285,13 @@ class _ResultCardState extends State<ResultCard> {
                   ),
                 ),
               ],
-              
+
+              // === Идея №4: WHO MIA — stewardship-плашка ===
+              if (widget.result.miaInfo != null) ...[
+                const SizedBox(height: 10),
+                MiaPlaque(info: widget.result.miaInfo!),
+              ],
+
               const SizedBox(height: 16),
               
               // Дозировка (главное!)
@@ -732,6 +740,13 @@ class _ResultCardState extends State<ResultCard> {
               style: TextStyle(color: isDark ? DsDark.faint : Colors.grey.shade600),
             ),
           ],
+
+          // === Идея №4: WHO MIA — stewardship-плашка ===
+          if (widget.result.miaInfo != null) ...[
+            const SizedBox(height: 10),
+            MiaPlaque(info: widget.result.miaInfo!),
+          ],
+
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
