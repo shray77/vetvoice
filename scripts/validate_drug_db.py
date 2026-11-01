@@ -608,8 +608,21 @@ def validate_drugs_calc(data, rep, file_label):
                 conc_unit=d.get('concentration_unit'),
                 conc_me=d.get('concentration_me'),
                 dose_ml_per_kg=obj.get('dose_ml_per_kg'))
-        # форма-путь: инъекция без концентрации — калькулятор деградирует
-        if calc and route_is_injection(d.get('form_type'), d.get('method')):
+        # форма-путь: инъекция без концентрации — калькулятор деградирует.
+        # Task 226 (модель фиксированных доз): исключение — непустой
+        # fixed_dose. Калькулятор с fixed_dose возвращает DoseResult ДО
+        # расчёта объёма (data_load_service.dart: fixedDoseTextFor →
+        # isFixedDose: true), concentration не читается вовсе; у
+        # интрамаммарных записей доза живёт в fixed_dose (г/мл суспензии
+        # в поражённую долю), а мг/мл там ложные (мг НА ШПРИЦ из кривого
+        # первичного наполнения). Пустой Map {} исключением НЕ является:
+        # fixedDoseTextFor вернёт null — калькулятор деградирует честно.
+        fx = d.get('fixed_dose')
+        has_fx = ((isinstance(fx, dict)
+                   and any(str(v).strip() for v in fx.values()))
+                  or (isinstance(fx, str) and fx.strip()))
+        if (calc and not has_fx
+                and route_is_injection(d.get('form_type'), d.get('method'))):
             if not is_number(d.get('concentration')) or d.get('concentration') <= 0:
                 if not (is_number(d.get('concentration_me'))
                         and d.get('concentration_me') > 0):

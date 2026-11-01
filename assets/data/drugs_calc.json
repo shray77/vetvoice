@@ -736,25 +736,23 @@
       "inn": "цефапирин, метилурацил, тербинафин.",
       "form": "Суспензия для интрацистернального введения и наружного применения",
       "form_type": "suspension",
-      "concentration": 383.3,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 75,
-      "dose_min": 60.0,
-      "dose_max": 90.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
-      "method": "внутрь",
-      "frequency": "1 раз в день",
-      "course_days": "4-8 недель",
+      "method": "внутривыменно",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "содержимое 1 шприца (цефапирин 300 мг + метилурацил 200 мг + тербинафин 5 мг) в каждую четверть вымени однократно при запуске (сухостойный период)"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
@@ -772,42 +770,13 @@
       "indications": "- ﻿﻿коровам, овцам и козам для профилактики (одномоментный запуск) и лечения маститов бактериальной и смешанной этиологии в сухостойный период; - ﻿﻿кошкам и собакам для лечения заболеваний кожи, характеризующихся нарушением ее целостности и воспалением (дерматиты и пиодерматиты, ожоги, обморожения, язвы, порезы, царапины, трещины, раны, инфицированные бактериальной и смешанной микрофлорой (включая стафилококк, синегнойную и кишечную палочки, дерматофиты)), в монотерапии и в составе комплексной терапии, а также для профилактики инфекций и снижения риска развития послеоперационных осложнений после хирургических вмешательств.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 75,
-          "dose_min": 60.0,
-          "dose_max": 90.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
           "notes": "Цефтонит, при мастите"
-        },
-        "МРС": {
-          "dose_per_kg": 1.5,
-          "dose_min": 1.0,
-          "dose_max": 2.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "1-2 мг/кг",
-          "course_days": "4-8 недель"
-        },
-        "Собаки": {
-          "dose_per_kg": 30.0,
-          "dose_min": 20.0,
-          "dose_max": 40.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "20-40 мг/кг",
-          "course_days": "4-8 недель"
-        },
-        "Кошки": {
-          "dose_per_kg": 30.0,
-          "dose_min": 20.0,
-          "dose_max": 40.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "route": "внутрь",
-          "notes": "20-40 мг/кг",
-          "course_days": "4-8 недель"
         }
       },
       "withdrawal_text": "КРС: мясо: 0 дн, молоко: 0 дн | Цефалоспорин 1 поколения. Нулевой период для молока при внутривыменном!"
@@ -5277,27 +5246,23 @@
       "inn": "окситетрациклин, неомицин, бацитрацин, преднизолон",
       "form": "Суспензия для интрацистернального введения и местного применения",
       "form_type": "suspension",
-      "concentration": 200.0,
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи",
-        "Птица"
+        "КРС"
       ],
-      "method": "наружно",
-      "frequency": "1-2 раза в день",
-      "course_days": "3-5 дней",
+      "method": "внутривыменно",
+      "frequency": "3-4 введения с интервалом 12 часов",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "8 г (1 шприц-туба: окситетрациклин 200 мг + неомицин 250 мг + бацитрацин 2000 МЕ + преднизолон 10 мг) в поражённую долю вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
@@ -5325,57 +5290,13 @@
       "indications": "Применяют крупному рогатому скоту и мелкому рогатому скоту (овцам и козам) для лечения клинической и субклинической форм мастита бактериальной этиологии в период лактации. Кошкам и собакам лекарственный препарат применяют с лечебной целью в монотерапии или в составе комплексной терапии при заболеваниях кожи (дерматиты, пиодерматиты, инфицированные раны, абсцессы и флегмоны), маститах, а также при остром и хроническом наружном отите аллергической и бактериальной этиологии.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "3-4 введения с интервалом 12 часов",
           "notes": "Окситетрациклин 200 ЛА"
-        },
-        "МРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день"
-        },
-        "Собаки": {
-          "dose_per_kg": 15.0,
-          "dose_min": 10.0,
-          "dose_max": 20.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1-2 раза в день",
-          "route": "наружно",
-          "notes": "10-20 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Кошки": {
-          "dose_per_kg": 15.0,
-          "dose_min": 10.0,
-          "dose_max": 20.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1-2 раза в день",
-          "route": "наружно",
-          "notes": "10-20 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "внутримышечно / перорально",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "перорально (с водой)",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -6949,25 +6870,24 @@
       "inn": "марбофлоксацин, цефтиофур, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 35.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 2,
-      "dose_min": 1.6,
-      "dose_max": 2.4,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "1 раз в день",
+      "frequency": "1 раз в сутки",
       "course_days": "3-5 дней",
-      "withdrawal_days": 14,
-      "fixed_dose": null,
+      "withdrawal_days": 3,
+      "fixed_dose": {
+        "КРС": "1 шприц (5 мл: марбофлоксацин 35 мг + цефтиофур 19,7 мг + преднизолон 3,5 мг) в поражённую долю вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "warnings": [
@@ -6991,37 +6911,13 @@
       "indications": "Для лечения коров в период лактации при субклиническом, катаральном, серозном, гнойно-катаральном мастите.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 2,
-          "dose_min": 1.6,
-          "dose_max": 2.4,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Марботил, 3-5 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 2,
-          "dose_min": 1,
-          "dose_max": 4,
-          "method": "перорально / подкожно",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
           "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 2,
-          "dose_min": 1,
-          "dose_max": 2,
-          "method": "перорально / подкожно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 2,
-          "dose_min": 1,
-          "dose_max": 4,
-          "method": "внутримышечно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "notes": "молоко и мясо — 72 часа"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -10318,14 +10214,14 @@
       "inn": "неомицин, амоксициллин, тербинафин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 150.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 15,
-      "dose_min": 10,
-      "dose_max": 20,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "МРС",
@@ -10361,8 +10257,8 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
           "frequency": "3-5 введений с интервалом 12 часов; в сухостойный период — однократно",
           "route": "внутривыменно",
@@ -10371,8 +10267,8 @@
         },
         "МРС": {
           "dose_per_kg": 0,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
           "frequency": "3-5 введений с интервалом 12 часов",
           "route": "внутривыменно",
@@ -10381,8 +10277,8 @@
         },
         "Лошади": {
           "dose_per_kg": 0,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
           "frequency": "3-5 введений с интервалом 12 часов",
           "route": "внутривыменно",
@@ -11208,14 +11104,14 @@
       "inn": "амоксициллин, клавулановая кислота, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 230.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "МРС"
@@ -11249,22 +11145,24 @@
       "indications": "для лечения клинической и субклинической форм мастита бактериальной этиологии у крупного и мелкого рогатого скота в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "method": "внутривыменно",
           "frequency": "трёхкратно с интервалом 12 часов",
-          "notes": "3 г (1 шприц-туба) в каждую поражённую долю; перед введением секрет выдаивают и утилизируют, сосок обрабатывают дезраствором; после введения верхушку соска пережимают на 1-2 минуты и массируют снизу-вверх"
+          "notes": "3 г (1 шприц-туба) в каждую поражённую долю; перед введением секрет выдаивают и утилизируют, сосок обрабатывают дезраствором; после введения верхушку соска пережимают на 1-2 минуты и массируют снизу-вверх",
+          "route": "внутривыменно"
         },
         "МРС": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "method": "внутривыменно",
           "frequency": "трёхкратно с интервалом 12 часов",
-          "dose_unit": "мг/кг",
-          "notes": "1,5 г (половина шприца-тубы) в каждую поражённую долю; процедура как у коров"
+          "dose_unit": "fixed",
+          "notes": "1,5 г (половина шприца-тубы) в каждую поражённую долю; процедура как у коров",
+          "route": "внутривыменно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -13779,28 +13677,22 @@
       "inn": "клоксациллин, амоксициллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 605.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8,
-      "dose_min": 6.4,
-      "dose_max": 9.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "МРС",
-        "Свиньи",
-        "Лошади"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "содержимое 1 шприца (клоксациллин + амоксициллин) в каждую четверть вымени однократно при запуске (сухостойный период)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -13821,52 +13713,13 @@
       "indications": "Применяют для профилактики и лечения мастита бактериальной этиологии у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в 12 часов",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
           "notes": "Мастисан, при мастите"
-        },
-        "Собаки": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / подкожно",
-          "frequency": "1 раз в 48 часов",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / подкожно",
-          "frequency": "1 раз в 48 часов",
-          "dose_unit": "мг/кг"
-        },
-        "МРС": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / подкожно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / подкожно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Лошади": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -15103,23 +14956,23 @@
       "inn": "цефкином",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 75.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1,
-      "dose_min": 0.8,
-      "dose_max": 1.2,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутримышечно, подкожно",
+      "method": "внутривыменно",
       "frequency": "1 раз в день",
       "course_days": "3-5 дней",
       "withdrawal_days": 5,
       "fixed_dose": null,
-      "calculator_applicable": true,
+      "calculator_applicable": false,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -15136,13 +14989,14 @@
       "indications": "Применяют для лечения маститов у коров в период лактации, вызванных чувствительными к цефкиному микроорганизмами в том числе: Escherichia соИ, Staphylococcus aureus. Streptococcus agalactiae. Streptococcus dysgalactiae и Streptococcus uberis.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 1.0,
-          "dose_min": 0.8,
-          "dose_max": 1.2,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "method": "Подкожно",
           "frequency": "1 раз в день",
-          "notes": "Эксецел XL, пролонгированный"
+          "notes": "Эксецел XL, пролонгированный",
+          "route": "внутривыменно"
         }
       },
       "withdrawal_text": "КРС: мясо: 5 дн, молоко: 0 дн | Можно дойным!"
@@ -24964,23 +24818,22 @@
       "inn": "клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 500.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 200,
-      "dose_min": 160.0,
-      "dose_max": 240.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
-      "withdrawal_days": 14,
+      "frequency": "однократно при запуске",
+      "withdrawal_days": 28,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "3 г (1 шприц-дозатор: клоксациллин 500 мг) в каждую четверть вымени однократно при запуске, не позднее 30 дней до отёла"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -24998,12 +24851,13 @@
       "indications": "Применяют для профилактики и лечения мастита бактериальной этиологии у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "мясо 28 суток; молоко — 5 суток после отёла"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -39571,19 +39425,19 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1.0,
-      "dose_min": 0.8,
-      "dose_max": 1.2,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутривенно, внутримышечно",
-      "frequency": "1-2 раза в день",
-      "course_days": "по инструкции",
+      "method": "внутривыменно",
+      "frequency": "с интервалом 12 часов",
+      "course_days": "3-4 суток",
       "withdrawal_days": 21,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "20 мл (диоксидин 10 мг/мл) в больную долю вымени, при субклиническом мастите — меньшие объёмы по инструкции"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -39601,12 +39455,14 @@
       "indications": "для лечения мастита у коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 1.0,
-          "dose_min": 0.8,
-          "dose_max": 1.2,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в сутки",
-          "notes": "Из файла: Фармоксидин®"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "с интервалом 12 часов",
+          "course_days": "3-4 суток",
+          "notes": "острые и хронические формы мастита"
         }
       }
     },
@@ -56141,26 +55997,23 @@
       "inn": "цефуроксим, неомицин, преднизолон",
       "form": "Суспензия для интрацистернального и внутриматочного введения",
       "form_type": "suspension",
-      "concentration": 62.7,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 0.5,
-      "dose_min": 0.2,
-      "dose_max": 2,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Лошади"
+        "КРС"
       ],
-      "method": "перорально / внутримышечно / внутривенно",
-      "frequency": "2 раза в день",
+      "method": "внутривыменно",
+      "frequency": "1 раз в сутки",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "5 мл (1 шприц-дозатор: цефуроксим 62,7 мг + неомицин 9 мг + преднизолон 2,7 мг) в поражённую четверть вымени после сдаивания"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -56189,37 +56042,12 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "2 раза в день",
-          "route": "по инструкции",
-          "notes": "5-10 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно / внутривенно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 1,
-          "dose_min": 0.5,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Лошади": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 1,
-          "method": "внутримышечно / внутривенно",
+          "route": "внутривыменно",
           "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "notes": "при скрытых эндометритах — 20 мл в полость матки однократно через 6-24 ч после осеменения"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -63804,23 +63632,25 @@
       "inn": "ампициллин, клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 75.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 7.5,
-      "dose_min": 5.0,
-      "dose_max": 10.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
         "МРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "3 введения с интервалом 12 часов",
       "withdrawal_days": 12,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "1 шприц (8 мл) в поражённую долю вымени после сдаивания",
+        "МРС": "½ шприца в поражённую долю вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
@@ -63837,24 +63667,23 @@
       "category": "Антибактериальные",
       "indications": "для лечения мастита у коров, овец и коз в период лактации",
       "animal_specific": {
-        "МРС": {
-          "dose_per_kg": 7.5,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
-          "dose_unit": "мг/кг",
-          "frequency": "после каждого доения",
-          "route": "внутривыменно",
-          "notes": "5-10 мг/кг",
-          "course_days": "5-7 дней"
-        },
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Внутримышечно",
-          "frequency": "1 раз в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "3 введения с интервалом 12 часов",
           "notes": "Мастисан, при мастите"
+        },
+        "МРС": {
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "3 введения с интервалом 12 часов",
+          "notes": "5-10 мг/кг"
         }
       },
       "withdrawal_text": "КРС: мясо: 14 дн, молоко: 3 дн | МРС: мясо: 14 дн, молоко: 3 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 5 дн"
@@ -63965,23 +63794,24 @@
       "inn": "прокаина бензилпенициллин, дигидрострептомицина сульфат, нафциллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 300.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 300000,
       "unit": "мл",
-      "dose_per_kg": 8000,
-      "dose_min": 6400,
-      "dose_max": 9600,
-      "dose_unit": "МЕ/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "инфильтрационно",
-      "frequency": "по необходимости",
-      "course_days": "35 суток",
+      "method": "внутривыменно",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 6,
-      "fixed_dose": null,
-      "calculator_applicable": false,
+      "fixed_dose": {
+        "КРС": "1 шприц (3 г: пенициллина G прокаин 100 мг + нафциллин + дигидрострептомицин) в каждую четверть вымени однократно при запуске (сухостойный период)"
+      },
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
         "lactation": true,
@@ -64001,16 +63831,13 @@
       "indications": "для лечения мастита у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8000,
-          "dose_min": 6400.0,
-          "dose_max": 9600.0,
-          "dose_unit": "МЕ/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Бициллин, МЕ/кг",
-          "dose_me_per_kg": 8000,
-          "dose_me_min": 6400.0,
-          "dose_me_max": 9600.0
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "Бициллин, МЕ/кг"
         }
       },
       "dose_me_per_kg": 8000,
@@ -64638,25 +64465,23 @@
       "inn": "тетрациклин, неомицин, бацитрацин, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 200.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 7.5,
-      "dose_min": 7.5,
-      "dose_max": 7.5,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Лошади"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "1-2 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "однократно; при необходимости повтор через 24 часа",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "содержимое 1 шприца в поражённую четверть вымени непосредственно после доения"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
@@ -64683,38 +64508,13 @@
       "indications": "для лечения мастита у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 7.5,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1-2 раза в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "route": "внутривыменно",
-          "notes": "5-10 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно / внутривенно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 1,
-          "dose_min": 0.5,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Лошади": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 1,
-          "method": "внутримышечно / внутривенно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "frequency": "однократно; при необходимости повтор через 24 часа",
+          "notes": "5-10 мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -65308,22 +65108,23 @@
       "inn": "левофлоксацин, нозигептид, преднизолон",
       "form": "Гель для интрацистернального введения",
       "form_type": "topical",
-      "concentration": 1000.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 0.6,
-      "dose_min": 0.6,
-      "dose_max": 0.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутрь, внутривенно",
-      "frequency": "1 раз в день",
-      "course_days": "5-7 дней",
+      "method": "внутривыменно",
+      "frequency": "1-2 введения с интервалом 24 часа",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "10 г (1 шприц геля: левофлоксацин + нозигептид) в поражённую долю вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
@@ -65350,14 +65151,13 @@
       "indications": "применяют для лечения субклинических и клинических форм мастита у коров в период лактации, вызванных чувствительными к левофлоксацину и нозигептиду микроорганизмами",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 0.6,
-          "dose_min": 0.2,
-          "dose_max": 1.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "route": "внутрь, внутривенно",
-          "notes": "0.2-1 мг/кг",
-          "course_days": "5-7 дней"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "1-2 введения с интервалом 24 часа",
+          "notes": "0.2-1 мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -93463,23 +93263,22 @@
       "inn": "ампициллин, клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 250.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8,
-      "dose_min": 6.4,
-      "dose_max": 9.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 12,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "8 г (1 шприц: ампициллин 250 мг + клоксациллин 500 мг) в каждую четверть вымени однократно при запуске, не позднее 42 дней до отёла"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -93498,12 +93297,12 @@
       "indications": "назначают с лечебной и лечебно-профилактической целью при мастите у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Внутримышечно",
-          "frequency": "1 раз в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
           "notes": "Мастисан, при мастите"
         }
       },
@@ -94595,23 +94394,22 @@
       "inn": "клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 600.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 200,
-      "dose_min": 160.0,
-      "dose_max": 240.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "3,6 г (1 шприц: клоксациллин 600 мг) в каждую четверть вымени однократно при запуске, не позднее 42 дней до отёла"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -94629,12 +94427,12 @@
       "indications": "Применяют однократно для лечения мастита коров перед переводом в сухостойный период,  но не позднее 42 дней до предполагаемого отела",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -102802,25 +102600,24 @@
       "inn": "цефалониум",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 250.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
       "dose_min": 0,
       "dose_max": 0,
-      "dose_unit": "мг/кг",
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "Однократно",
-      "course_days": "по инструкции",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "внутривыменно"
+        "КРС": "1 шприц (цефалониум 250 мг) в каждую четверть вымени однократно при запуске, не позднее 54 дней до отёла"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -102838,13 +102635,12 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "Однократно",
-          "route": "наружно",
-          "notes": "внутривыменно",
-          "course_days": "по инструкции"
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "молоко — 96 ч после отёла"
         }
       }
     },
@@ -104229,23 +104025,25 @@
       "inn": "пенициллин, стрептомицин, сульфадимезин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 410.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
-      "dose_min": 6400.0,
-      "dose_max": 9600.0,
-      "dose_unit": "мг/кг",
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2-3 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в 24 часа",
+      "course_days": "5-8 дней (при гнойно-катаральном до 10)",
       "withdrawal_days": 6,
-      "fixed_dose": null,
-      "calculator_applicable": false,
+      "fixed_dose": {
+        "КРС": "5-20 мл в поражённую четверть вымени после сдаивания (флакон подогреть до 36-39 °C, набрать стерильным шприцем)"
+      },
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
         "lactation": true,
@@ -104264,13 +104062,14 @@
       "indications": "для лечения мастита у лактирующих коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8000,
-          "dose_min": 6400.0,
-          "dose_max": 9600.0,
-          "dose_unit": "МЕ/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Пенстреп"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "1 раз в 24 часа",
+          "course_days": "5-8 дней (при гнойно-катаральном до 10)",
+          "notes": "молоко — 3 суток"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -105230,23 +105029,24 @@
       "inn": "висмута субнитрат",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 600.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
       "dose_min": 0,
       "dose_max": 0,
-      "dose_unit": "мг/кг",
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутрь",
-      "frequency": "1 раз в сутки",
-      "course_days": "3-7 дней",
+      "method": "внутривыменно",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 0,
-      "fixed_dose": null,
-      "calculator_applicable": false,
+      "fixed_dose": {
+        "КРС": "содержимое 1 шприца (висмута субнитрат, тейт-сил) в каждый сосок вымени всем коровам после последней дойки перед запуском"
+      },
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": true,
@@ -105263,14 +105063,13 @@
       "indications": "для профилактики инфицирования вымени у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 7.5,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
-          "dose_unit": "мг/кг",
-          "frequency": "2-3 раза в день",
-          "route": "внутрь",
-          "notes": "5-10 г",
-          "course_days": "по инструкции"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "антисептический барьерный препарат, не антибиотик"
         }
       }
     },
@@ -106049,27 +105848,23 @@
       "inn": "гентамицин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 17.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1.7,
-      "dose_min": 1.36,
-      "dose_max": 2.04,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи",
-        "Птица"
+        "КРС"
       ],
       "method": "внутривыменно",
       "frequency": "2-3 раза в день",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "10 мл (1 шприц-дозатор) в поражённую четверть вымени"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -106095,45 +105890,14 @@
       "indications": "для лечения мастита у лактирующих коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 3,
-          "dose_min": 2.4,
-          "dose_max": 3.6,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "method": "Инъекционно",
           "frequency": "1-2 раза в день",
-          "notes": "Гентам"
-        },
-        "Собаки": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно / внутривенно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 3,
-          "dose_min": 2,
-          "dose_max": 4,
-          "method": "внутримышечно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 5,
-          "dose_min": 3,
-          "dose_max": 10,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
+          "notes": "Гентам",
+          "route": "внутривыменно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -110119,25 +109883,24 @@
       "inn": "новобиоцин, бензилпенициллин, неомицин, дигидрострептомицин, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 100.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Лошади"
+        "КРС"
       ],
       "method": "внутривыменно",
       "frequency": "2-3 раза в день",
       "course_days": "3-5 дней",
       "withdrawal_days": 6,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "10 мл (1 аппликатор: новобиоцин + бензилпенициллин + неомицин + дигидрострептомицин) в поражённую четверть вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "warnings": [
@@ -110163,36 +109926,13 @@
       "indications": "для лечения мастита у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "frequency": "1 раз в день",
-          "notes": "Мастисан-А"
-        },
-        "Собаки": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно / внутривенно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 1,
-          "dose_min": 0.5,
-          "dose_max": 2,
-          "method": "перорально / внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Лошади": {
-          "dose_per_kg": 0.5,
-          "dose_min": 0.2,
-          "dose_max": 1,
-          "method": "внутримышечно / внутривенно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "notes": "Мастисан-А",
+          "route": "внутривыменно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -117460,23 +117200,22 @@
       "inn": "клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 500.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 200,
-      "dose_min": 160.0,
-      "dose_max": 240.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
-      "withdrawal_days": 14,
+      "frequency": "однократно при запуске (сразу по завершении лактации)",
+      "withdrawal_days": 28,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "3 г (1 шприц-дозатор: клоксациллин 500 мг) в каждую четверть вымени однократно после последней дойки при запуске"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -117494,12 +117233,13 @@
       "indications": "для лечения мастита у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске (сразу по завершении лактации)",
+          "notes": "мясо 28 суток; молоко — 252 ч после отёла"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -117561,23 +117301,22 @@
       "inn": "клоксациллин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 600.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 200,
-      "dose_min": 160.0,
-      "dose_max": 240.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "внутривыменное введение"
+        "КРС": "3,6 г (1 шприц: клоксациллин 600 мг) в каждую четверть вымени однократно при запуске, не позднее 42 дней до отёла"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -117595,12 +117334,13 @@
       "indications": "для профилактики и лечения мастита у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "действие до 7 недель сухостоя"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -119061,23 +118801,22 @@
       "inn": "амоксициллин, клавулановая кислота, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 200.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "по 1 шприцу в поражённую четверть с интервалом 12 часов (3 введения)",
-      "course_days": "3-5 дней",
-      "withdrawal_days": 14,
+      "frequency": "трёхкратно с интервалом 12 часов",
+      "withdrawal_days": 7,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "3 г (1 шприц: амоксициллин 200 мг + клавулановая кислота 50 мг + преднизолон 10 мг) в поражённую долю вымени после сдаивания"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -119101,13 +118840,13 @@
       "indications": "для лечения мастита у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "по 1 шприцу в поражённую четверть с интервалом 12 часов (3 введения)",
-          "notes": "КРС, 3-5 дней"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "трёхкратно с интервалом 12 часов",
+          "notes": "молоко — 72 ч после последнего введения; мясо 7 суток"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -119958,22 +119697,23 @@
       "inn": "цефкином",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 75.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 1,
-      "dose_min": 0.8,
-      "dose_max": 1.2,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутримышечно, подкожно",
-      "frequency": "1 раз в день",
-      "course_days": "3-5 дней",
+      "method": "внутривыменно",
+      "frequency": "трёхкратно с интервалом 12 часов",
       "withdrawal_days": 5,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "по 1 шприцу в каждую поражённую четверть вымени после доения"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
@@ -119991,12 +119731,12 @@
       "indications": "для лечения маститов у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 1.0,
-          "dose_min": 0.8,
-          "dose_max": 1.2,
-          "dose_unit": "мг/кг",
-          "method": "Подкожно",
-          "frequency": "1 раз в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "трёхкратно с интервалом 12 часов",
           "notes": "Эксецел XL, пролонгированный"
         }
       },
@@ -133883,25 +133623,24 @@
       "inn": "гидроксиметилхиноксалиндиоксид, линкомицин, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 28.8,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 0.6,
-      "dose_min": 0.6,
-      "dose_max": 0.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в сутки",
+      "course_days": "2-3 дня (субклинический)",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "10 мл в поражённую четверть вымени после сдаивания"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
@@ -133925,38 +133664,14 @@
       "indications": "для лечения мастита у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 0.6,
-          "dose_min": 0.2,
-          "dose_max": 1.0,
-          "dose_unit": "мг/кг",
-          "frequency": "2 раза в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "route": "внутривыменно",
-          "notes": "0.2-1 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / перорально",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "внутримышечно / перорально",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 15,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
+          "frequency": "1 раз в сутки",
+          "course_days": "2-3 дня (субклинический)",
+          "notes": "0.2-1 мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -134541,24 +134256,19 @@
       "inn": "неомицин, доксициклин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 6.6,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи",
-        "Птица"
+        "КРС"
       ],
       "method": "внутривыменно",
       "frequency": "2 раза в день",
-      "course_days": "7-14 дней",
       "withdrawal_days": 14,
       "fixed_dose": {
         "КРС": "10 мл"
@@ -134588,44 +134298,13 @@
       "indications": "для профилактики и лечения мастита у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "method": "Перорально",
-          "frequency": "1 раз в день"
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 10,
-          "method": "перорально (с едой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 10,
-          "method": "перорально (с едой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 10,
-          "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 10,
-          "dose_min": 10,
-          "dose_max": 20,
-          "method": "перорально (с водой)",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
+          "frequency": "1 раз в день",
+          "route": "внутривыменно"
         }
       },
       "withdrawal_text": "КРС: мясо: 14 дн, молоко: 3 дн"
@@ -135790,25 +135469,23 @@
       "inn": "эритромицин",
       "form": "Раствор для интрацистернального введения",
       "form_type": "injection",
-      "concentration": 45.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10.0,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
-      "method": "перорально",
-      "frequency": "3 раза в день",
-      "course_days": "3-7 дней",
+      "method": "внутривыменно",
+      "frequency": "1 раз в сутки",
+      "course_days": "3-4 дня",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "5 мл в поражённую долю вымени (субклинический, серозный, катаральный мастит)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -135827,27 +135504,13 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 2.0,
-          "dose_max": 5.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "2-3 раза в день",
           "route": "внутривыменно",
-          "notes": "2-5 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "3 раза в день",
-          "notes": "Макролид. 10-20 мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "3 раза в день",
-          "notes": "Макролид"
+          "frequency": "1 раз в сутки",
+          "course_days": "3-4 дня",
+          "notes": "2-5 мг/кг"
         }
       }
     },
@@ -136693,30 +136356,25 @@
       "inn": "эритромицин, окситетрациклин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 17.5,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС",
-        "Свиньи",
-        "Птица",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2-3 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в сутки",
+      "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "по 5 мл в поражённую долю 1 раз в сутки 3-4 дня (гнойный мастит: первая доза 10 мл)"
+        "КРС": "5 мл в поражённую долю вымени (при гнойно-катаральном мастите первое введение 10 мл, далее по 5 мл)"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "warnings": [
           "Тяжёлые нарушения функции печени и почек. Не применять с молоком, антацидами, препаратами кальция."
@@ -136740,52 +136398,13 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
+          "route": "внутривыменно",
+          "frequency": "1 раз в сутки",
+          "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
           "notes": "интрацистернально (в сосковый канал)"
-        },
-        "МРС": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "внутримышечно / перорально",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "перорально (с водой)",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -136928,27 +136547,23 @@
       "inn": "гидроксиметилхиноксалиндиоксид, гентамицин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 17.5,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 3,
-      "dose_min": 2.4,
-      "dose_max": 3.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи",
-        "Птица"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2-3 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в сутки",
+      "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "5 мл в поражённую четверть вымени (при гнойно-катаральном мастите — сначала 10 мл, далее по 5 мл)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -136974,45 +136589,14 @@
       "indications": "для лечения мастита у лактирующих коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 3,
-          "dose_min": 2.4,
-          "dose_max": 3.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "1-2 раза в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "1 раз в сутки",
+          "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
           "notes": "Гентам"
-        },
-        "Собаки": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно / внутривенно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 3,
-          "dose_min": 2,
-          "dose_max": 4,
-          "method": "внутримышечно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 5,
-          "dose_min": 3,
-          "dose_max": 10,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -137174,23 +136758,23 @@
       "inn": "неомицина сульфат",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 35.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в сутки",
+      "course_days": "3-4 дня",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "10 мл"
+        "КРС": "5 мл в поражённую долю вымени после сдаивания (субклинический, серозный, катаральный мастит)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -137212,12 +136796,13 @@
       "indications": "для лечения мастита у лактирующих коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "method": "Перорально",
-          "frequency": "2 раза в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "1 раз в сутки",
+          "course_days": "3-4 дня",
           "notes": "При диарее"
         }
       },
@@ -137229,28 +136814,23 @@
       "inn": "тетрациклин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 35.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 5,
-      "dose_max": 20,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС",
-        "Свиньи",
-        "Птица",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "1-2 раза в день",
-      "course_days": "3-5 дней",
-      "withdrawal_days": 14,
+      "frequency": "1 раз в сутки",
+      "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
+      "withdrawal_days": 7,
       "fixed_dose": {
-        "КРС": "10 мл"
+        "КРС": "5 мл в поражённую долю вымени (при гнойно-катаральном мастите — первое введение 10 мл)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -137277,53 +136857,13 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 5.0,
-          "dose_max": 10.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
           "route": "внутривыменно",
-          "notes": "5-10 мг/кг",
-          "course_days": "3-5 дней"
-        },
-        "МРС": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "внутримышечно / перорально",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "перорально (с водой)",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
           "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "course_days": "3-4 дня (гнойно-катаральный — 5-8 дней)",
+          "notes": "молоко 7 суток; мясо 7 суток"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -138284,23 +137824,23 @@
       "inn": "гентамицин, клиндамицин, лидокаин",
       "form": "Гель для интрацистернального введения",
       "form_type": "topical",
-      "concentration": 15.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 4,
-      "dose_min": 2,
-      "dose_max": 6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "внутримышечно / внутривенно / подкожно",
-      "frequency": "2-3 раза в день",
+      "method": "внутривыменно",
+      "frequency": "1 раз в сутки",
       "course_days": "3-5 дней",
-      "withdrawal_days": 14,
+      "withdrawal_days": 5,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "10 мл (1 шприц-катетер) в поражённую четверть вымени после сдаивания"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -138327,13 +137867,13 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 2.0,
-          "dose_max": 4.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "2-3 раза в день",
-          "route": "по инструкции",
-          "notes": "2-4 мг/кг",
-          "course_days": "3-5 дней"
+          "route": "внутривыменно",
+          "frequency": "1 раз в сутки",
+          "course_days": "3-5 дней",
+          "notes": "молоко 3 суток; мясо 5 суток"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -140719,27 +140259,24 @@
       "inn": "повидон-йод",
       "form": "Гель для интрацистернального введения и наружного применения",
       "form_type": "topical",
-      "concentration": 0.065,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
       "dose_min": 0,
       "dose_max": 0,
-      "dose_unit": "мг/кг",
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Лошади"
+        "КРС"
       ],
-      "method": "наружно",
-      "frequency": "1 раз в сутки",
-      "course_days": "3-7 дней",
+      "method": "внутривыменно",
+      "frequency": "1-3 введения с интервалом 12 часов",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "наружно",
-        "Лошади": "наружно"
+        "КРС": "10 мл (1 шприц-катетер, повидон-йод) на четверть вымени"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -140756,23 +140293,12 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "наружно",
-          "notes": "наружно",
-          "course_days": "3-5 дней"
-        },
-        "Лошади": {
-          "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
-          "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "наружно",
-          "notes": "наружно",
-          "course_days": "3-5 дней"
+          "route": "внутривыменно",
+          "frequency": "1-3 введения с интервалом 12 часов",
+          "notes": "молоко из здоровых долей — без ограничений"
         }
       }
     },
@@ -140782,27 +140308,26 @@
       "inn": "клоксациллин, неомицин, дексаметазон, трипсин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 250.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 0.06,
-      "dose_min": 0.02,
-      "dose_max": 0.1,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
-        "МРС",
-        "Собаки",
-        "Кошки",
-        "Лошади",
-        "Свиньи"
+        "МРС"
       ],
       "method": "внутривыменно",
       "frequency": "после каждого доения",
       "course_days": "5-7 дней",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "10 мл (1 инъектор) в поражённую четверть вымени после доения",
+        "МРС": "5 мл (½ инъектора) в поражённую четверть вымени после доения"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "warnings": [
@@ -140828,54 +140353,23 @@
       "indications": "лечение мастита бактериальной этиологии у коров, овец и коз в период лактации",
       "animal_specific": {
         "МРС": {
-          "dose_per_kg": 0.06,
-          "dose_min": 0.02,
-          "dose_max": 0.1,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "frequency": "после каждого доения",
           "route": "внутривыменно",
           "notes": "0.02-0.1 мг/кг",
           "course_days": "5-7 дней"
         },
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "method": "Инъекционно",
-          "frequency": "2 раза в день"
-        },
-        "Собаки": {
-          "dose_per_kg": 0.1,
-          "dose_min": 0.02,
-          "dose_max": 0.5,
-          "method": "внутримышечно / внутривенно / подкожно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 0.1,
-          "dose_min": 0.02,
-          "dose_max": 0.5,
-          "method": "внутримышечно / подкожно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Лошади": {
-          "dose_per_kg": 0.05,
-          "dose_min": 0.02,
-          "dose_max": 0.1,
-          "method": "внутривенно / внутримышечно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 0.1,
-          "dose_min": 0.02,
-          "dose_max": 0.5,
-          "method": "внутримышечно",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "мг/кг"
+          "frequency": "2 раза в день",
+          "route": "внутривыменно"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -142399,22 +141893,23 @@
       "inn": "цефапирин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 300.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "1-2 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "однократно при запуске",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "10 мл (1 шприц-дозатор: цефапирин 300 мг) в каждую четверть вымени однократно при запуске, не позднее 35 дней до отёла"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
@@ -142431,12 +141926,13 @@
       "indications": "назначают с лечебной и лечебно-профилактической целью при маститах у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 75,
-          "dose_min": 60.0,
-          "dose_max": 90.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в день",
-          "notes": "Цефтонит, при мастите"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "молоко после отёла — без ограничений; мясо 14 суток"
         }
       },
       "withdrawal_text": "КРС: мясо: 0 дн, молоко: 0 дн | Цефалоспорин 1 поколения. Нулевой период для молока при внутривыменном!"
@@ -144662,24 +144158,23 @@
       "inn": "цефалексин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 500.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 20.0,
-      "dose_min": 16.0,
-      "dose_max": 24.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
-      "method": "перорально",
-      "frequency": "2 раза в день",
-      "course_days": "5-7 дней",
+      "method": "внутривыменно",
+      "frequency": "однократно",
       "withdrawal_days": 14,
-      "fixed_dose": null,
+      "fixed_dose": {
+        "КРС": "содержимое 1 инъектора (цефалексин 500 мг) в поражённую четверть вымени; с профилактической целью — в каждую четверть после последней дойки"
+      },
       "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
@@ -144696,28 +144191,13 @@
       "indications": "для лечения и профилактики мастита у коров в сухостойный период",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 12.5,
-          "dose_min": 10.0,
-          "dose_max": 15.0,
-          "dose_unit": "мг/кг",
-          "frequency": "2 раза в день",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
           "route": "внутривыменно",
-          "notes": "10-15 мг/кг",
-          "course_days": "7-10 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 20,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "2 раза в день",
-          "notes": "Цефалоспорин I поколения"
-        },
-        "Кошки": {
-          "dose_per_kg": 20,
-          "dose_unit": "мг/кг",
-          "method": "перорально",
-          "frequency": "2 раза в день",
-          "notes": "Цефалоспорин I поколения"
+          "frequency": "однократно",
+          "notes": "10-15 мг/кг"
         }
       }
     },
@@ -149004,19 +148484,18 @@
       "inn": "клоксациллин, неомицин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 100.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10.0,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "Собаки"
+        "КРС"
       ],
-      "method": "местно",
+      "method": "внутривыменно",
       "frequency": "2 раза в день",
       "course_days": "5-7 дней",
       "withdrawal_days": 14,
@@ -149045,16 +148524,9 @@
           "dose_max": 0,
           "dose_unit": "fixed",
           "frequency": "после каждого доения",
-          "route": "наружно",
+          "route": "внутривыменно",
           "notes": "внутривыменное введение",
           "course_days": "5-7 дней"
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_unit": "мг/кг",
-          "method": "местно",
-          "frequency": "2 раза в день",
-          "notes": "Кожные инфекции"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -151735,23 +151207,25 @@
       "inn": "пенициллин, стрептомицин, сульфадимезин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 250.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
-      "dose_min": 6400.0,
-      "dose_max": 9600.0,
-      "dose_unit": "мг/кг",
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2-3 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в 24 часа",
+      "course_days": "5-8 дней",
       "withdrawal_days": 6,
-      "fixed_dose": null,
-      "calculator_applicable": false,
+      "fixed_dose": {
+        "КРС": "5-20 мл в поражённую четверть вымени после полного сдаивания (подогреть до 36-39 °C)"
+      },
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": true,
         "lactation": true,
@@ -151770,13 +151244,14 @@
       "indications": "для лечения мастита у лактирующих коров",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8000,
-          "dose_min": 6400.0,
-          "dose_max": 9600.0,
-          "dose_unit": "МЕ/кг",
-          "method": "Инъекционно",
-          "frequency": "1 раз в день",
-          "notes": "Пенстреп"
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "1 раз в 24 часа",
+          "course_days": "5-8 дней",
+          "notes": "молоко — 3 суток"
         }
       },
       "pregnancy_contraindicated_animals": [
@@ -153710,25 +153185,25 @@
       "inn": "прополис",
       "form": "Гель для интрацистернального и внутриматочного применения",
       "form_type": "topical",
-      "concentration": 10.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
       "dose_per_kg": 0,
       "dose_min": 0,
       "dose_max": 0,
-      "dose_unit": "мг/кг",
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
-      "method": "наружно",
-      "frequency": "наружно",
+      "method": "внутривыменно",
+      "frequency": "1 раз в сутки",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
       "fixed_dose": {
-        "КРС": "наружно"
+        "КРС": "10 мл на одну четверть вымени (гель с прополисом, без антибиотиков)"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -153745,13 +153220,12 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "1-2 раза в день",
-          "route": "наружно",
-          "notes": "наружно",
-          "course_days": "по инструкции"
+          "route": "внутривыменно",
+          "frequency": "1 раз в сутки",
+          "notes": "наружно"
         }
       }
     },
@@ -154297,14 +153771,14 @@
       "inn": "ампициллин, клоксациллин",
       "form": "Стерильная суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": "8 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8,
-      "dose_min": 6.4,
-      "dose_max": 9.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
@@ -154315,7 +153789,7 @@
       "fixed_dose": {
         "КРС": "по 1 шприцу в поражённую долю каждые 12 часов, курс 3 введения"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": false,
@@ -154337,7 +153811,8 @@
           "dose_unit": "fixed",
           "method": "Внутримышечно",
           "frequency": "1 раз в день",
-          "notes": "интрацистернально (в сосковый канал)"
+          "notes": "интрацистернально (в сосковый канал)",
+          "route": "внутривыменно"
         }
       },
       "withdrawal_text": "КРС: мясо: 14 дн, молоко: 3 дн"
@@ -156683,25 +156158,22 @@
       "inn": "клоксациллин, неомицин, сульфадимидин, химотрипсин",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 250.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8,
-      "dose_min": 6.4,
-      "dose_max": 9.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "5-7 дней",
+      "frequency": "однократно в начале сухостойного периода",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "внутривыменное введение",
-        "МРС": "внутривыменное введение"
+        "КРС": "1 шприц (10 г: клоксациллин 250 мг + неомицин 200 мг + сульфадимидин 500 мг + химотрипсин 8 мг) на четверть вымени (профилактически — во все четверти при запуске)"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -156719,22 +156191,12 @@
       "indications": "применяют для лечения мастита у коров, овец и коз в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 8,
-          "dose_min": 6.4,
-          "dose_max": 9.6,
-          "dose_unit": "мг/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день"
-        },
-        "МРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "после каждого доения",
-          "route": "наружно",
-          "notes": "внутривыменное введение",
-          "course_days": "5-7 дней"
+          "route": "внутривыменно",
+          "frequency": "однократно в начале сухостойного периода"
         }
       },
       "withdrawal_text": "КРС: мясо: 10 дн, молоко: 5 дн | Свиньи: мясо: 10 дн | Овцы: мясо: 10 дн, молоко: 5 дн | Пенициллиназоустойчивый пенициллин. Для маститов."
@@ -157447,28 +156909,25 @@
       "inn": "бензилпенициллин, окситетрациклин, неомицин, преднизолон",
       "form": "Суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 100.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 100000,
       "unit": "мл",
-      "dose_per_kg": 10000,
-      "dose_min": 8000.0,
-      "dose_max": 12000.0,
-      "dose_unit": "МЕ/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
-        "КРС",
-        "МРС",
-        "Свиньи",
-        "Птица",
-        "Собаки",
-        "Кошки"
+        "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2-3 раза в день",
-      "course_days": "3-5 дней",
+      "frequency": "1 раз в сутки",
+      "course_days": "3 дня подряд",
       "withdrawal_days": 6,
-      "fixed_dose": null,
-      "calculator_applicable": false,
+      "fixed_dose": {
+        "КРС": "содержимое 1 шприца в поражённую четверть вымени после удаления секрета"
+      },
+      "calculator_applicable": true,
       "contraindications": {
         "warnings": [
           "Тяжёлые нарушения функции печени и почек. Не применять с молоком, антацидами, препаратами кальция."
@@ -157491,71 +156950,14 @@
       "indications": "для лечения мастита у коров в период лактации",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10000,
-          "dose_min": 8000.0,
-          "dose_max": 12000.0,
-          "dose_unit": "МЕ/кг",
-          "method": "Инъекционно",
-          "frequency": "2 раза в день",
-          "notes": "Бензилпенициллин, МЕ/кг",
-          "dose_me_per_kg": 10000,
-          "dose_me_min": 8000.0,
-          "dose_me_max": 12000.0
-        },
-        "МРС": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "внутримышечно",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "МЕ/кг",
-          "dose_me_per_kg": 10,
-          "dose_me_min": 5,
-          "dose_me_max": 20
-        },
-        "Свиньи": {
-          "dose_per_kg": 15,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "внутримышечно / перорально",
-          "frequency": "1-2 раза в сутки",
-          "dose_unit": "МЕ/кг",
-          "dose_me_per_kg": 15,
-          "dose_me_min": 10,
-          "dose_me_max": 30
-        },
-        "Птица": {
-          "dose_per_kg": 20,
-          "dose_min": 10,
-          "dose_max": 30,
-          "method": "перорально (с водой)",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "МЕ/кг",
-          "dose_me_per_kg": 20,
-          "dose_me_min": 10,
-          "dose_me_max": 30
-        },
-        "Собаки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
           "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг",
-          "dose_me_per_kg": 10,
-          "dose_me_min": 5,
-          "dose_me_max": 20
-        },
-        "Кошки": {
-          "dose_per_kg": 10,
-          "dose_min": 5,
-          "dose_max": 20,
-          "method": "перорально",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг",
-          "dose_me_per_kg": 10,
-          "dose_me_min": 5,
-          "dose_me_max": 20
+          "course_days": "3 дня подряд",
+          "notes": "Бензилпенициллин, МЕ/кг"
         }
       },
       "dose_me_per_kg": 10000,
@@ -159036,25 +158438,24 @@
       "inn": "ампициллина тригидрат и клоксациллина бензатиновая соль",
       "form": "Стерильная суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": "250 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8,
-      "dose_min": 6.4,
-      "dose_max": 9.6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС"
       ],
       "method": "внутривыменно",
-      "frequency": "после каждого доения",
-      "course_days": "45 суток",
-      "withdrawal_days": 12,
+      "frequency": "однократно при запуске",
+      "withdrawal_days": 28,
       "fixed_dose": {
-        "КРС": "по 1 шприцу в поражённую долю по инструкции (интрадуктально)"
+        "КРС": "4,5 г (1 инъектор: ампициллин 250 мг + клоксациллин 500 мг) в каждую четверть вымени однократно при запуске, не позднее 45 суток до отёла"
       },
-      "calculator_applicable": false,
+      "calculator_applicable": true,
       "contraindications": {
         "pregnancy": false,
         "lactation": true,
@@ -159072,12 +158473,12 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 0,
-          "dose_max": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "method": "Внутримышечно",
-          "frequency": "1 раз в день",
-          "notes": "интрацистернально (в сосковый канал)"
+          "route": "внутривыменно",
+          "frequency": "однократно при запуске",
+          "notes": "мясо 28 суток; молоко — 96 ч после отёла"
         }
       },
       "withdrawal_text": "КРС: мясо: 14 дн, молоко: 3 дн"
@@ -161629,27 +161030,24 @@
       "inn": "цефалексина моногидрат, гентамицина сульфат",
       "form": "Стерильная суспензия для интрацистернального введения",
       "form_type": "suspension",
-      "concentration": 40.0,
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 4,
-      "dose_min": 2,
-      "dose_max": 6,
-      "dose_unit": "мг/кг",
+      "dose_per_kg": 0,
+      "dose_min": 0.0,
+      "dose_max": 0.0,
+      "dose_unit": "fixed",
       "animals": [
         "КРС",
-        "Собаки",
-        "Кошки",
-        "Свиньи",
-        "Птица"
+        "МРС"
       ],
       "method": "внутривыменно",
-      "frequency": "2 раза в день",
-      "course_days": "7-10 дней",
+      "frequency": "как правило, достаточно однократного введения",
       "withdrawal_days": 14,
       "fixed_dose": {
-        "КРС": "1 шприц (10 мл) в каждую долю вымени"
+        "КРС": "10 мл (1 шприц-дозатор) в поражённую долю вымени",
+        "МРС": "5 мл (½ шприца-дозатора) в поражённую долю вымени"
       },
       "calculator_applicable": true,
       "contraindications": {
@@ -161675,45 +161073,20 @@
       "animal_specific": {
         "КРС": {
           "dose_per_kg": 0,
-          "dose_min": 2.0,
-          "dose_max": 4.0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
           "dose_unit": "fixed",
-          "frequency": "2 раза в день",
           "route": "внутривыменно",
-          "notes": "2-4 мг/кг",
-          "course_days": "7-10 дней"
+          "frequency": "как правило, достаточно однократного введения",
+          "notes": "2-4 мг/кг"
         },
-        "Собаки": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно / внутривенно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Кошки": {
-          "dose_per_kg": 3,
-          "dose_min": 2,
-          "dose_max": 4,
-          "method": "внутримышечно / подкожно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Свиньи": {
-          "dose_per_kg": 4,
-          "dose_min": 2,
-          "dose_max": 6,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
-        },
-        "Птица": {
-          "dose_per_kg": 5,
-          "dose_min": 3,
-          "dose_max": 10,
-          "method": "внутримышечно",
-          "frequency": "2 раза в сутки",
-          "dose_unit": "мг/кг"
+        "МРС": {
+          "dose_per_kg": 0,
+          "dose_min": 0.0,
+          "dose_max": 0.0,
+          "dose_unit": "fixed",
+          "route": "внутривыменно",
+          "frequency": "как правило, достаточно однократного введения"
         }
       },
       "pregnancy_contraindicated_animals": [
