@@ -23,6 +23,13 @@ jobs:
       - name: DS-гейт v2 — ds.dart против design/tokens.json (дрейф ядра = красный)
         run: python3 scripts/ds_gate.py
 
+      - name: DB-гейт препаратов (Task 224: канон vetvoice под валидатором)
+        # vetvoice — канонический источник баз для всей экосистемы
+        # (ВетЭко синкается отсюда). Раньше канон не валидировался
+        # вовсе: мусорные концентрации и передозировки жили здесь,
+        # а ловились только в копиях-потребителях.
+        run: python3 scripts/validate_drug_db.py --reference assets/data/correct_dosages_reference.json
+
       - name: Const-audit Dart — геттеры AppTheme внутри const (AOT-падение) и баланс скобок
         # Task 184 (M-5 аудита 183): гейт существовал, но не был подключён —
         # ловил только локальные запуски. Секундный, гонять на каждый push.

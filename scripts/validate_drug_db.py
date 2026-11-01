@@ -616,6 +616,63 @@ def validate_drugs_calc(data, rep, file_label):
                     rep.add('WARN', file_label, name, '—', 'no-conc',
                             'инъекция без concentration — парсер состава '
                             'пытается спасти, но запись неполная')
+        # Task 224: фасовки мультиконцентрационного препарата (вариант А).
+        # Гейт: битые элементы — ERROR (парсер их молча выкинет, выбор
+        # фасовки исчезнет), остальное — WARN-гигиена.
+        variants = d.get('concentration_variants')
+        if variants is not None:
+            if not isinstance(variants, list) or not variants:
+                rep.add('WARN', file_label, name, '—', 'conc-variants',
+                        'concentration_variants не список или пуст')
+            else:
+                labels, values = [], []
+                for v in variants:
+                    if (not isinstance(v, dict) or not v.get('label')
+                            or not is_number(v.get('concentration'))
+                            or v.get('concentration') <= 0):
+                        rep.add('ERROR', file_label, name, '—', 'conc-variants',
+                                f'битая фасовка: {v!r}')
+                        continue
+                    labels.append(str(v['label']))
+                    values.append(float(v['concentration']))
+                if labels and len(set(labels)) != len(labels):
+                    rep.add('WARN', file_label, name, '—', 'conc-variants',
+                            'повторяющиеся label фасовок')
+                if values and values != sorted(values):
+                    rep.add('WARN', file_label, name, '—', 'conc-variants',
+                            'фасовки не по возрастанию концентрации')
+                conc = d.get('concentration')
+                if (is_number(conc) and conc > 0 and values
+                        and float(conc) not in values):
+                    rep.add('WARN', file_label, name, '—', 'conc-variants',
+                            'дефолтная concentration не входит в фасовки')
+                # RU-стандарт водных растворов: label «5%» → 50 мг/мл
+                if norm_unit(d.get('concentration_unit')) == 'мг/мл':
+                    for lab, val in zip(labels, values):
+                        m = re.match(r'^(\d+(?:[.,]\d+)?)\s*%$', lab)
+                        if m:
+                            pct = float(m.group(1).replace(',', '.'))
+                            if pct > 0 and abs(pct * 10 - val) / (pct * 10) > 0.15:
+                                rep.add('WARN', file_label, name, '—',
+                                        'conc-variants',
+                                        f'{lab} ≠ %×10 ({val} мг/мл)')
+        # Task 224 (LA-гигиена): общая частота противоречит повидовой
+        # «1 раз в 48 часов»/«однократно». UI берёт повидовую
+        # (data_load_service.dart), так что это WARN-гигиена поля, не ERROR.
+        freq = str(d.get('frequency') or '')
+        if re.search(r'(\d+)\s*раз[а]?\s*в\s*(?:день|сутки)', freq, re.I):
+            la_species = []
+            for species, obj in (d.get('animal_specific') or {}).items():
+                if not isinstance(obj, dict):
+                    continue
+                sp_freq = str(obj.get('frequency') or '')
+                hm = re.search(r'(\d+)\s*час', sp_freq, re.I)
+                if (hm and int(hm.group(1)) >= 36) or 'однократно' in sp_freq.lower():
+                    la_species.append(f'{species}: {sp_freq}')
+            if la_species:
+                rep.add('WARN', file_label, name, '—', 'freq-la-conflict',
+                        f'общая {freq!r} против повидовой ' +
+                        '; '.join(la_species[:3]))
     return checked
 
 

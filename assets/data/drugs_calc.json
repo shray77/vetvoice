@@ -2725,7 +2725,7 @@
       "inn": "колистин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "6 000 000 МЕ; 12 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -2777,12 +2777,12 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "Кошки": {
           "dose_per_kg": 50000,
@@ -2798,8 +2798,9 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -3280,7 +3281,7 @@
       "inn": "колистин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": "4000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -3331,20 +3332,21 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "КРС": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -4101,7 +4103,7 @@
         "Кошки"
       ],
       "method": "внутрь",
-      "frequency": "1 раз в день",
+      "frequency": "однократно",
       "course_days": "до 14 дней",
       "withdrawal_days": 0,
       "fixed_dose": null,
@@ -4598,7 +4600,7 @@
       "inn": "китасамицин, колистин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "500000 МЕ китасамицина тартрата; 7200000 МЕ колистина сульфата",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 500000.0,
       "unit": "г",
@@ -4918,7 +4920,7 @@
       "inn": "хорионический гонадотропин человеческий",
       "form": "Лиофилизат для приготовления раствора для инъекций",
       "form_type": "injection",
-      "concentration": "1500 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 500.0,
       "unit": "мл",
@@ -5714,7 +5716,7 @@
       "inn": "колистин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": "12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -5765,20 +5767,21 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "КРС": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -8071,7 +8074,7 @@
       "inn": "инсулин гларгин",
       "form": "Раствор для подкожного введения",
       "form_type": "other",
-      "concentration": "50 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 50.0,
       "unit": "мл",
@@ -8513,7 +8516,7 @@
       "inn": "АСД-2Ф субстанция + АСД-ЗФ субстанция",
       "form": "Аэрозоль для наружного применения",
       "form_type": "vaccine",
-      "concentration": "5 000 мг; 5 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -9224,7 +9227,7 @@
       "inn": "гонадотропин сыворотки жеребых кобыл, хорионический гонадотропин человеческий",
       "form": "Лиофилизат для приготовления раствора для инъекций с растворителем",
       "form_type": "vaccine",
-      "concentration": "препарат: 400 МЕ, 2000 МЕ/ 200 МЕ, 1000 МЕ; растворитель: 2 мл и 10 мл",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 400.0,
       "unit": "мл",
@@ -9362,7 +9365,7 @@
       "inn": "#####",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -9525,7 +9528,17 @@
       "pregnancy_contraindicated_animals": [
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой."
+      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой.",
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 141,
@@ -14307,7 +14320,7 @@
         "Кошки"
       ],
       "method": "внутрь",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 28,
       "fixed_dose": {
@@ -14643,7 +14656,7 @@
         "Свиньи"
       ],
       "method": "внутрь",
-      "frequency": "1 раз в день",
+      "frequency": "однократно",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
       "fixed_dose": null,
@@ -18376,7 +18389,17 @@
           "notes": "Толфедин Кэт"
         }
       },
-      "withdrawal_text": "КРС: мясо: 5 дн, молоко: 0 дн | Свиньи: мясо: 5 дн"
+      "withdrawal_text": "КРС: мясо: 5 дн, молоко: 0 дн | Свиньи: мясо: 5 дн",
+      "concentration_variants": [
+        {
+          "label": "4%",
+          "concentration": 40.0
+        },
+        {
+          "label": "8%",
+          "concentration": 80.0
+        }
+      ]
     },
     {
       "id": 276,
@@ -19664,7 +19687,7 @@
       "inn": "колистин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "2700000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -19715,20 +19738,21 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "КРС": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -23676,7 +23700,7 @@
       "inn": "гонадотропин сыворотки жеребых кобыл (ГСЖК) и хорионический гонадотропин человека (ХГч)",
       "form": "Лиофилизат для приготовления раствора для инъекций",
       "form_type": "vaccine",
-      "concentration": "400 МЕ ГСЖК/ 200 МЕ ХГч",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 400.0,
       "unit": "мл",
@@ -30688,7 +30712,7 @@
       "inn": "мультиомицин, китасамицин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "10 000 мг / 50 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -31695,7 +31719,17 @@
         "Лошади",
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока."
+      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока.",
+      "concentration_variants": [
+        {
+          "label": "2,5%",
+          "concentration": 25.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 465,
@@ -33115,7 +33149,6 @@
       "animals": [
         "Собаки",
         "Кошки",
-        "КРС",
         "МРС"
       ],
       "method": "внутрь",
@@ -33148,13 +33181,13 @@
       "indications": "Назначают собакам и кошкам с 2 недельного возраста с лечебной и профилактической целью при паразитарных болезнях, вызванных нематодами ЖКТ и кокцидиями",
       "animal_specific": {
         "Собаки": {
-          "dose_per_kg": 30.0,
+          "dose_per_kg": 5,
           "dose_min": 5.0,
           "dose_max": 10.0,
           "dose_unit": "мг/кг",
           "frequency": "по инструкции",
           "route": "внутрь",
-          "notes": "5-10 мг/кг",
+          "notes": "Празиквантел: 5–10 мг/кг, стандарт ≈5 мг/кг (Droncit/Drontal Plus)",
           "course_days": "2 дня подряд"
         },
         "Кошки": {
@@ -33166,14 +33199,6 @@
           "route": "внутрь",
           "notes": "5-10 мг/кг",
           "course_days": "2 дня подряд"
-        },
-        "КРС": {
-          "dose_per_kg": 0.2,
-          "dose_min": 0.1,
-          "dose_max": 0.3,
-          "method": "перорально",
-          "frequency": "однократно",
-          "dose_unit": "мг/кг"
         },
         "МРС": {
           "dose_per_kg": 0.2,
@@ -33782,7 +33807,7 @@
       "inn": "отсутствует",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -33820,7 +33845,7 @@
       "inn": "отсутствует",
       "form": "Жидкость для приема внутрь",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -34287,7 +34312,7 @@
       "inn": "отсутствует",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -34338,7 +34363,7 @@
       "inn": "отсутствует",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -34474,7 +34499,7 @@
       "inn": "отсутствует",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -35595,7 +35620,6 @@
       "dose_unit": "мг/кг",
       "animals": [
         "КРС",
-        "Собаки",
         "Кошки",
         "МРС"
       ],
@@ -35633,14 +35657,6 @@
           "route": "наружно",
           "notes": "0.2 мг/кг",
           "course_days": "однократно"
-        },
-        "Собаки": {
-          "dose_per_kg": 0.003,
-          "dose_min": 0.002,
-          "dose_max": 0.005,
-          "method": "перорально / наружно",
-          "frequency": "однократно",
-          "dose_unit": "мг/кг"
         },
         "Кошки": {
           "dose_per_kg": 0.003,
@@ -36709,7 +36725,7 @@
       "inn": "#####",
       "form": "Порошок для приготовления раствора для приема внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -36905,7 +36921,7 @@
       "inn": "имидаклоприд, этофенпрокс, пирипроксифен",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -37946,7 +37962,17 @@
       ],
       "category": "Прочие",
       "indications": "при обезвоживании и интоксикации организма животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 554,
@@ -38275,7 +38301,7 @@
       "inn": "интерферон альфа 2b",
       "form": "Лиофилизат для приготовления раствора для инъекций",
       "form_type": "vaccine",
-      "concentration": "50 и 100 доз",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -39243,12 +39269,12 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "Кошки": {
           "dose_per_kg": 50000,
@@ -39264,8 +39290,9 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -39876,7 +39903,17 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "0,5%",
+          "concentration": 5.0
+        },
+        {
+          "label": "2%",
+          "concentration": 20.0
+        }
+      ]
     },
     {
       "id": 580,
@@ -40099,7 +40136,7 @@
       "inn": "колекальциферол",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "50000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -40191,7 +40228,7 @@
       "inn": "колистин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": "2000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -43494,7 +43531,7 @@
       "inn": "пропоксур",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -43813,7 +43850,7 @@
       "inn": "не присвоено",
       "form": "Раствор для интерцистернального, интрауретрального введения",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -44629,7 +44666,25 @@
       ],
       "category": "Прочие",
       "indications": "при обезвоживании и интоксикации организма животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        },
+        {
+          "label": "25%",
+          "concentration": 250.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 649,
@@ -47503,7 +47558,7 @@
       "inn": "препарат растительного происхождения",
       "form": "Таблетки для перорального применения",
       "form_type": "tablet",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -47705,7 +47760,7 @@
       "inn": "препарата растительного происхождения",
       "form": "Таблетки для перорального применения",
       "form_type": "tablet",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -47961,7 +48016,7 @@
       "inn": "препарата растительного происхождения",
       "form": "Таблетки для перорального применения",
       "form_type": "tablet",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -51946,12 +52001,12 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "Кошки": {
           "dose_per_kg": 50000,
@@ -51967,8 +52022,9 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -53211,7 +53267,7 @@
       "inn": "колистин, неомицин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "1200000 МЕ; 100000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -54310,7 +54366,7 @@
       "inn": "не присвоено",
       "form": "Аэрозоль для наружного применения",
       "form_type": "spray",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -56577,7 +56633,7 @@
       "inn": "колистин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": "2 400 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -57817,7 +57873,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "6000000 МЕ; 12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -61120,7 +61176,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -61490,7 +61546,17 @@
           "dose_unit": "мг/кг"
         }
       },
-      "withdrawal_text": "Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 7 дн | Осторожно с ионофорами (монензин, салиномицин) -交互作用!"
+      "withdrawal_text": "Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 7 дн | Осторожно с ионофорами (монензин, салиномицин) -交互作用!",
+      "concentration_variants": [
+        {
+          "label": "45%",
+          "concentration": 450.0
+        },
+        {
+          "label": "80%",
+          "concentration": 800.0
+        }
+      ]
     },
     {
       "id": 887,
@@ -61946,7 +62012,7 @@
       "inn": "препарат растительного происхождения",
       "form": "Таблетки для перорального применения",
       "form_type": "tablet",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -62298,7 +62364,7 @@
       "inn": "препарат растительного происхождения",
       "form": "Таблетки для перорального применения",
       "form_type": "tablet",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -64715,7 +64781,7 @@
       "inn": "хорионический гонадотропин человеческий",
       "form": "Лиофилизированный порошок для приготовления раствора для инъекций и растворитель",
       "form_type": "injection",
-      "concentration": "лекарственного препарата-1500 МЕ (0,5 мл); растворителя-5 мл",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 1500.0,
       "unit": "г",
@@ -65358,7 +65424,7 @@
       "inn": "гонадотропин сыворотки жеребых кобыл (ГСЖК),  хорионический гонадотропин человеческий (ХГЧ)",
       "form": "Лиофилизат для приготовления раствора для иньекций и растворитель",
       "form_type": "vaccine",
-      "concentration": "лиофилизат: 1 доза (400 МЕ+200 МЕ) по 0,5 мл; 5 доз (2000 МЕ+1000 МЕ) по 1 мл, растворитель: 5 мл или 25 мл",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 1000.0,
       "unit": "мл",
@@ -67223,7 +67289,17 @@
       ],
       "category": "Прочие",
       "indications": "при обезвоживании и интоксикации организма животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 965,
@@ -67339,7 +67415,17 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "0,5%",
+          "concentration": 5.0
+        },
+        {
+          "label": "2%",
+          "concentration": 20.0
+        }
+      ]
     },
     {
       "id": 967,
@@ -67575,7 +67661,7 @@
       "inn": "отсутствует",
       "form": "Раствор для перорального, наружного, интравагинального и внутриматочного применения",
       "form_type": "vaccine",
-      "concentration": "###",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -67687,7 +67773,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций гомеопатический",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -68010,7 +68096,7 @@
       "inn": "йод",
       "form": "Термовозгонная смесь в форме порошка для аэрозольного применения",
       "form_type": "spray",
-      "concentration": "20 000 мг/100 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -68112,7 +68198,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -68954,7 +69040,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -69254,7 +69340,7 @@
       "inn": "фипронил, пирипроксифен",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -69465,7 +69551,7 @@
       "inn": "масло пихтовое",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -70194,7 +70280,7 @@
       "inn": "отсутствует",
       "form": "Раствор для наружного, перорального, интравагинального и внутриматочного применения",
       "form_type": "vaccine",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -70722,7 +70808,7 @@
       "inn": "энрофлоксацин, колистин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "10 000 мг/ 120 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -71374,7 +71460,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -71481,7 +71567,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -71611,7 +71697,17 @@
           "notes": "наружно",
           "course_days": "по инструкции"
         }
-      }
+      },
+      "concentration_variants": [
+        {
+          "label": "0,001%",
+          "concentration": 0.01
+        },
+        {
+          "label": "0,005%",
+          "concentration": 0.05
+        }
+      ]
     },
     {
       "id": 1029,
@@ -74079,7 +74175,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -74130,7 +74226,7 @@
       "inn": "камфора",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -74286,7 +74382,7 @@
         "Кошки"
       ],
       "method": "внутрь",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 28,
       "fixed_dose": {
@@ -74511,7 +74607,7 @@
       "inn": "пенициллин G, дигидрострептомицин, прокаин, бетаметазон, хлорфенирамин",
       "form": "Суспензия для инъекций",
       "form_type": "injection",
-      "concentration": "200 000 МЕ; 250 мг; 15 мг; 0,5 мг; 8 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -75768,7 +75864,7 @@
       "inn": "фипронил, этофенпрокс, пирипроксифен",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -77396,7 +77492,7 @@
       "inn": "энрофлоксацин",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": 5000.0,
+      "concentration": 50.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -77503,7 +77599,17 @@
           "dose_unit": "мг/кг"
         }
       },
-      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой."
+      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой.",
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1116,
@@ -77989,7 +78095,7 @@
       "inn": "витамин А, витамин D3, витамин Е, витамин С",
       "form": "Раствор для инъекций и орального применения",
       "form_type": "injection",
-      "concentration": "50 000 МЕ/ 5000 МЕ/ 50 мг/ 100 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -78124,7 +78230,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "_____",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -78414,7 +78520,7 @@
       "inn": "фипронил, пирипроксифен, ивермектин",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -79499,7 +79605,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "6000000 МЕ; 12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -79781,7 +79887,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -81673,7 +81779,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "######",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -82467,7 +82573,7 @@
         "Свиньи"
       ],
       "method": "внутрь (с кормом)",
-      "frequency": "1 раз в день",
+      "frequency": "однократно",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
       "fixed_dose": null,
@@ -83005,7 +83111,7 @@
       "inn": "бифидобактерии бифидум",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -83148,7 +83254,7 @@
       "inn": "Расторопши экстракт сухой, бифидобактерии бифидум, лактобактерии ферментум",
       "form": "Двойная капсула для перорального применения",
       "form_type": "capsule",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -84245,7 +84351,7 @@
       "inn": "отсутствует",
       "form": "Эмульсия для приема внутрь",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -84283,7 +84389,7 @@
       "inn": "не указано (крем для суставов)",
       "form": "Крем для наружного применения",
       "form_type": "topical",
-      "concentration": "######",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -84439,7 +84545,7 @@
       "inn": "тиамулин",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "800 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -85007,7 +85113,7 @@
       "inn": "бацитрацин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "150 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -85367,7 +85473,7 @@
       "inn": "амоксициллина тригидрат",
       "form": "Гранулы для орального применения",
       "form_type": "oral",
-      "concentration": 10000.0,
+      "concentration": 100.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -86269,7 +86375,7 @@
       "inn": "энрофлоксацин и колистин",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": 10000.0,
+      "concentration": 100.0,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -86414,7 +86520,7 @@
       "inn": "колистин",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "200 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -86984,7 +87090,7 @@
       "inn": "бензилпенициллин, дигидрострептомицин",
       "form": "Суспензия для инъекций",
       "form_type": "injection",
-      "concentration": "120.000 МЕ/ 80.000 МЕ/ 200.000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 120.0,
       "unit": "мл",
@@ -87467,7 +87573,7 @@
       "inn": "фолликулостимуллирующий гормон, лютеинизирующий гормон",
       "form": "Лиофилизат для приготовления раствора для инъекций с растворителем",
       "form_type": "injection",
-      "concentration": "500 МЕ/ 500 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 500.0,
       "unit": "мл",
@@ -88365,7 +88471,6 @@
       "dose_unit": "мг/кг",
       "animals": [
         "Собаки",
-        "Кошки",
         "КРС",
         "МРС"
       ],
@@ -88403,14 +88508,6 @@
           "route": "внутрь",
           "notes": "5-10 мг/кг",
           "course_days": "2 дня подряд"
-        },
-        "Кошки": {
-          "dose_per_kg": 0.003,
-          "dose_min": 0.002,
-          "dose_max": 0.005,
-          "method": "наружно (spot-on)",
-          "frequency": "1 раз в месяц",
-          "dose_unit": "мг/кг"
         },
         "КРС": {
           "dose_per_kg": 0.2,
@@ -89536,7 +89633,7 @@
       "inn": "не присвоено",
       "form": "Порошок для приготовления раствора для приема внутрь",
       "form_type": "powder",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -91983,7 +92080,7 @@
       "inn": "колистин",
       "form": "Порошок для приготовления раствора для приема внутрь",
       "form_type": "powder",
-      "concentration": "6000000 МЕ или 12000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -92150,7 +92247,7 @@
       "inn": "интерферон кошки",
       "form": "Раствор для инъекций",
       "form_type": "vaccine",
-      "concentration": "400000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -92409,7 +92506,7 @@
       "inn": "энрофлоксацин, колистин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "100 000 мг/ 41 670 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -93640,7 +93737,7 @@
       "inn": "фипронил, D-цифенотрин, пирипроксифен",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -95853,7 +95950,7 @@
       "inn": "#####",
       "form": "Настойка для наружного применения",
       "form_type": "external",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -96938,7 +97035,7 @@
       "inn": "авиламицин",
       "form": "Порошок для приёма внутрь",
       "form_type": "powder",
-      "concentration": "100 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -97329,7 +97426,7 @@
       "inn": "ретинол, кальциферол, токоферол, витамин F",
       "form": "Раствор для инъекций и перорального применения",
       "form_type": "injection",
-      "concentration": "50000 МЕ, 25000 МЕ, 20 мг, 5 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -98772,7 +98869,7 @@
       "inn": "йод",
       "form": "Порошок для ингаляций",
       "form_type": "powder",
-      "concentration": "40 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -99252,7 +99349,7 @@
       "inn": "колистина сульфат",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "2000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -100673,8 +100770,9 @@
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Птица": {
           "dose_per_kg": 75000,
@@ -101458,7 +101556,7 @@
       "inn": "ивермектин",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -102421,7 +102519,7 @@
       "inn": "фипронил, перметрин",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -103792,7 +103890,17 @@
         "Лошади",
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока."
+      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока.",
+      "concentration_variants": [
+        {
+          "label": "1%",
+          "concentration": 10.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1507,
@@ -105805,7 +105913,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -106525,7 +106633,7 @@
       "inn": "колистин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "2000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -107034,7 +107142,7 @@
       "inn": "препарат растительного происхождения",
       "form": "Настой для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -107088,7 +107196,7 @@
       "inn": "препарат растительного происхождения",
       "form": "Настой для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -107423,20 +107531,21 @@
           "notes": "Колистин, МЕ/кг"
         },
         "Птица": {
-          "dose_per_kg": 50000,
-          "dose_min": 40000.0,
-          "dose_max": 60000.0,
+          "dose_per_kg": 75000,
+          "dose_min": 75000.0,
+          "dose_max": 75000.0,
           "dose_unit": "МЕ/кг",
-          "frequency": "1-2 раза в день",
-          "notes": "МЕ/кг через питьевую воду"
+          "frequency": "1 раз в день",
+          "notes": "75 000 МЕ/кг/день через питьевую воду (EMA CVMP 2015, колистин, article-35 referral)"
         },
         "КРС": {
           "dose_per_kg": 50000,
           "dose_min": 25000,
           "dose_max": 100000,
           "method": "перорально (с водой)",
-          "frequency": "1 раз в сутки",
-          "dose_unit": "МЕ/кг"
+          "frequency": "2 раза в день",
+          "dose_unit": "МЕ/кг",
+          "notes": "Телята: 50 000 МЕ/кг ×2/день (EMA CVMP 2015, колистин)"
         },
         "Кролики": {
           "dose_per_kg": 50000,
@@ -108026,7 +108135,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -108263,7 +108372,7 @@
       "inn": "ретинол, кальциферол, токоферол",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "30000 МЕ; 40000 МЕ; 20 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -108548,7 +108657,21 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "0,5%",
+          "concentration": 5.0
+        },
+        {
+          "label": "1%",
+          "concentration": 10.0
+        },
+        {
+          "label": "2%",
+          "concentration": 20.0
+        }
+      ]
     },
     {
       "id": 1579,
@@ -108961,7 +109084,7 @@
       "inn": "ретинол, тиамин, рибофлавин, пиридоксин, цианокобаламин, холекальциферол, токоферол, декспантенол",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "220 МЕ; 0,1 мг; 0,15 мг; 0,2 мг; 0,001 мг; 20 МЕ; 0,25 мг; 0,2 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 220.0,
       "unit": "мл",
@@ -109922,7 +110045,7 @@
       "inn": "никлозамид",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "40 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -110212,7 +110335,7 @@
       "inn": "гонадотропин сыворотки жерёбых кобыл",
       "form": "Лиофилизат с растворителем для приготовления раствора для инъекций",
       "form_type": "vaccine",
-      "concentration": "препарат: 1000 МЕ, 3000 МЕ и 5000 МЕ; растворитель: 2 мл, 6 мл, 10 мл",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 1000.0,
       "unit": "мл",
@@ -110265,7 +110388,7 @@
       "inn": "чемерица (Veratrum album)",
       "form": "Настойка для приема внутрь",
       "form_type": "oral",
-      "concentration": "####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -110489,7 +110612,7 @@
         "КРС"
       ],
       "method": "по инструкции",
-      "frequency": "1 раз в сутки",
+      "frequency": "Однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
       "fixed_dose": {
@@ -111177,7 +111300,21 @@
           "dose_unit": "мг/кг"
         }
       },
-      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой."
+      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой.",
+      "concentration_variants": [
+        {
+          "label": "2,5%",
+          "concentration": 25.0
+        },
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1618,
@@ -111189,14 +111326,13 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 10.0,
-      "dose_min": 8.0,
-      "dose_max": 12.0,
+      "dose_per_kg": 3,
+      "dose_min": 3,
+      "dose_max": 3,
       "dose_unit": "мг/кг",
       "animals": [
         "КРС",
         "Лошади",
-        "Свиньи",
         "Собаки",
         "Кошки"
       ],
@@ -111231,12 +111367,12 @@
       "indications": "Применяют для лечения собак, кошек, спортивных лошадей, свиней и крупного рогатого скота при воспалительных заболеваний опорно-двигательного аппарата (в том числе артритов, артрозов, вывихов, отеков, грыж межпозвоночных дисков, синовитов, тендосиновитов), болевого синдрома различной этиологии (травматическая и послеоперационная боль, колики), а также гипертермии.",
       "animal_specific": {
         "КРС": {
-          "dose_per_kg": 10.0,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
+          "dose_per_kg": 3,
+          "dose_min": 3,
+          "dose_max": 3,
           "dose_unit": "мг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Кетомай"
+          "notes": "КРС: 3 мг/кг/сут IV/IM (Merck Vet Manual)"
         },
         "Лошади": {
           "dose_per_kg": 2.2,
@@ -111246,14 +111382,6 @@
           "method": "Инъекционно",
           "frequency": "1 раз в день",
           "notes": "Лошади"
-        },
-        "Свиньи": {
-          "dose_per_kg": 10.0,
-          "dose_min": 8.0,
-          "dose_max": 12.0,
-          "dose_unit": "мг/кг",
-          "frequency": "1 раз в сутки",
-          "notes": "Из файла: Кетомай"
         },
         "Собаки": {
           "dose_per_kg": 1,
@@ -111277,7 +111405,21 @@
         "Лошади",
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока."
+      "withdrawal_text": "КРС: мясо: 4 дн, молоко: 0 дн | Свиньи: мясо: 4 дн | Лошади: мясо: 4 дн | НПВС. Нулевой период для молока.",
+      "concentration_variants": [
+        {
+          "label": "2,5%",
+          "concentration": 25.0
+        },
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1619,
@@ -111620,7 +111762,17 @@
           "notes": "Имизол, при бабезиозе"
         }
       },
-      "withdrawal_text": "КРС: мясо: 28 дн, молоко: 7 дн | МРС: мясо: 28 дн, молоко: 7 дн"
+      "withdrawal_text": "КРС: мясо: 28 дн, молоко: 7 дн | МРС: мясо: 28 дн, молоко: 7 дн",
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1624,
@@ -111628,7 +111780,7 @@
       "inn": "не присвоено",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -112020,7 +112172,7 @@
         "Птица"
       ],
       "method": "внутрь",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "по инструкции",
       "withdrawal_days": 14,
       "fixed_dose": null,
@@ -112617,7 +112769,17 @@
       "pregnancy_contraindicated_animals": [
         "Птица"
       ],
-      "withdrawal_text": "КРС: мясо: 8 дн, молоко: 5 дн | МРС: мясо: 8 дн, молоко: 5 дн | Свиньи: мясо: 8 дн | Птица: мясо: 8 дн, яйца: 5 дн"
+      "withdrawal_text": "КРС: мясо: 8 дн, молоко: 5 дн | МРС: мясо: 8 дн, молоко: 5 дн | Свиньи: мясо: 8 дн | Птица: мясо: 8 дн, яйца: 5 дн",
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "20%",
+          "concentration": 200.0
+        }
+      ]
     },
     {
       "id": 1638,
@@ -112957,7 +113119,17 @@
         "Свиньи",
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 10 дн"
+      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: 10 дн",
+      "concentration_variants": [
+        {
+          "label": "4%",
+          "concentration": 40.0
+        },
+        {
+          "label": "5%",
+          "concentration": 50.0
+        }
+      ]
     },
     {
       "id": 1642,
@@ -113397,7 +113569,7 @@
         "Птица"
       ],
       "method": "внутрь (с кормом)",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "по инструкции",
       "withdrawal_days": 7,
       "fixed_dose": null,
@@ -114463,7 +114635,17 @@
           "notes": "2,5-5,0 мл/гол, в/м, 1 раз в сутки, 5-10 дней",
           "course_days": "5-10 дней"
         }
-      }
+      },
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 1663,
@@ -114583,7 +114765,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -116184,7 +116366,7 @@
       "inn": "ихтаммол",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -116264,7 +116446,7 @@
       "inn": "цинка оксид",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -117381,7 +117563,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -117763,7 +117945,7 @@
       "inn": "циперметрин",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "1 мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -118166,7 +118348,7 @@
       "inn": "робенидин",
       "form": "Микрогранулированный порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "66 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -118642,7 +118824,7 @@
       "inn": "ласалоцид",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "150 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -120475,7 +120657,7 @@
       "inn": "бовгиалуронидаза азоксимер",
       "form": "Лиофилизат для приготовления раствора для инъекций",
       "form_type": "injection",
-      "concentration": "3000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -120755,7 +120937,7 @@
       "inn": "интерлейкин-2",
       "form": "Раствор для инъекций, а также перорального, интраназального и наружного применения",
       "form_type": "vaccine",
-      "concentration": "50000 МЕ, 100000 МЕ, 250000 МЕ, 500000 МЕ, 1000000 МЕ, 2000000 МЕ, 5000000 МЕ, 10000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 50000.0,
       "unit": "мл",
@@ -120863,7 +121045,7 @@
         "Свиньи"
       ],
       "method": "внутримышечно",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
       "fixed_dose": {
@@ -122058,7 +122240,7 @@
       "inn": "отсутствует",
       "form": "Раствор для наружного, орального, интравагинального и внутриматочного применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -122107,7 +122289,7 @@
       "inn": "амоксициллин",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "50 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -122392,7 +122574,7 @@
       "inn": "отсутствует",
       "form": "Раствор для местного применения",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -122431,7 +122613,7 @@
       "inn": "стрептоцид",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -123240,7 +123422,17 @@
         "КРС",
         "Птица"
       ],
-      "withdrawal_text": "КРС: мясо: 0 дн, молоко: 0 дн | Птица: мясо: 3 дн, яйца: 0 дн | Ионофорный кокцидиостатик. Не для лошадей!"
+      "withdrawal_text": "КРС: мясо: 0 дн, молоко: 0 дн | Птица: мясо: 3 дн, яйца: 0 дн | Ионофорный кокцидиостатик. Не для лошадей!",
+      "concentration_variants": [
+        {
+          "label": "20%",
+          "concentration": 200.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 1797,
@@ -123531,7 +123723,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -123686,7 +123878,7 @@
       "inn": "колистин, неомицин",
       "form": "Раствор для приема внутрь",
       "form_type": "oral",
-      "concentration": "1200000 МЕ; 100000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -124818,7 +125010,7 @@
       "inn": "отсутствует",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -125240,7 +125432,7 @@
       "inn": "софора японская, крапива двудомная",
       "form": "Жидкость для наружного применения",
       "form_type": "external",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -125743,7 +125935,7 @@
       "inn": "отсутствует",
       "form": "Эмульсия для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -126332,7 +126524,7 @@
       "inn": "АСД-3Ф субстанция",
       "form": "Раствор для наружного применения",
       "form_type": "vaccine",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -126430,7 +126622,7 @@
       "inn": "сульфаниламид (стрептоцид)",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -126675,7 +126867,7 @@
       "inn": "амоксициллин, колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "100 000 мг/ 600 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -126795,7 +126987,7 @@
       "inn": "ретинол, холекальциферол, токоферол",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "15 000 МЕ/ 20 000 МЕ/ 10 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -127059,7 +127251,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -127517,7 +127709,7 @@
       "inn": "ихтаммол",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -127619,7 +127811,7 @@
       "inn": "перметрин",
       "form": "Полимерная лента (или кожаная)",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -129368,7 +129560,7 @@
       "inn": "гонадотропин сыворотки жеребых кобыл, хорионический гонадотропин человека",
       "form": "Лиофилизат для приготовления раствора для инъекций с растворителем",
       "form_type": "injection",
-      "concentration": "2000 МЕ/ 1000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -130122,7 +130314,7 @@
         "Свиньи"
       ],
       "method": "внутрь (с кормом)",
-      "frequency": "1 раз в день",
+      "frequency": "однократно",
       "course_days": "3-5 дней",
       "withdrawal_days": 14,
       "fixed_dose": null,
@@ -130315,7 +130507,7 @@
       "inn": "ретинол, холекальциферол,  альфа-токоферола ацетат",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "10000 МЕ,  15000 МЕ, 10 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -131225,9 +131417,9 @@
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
-      "dose_per_kg": 8.3,
-      "dose_min": 6.640000000000001,
-      "dose_max": 9.96,
+      "dose_per_kg": 2.2,
+      "dose_min": 2.2,
+      "dose_max": 2.2,
       "dose_unit": "мг/кг",
       "animals": [
         "КРС",
@@ -131277,12 +131469,12 @@
           "frequency": "1 раз в день"
         },
         "Свиньи": {
-          "dose_per_kg": 8.3,
-          "dose_min": 6.640000000000001,
-          "dose_max": 9.96,
+          "dose_per_kg": 2.2,
+          "dose_min": 2.2,
+          "dose_max": 2.2,
           "dose_unit": "мг/кг",
           "frequency": "1 раз в сутки",
-          "notes": "Из файла: Флунекс"
+          "notes": "Свиньи: 2.2 мг/кг (FDA Flunazine-S: 1 мг/фунт IM)"
         }
       },
       "withdrawal_text": "КРС: мясо: 5 дн, молоко: 0 дн | Свиньи: мясо: 5 дн | Лошади: мясо: 0 дн | 0 дней по молоку - удобно!"
@@ -131763,7 +131955,7 @@
       "inn": "диазинон",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -131870,7 +132062,7 @@
       "inn": "диазинон",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -132556,7 +132748,7 @@
       "inn": "######",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "######",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -132675,7 +132867,7 @@
       "inn": "######",
       "form": "Суспензия для орального применения",
       "form_type": "suspension",
-      "concentration": "######",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -132725,7 +132917,7 @@
       "inn": "ихтаммол",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -133751,7 +133943,7 @@
       "inn": "не присвоено",
       "form": "Гель для наружного применения",
       "form_type": "topical",
-      "concentration": "---",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -133877,7 +134069,7 @@
       "inn": "бензилпенициллин, дигидрострептомицин, прокаин",
       "form": "Суспензия для инъекций",
       "form_type": "injection",
-      "concentration": "200000 МЕ/164000 МЕ/20 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 200000,
       "unit": "мл",
@@ -134078,7 +134270,7 @@
       "inn": "амоксициллин",
       "form": "Суспензия для инъекций",
       "form_type": "injection",
-      "concentration": 150.0,
+      "concentration": 200.0,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -134242,7 +134434,7 @@
       "inn": "бензилпенициллина прокаин",
       "form": "Суспензия для инъекций",
       "form_type": "injection",
-      "concentration": "300000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 300000,
       "unit": "мл",
@@ -135333,7 +135525,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "---",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -135507,7 +135699,7 @@
       "inn": "ихтаммол",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "10 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -136052,7 +136244,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "120000000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -138275,7 +138467,7 @@
       "inn": "не присвоено",
       "form": "Гель для наружного применения",
       "form_type": "topical",
-      "concentration": "######",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -138571,7 +138763,7 @@
       "inn": "колистин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "200 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -138664,7 +138856,7 @@
       "inn": "циперметрин",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "10 000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -139256,7 +139448,17 @@
           "notes": "Имизол, при бабезиозе"
         }
       },
-      "withdrawal_text": "КРС: мясо: 28 дн, молоко: 7 дн | МРС: мясо: 28 дн, молоко: 7 дн"
+      "withdrawal_text": "КРС: мясо: 28 дн, молоко: 7 дн | МРС: мясо: 28 дн, молоко: 7 дн",
+      "concentration_variants": [
+        {
+          "label": "4%",
+          "concentration": 40.0
+        },
+        {
+          "label": "12%",
+          "concentration": 120.0
+        }
+      ]
     },
     {
       "id": 2033,
@@ -139790,7 +139992,7 @@
       "inn": "колистин, триметоприм",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "200 000 МЕ/ 50 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -141284,7 +141486,7 @@
       "inn": "Витамин А, витамин D3, витамин Е, витамин С",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "25 000 МЕ/ 5000 МЕ/ 25 мг/ 50 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -141356,7 +141558,7 @@
       "inn": "витамин А, витамин D3, витамин Е, витамин F",
       "form": "Раствор для инъекций и орального применения",
       "form_type": "injection",
-      "concentration": "50 000 МЕ/ 25 000 МЕ/ 20 мг/ 5 мг",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -141598,7 +141800,17 @@
       "pregnancy_contraindicated_animals": [
         "Собаки"
       ],
-      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой."
+      "withdrawal_text": "КРС: мясо: 14 дн, молоко: 5 дн | МРС: мясо: 14 дн, молоко: 5 дн | Свиньи: мясо: 14 дн | Птица: мясо: 14 дн, яйца: НЕ ПРИМЕНЯТЬ несушкам! | Кролики: мясо: 14 дн | Не для дойных коров в лактацию! Только сухостой.",
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        }
+      ]
     },
     {
       "id": 2064,
@@ -141722,7 +141934,7 @@
       "inn": "колистин",
       "form": "Раствор для орального применения",
       "form_type": "oral",
-      "concentration": "2 000 000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -142484,7 +142696,7 @@
       "inn": "не присвоено",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -143901,7 +144113,21 @@
       ],
       "category": "Прочие",
       "indications": "при обезвоживании и интоксикации организма животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 2097,
@@ -143971,7 +144197,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -144139,7 +144365,7 @@
       "inn": "не присвоено",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -144264,7 +144490,7 @@
       "inn": "бензилпенициллин, стрептомицин, сульфаниламид",
       "form": "Порошок для наружного применения",
       "form_type": "powder",
-      "concentration": "400 000 ЕД/ 500 000 ЕД/ 5000 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 500000,
       "unit": "г",
@@ -145347,7 +145573,7 @@
       "inn": "флувалинат",
       "form": "Пластины для наружного применения",
       "form_type": "external",
-      "concentration": "4 мг/",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -146173,7 +146399,7 @@
       "inn": "хитозан, карбонат кальция",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "Порошок: лактоза, кальция карбонат, хитозан; 1 г/5 кг 2 раза/день",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -146990,7 +147216,7 @@
       "inn": "деготь",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "100 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -147639,7 +147865,7 @@
       "inn": "альфациперметрин",
       "form": "Эмульсия для наружного применения",
       "form_type": "external",
-      "concentration": "0.1% (альфациперметрин)",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -147725,7 +147951,7 @@
         "Свиньи"
       ],
       "method": "внутрь (с кормом)",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 5,
       "fixed_dose": {
@@ -148959,7 +149185,7 @@
       "inn": "ретинол ацетат, токоферол ацетат, холекальциферол, витамин В1, витамин В2, витамин В6, никотинамид, цианокобаламин, D-пантенол",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "Вит.А 15000 МЕ, D3 1000 МЕ, Е 20 мг, В1 10 мг/мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -149776,7 +150002,7 @@
       "inn": "ретинол ацетат, токоферол ацетат, холекальциферол",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "Вит.А 30000 МЕ, D3 40000 МЕ, Е 20 мг/мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -150098,7 +150324,7 @@
       "inn": "колистин",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "000 МЕ",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -150741,7 +150967,7 @@
       "inn": "марганца сульфат, меди сульфат, кобальта сульфат, магния сульфат, калия хлорид, кальция хлорид, натрия хлорид",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "Макро- и микроэлементы (Mn, Cu, Co, Mg, Na, K)",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -150995,7 +151221,7 @@
       "inn": "не присвоено",
       "form": "Мазь для наружного применения",
       "form_type": "topical",
-      "concentration": "1000 мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -151195,7 +151421,7 @@
       "inn": "тетрахлорвинфос",
       "form": "Инсектоакарицидный ошейник",
       "form_type": "other",
-      "concentration": "#####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -151310,7 +151536,7 @@
       "inn": "хлоргексидина диглюконат",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "100 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -151578,7 +151804,7 @@
       "inn": "йод",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "5 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -152282,7 +152508,7 @@
       "inn": "пирантел, эпсипрантел",
       "form": "Таблетки для орального применения",
       "form_type": "tablet",
-      "concentration": "300 мг (эпсипрантел 25 мг + пирантел 65.4 мг)",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -152382,7 +152608,7 @@
       "inn": "сульфаметоксипиридазин, триметоприм, тетрациклин, бромгексин",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "сульфаметоксипиридазин 200 мг/г, триметоприм 40 мг/г, тетрациклин 110 мг/г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -152453,7 +152679,7 @@
       "inn": "колистин, сульфадимидин, витамин А, никотинамид, витамин В1, витамин В2, витамин В12, витамин D3, витамин Е, пантотенат кальция",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "колистина сульфат 40000 МЕ/г, сульфадимидин 15 мг/г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -152664,7 +152890,7 @@
       "inn": "фипронил",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "1 мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -153933,7 +154159,7 @@
       "inn": "витамины группы В, электролиты, аминокислоты",
       "form": "Раствор для инъекций",
       "form_type": "injection",
-      "concentration": "Декстроза 45.56 мг/мл, витамины группы В, аминокислоты",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -154293,7 +154519,7 @@
       "inn": "колистина сульфат",
       "form": "Порошок для орального применения",
       "form_type": "powder",
-      "concentration": "1 200 000 МЕ/г",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -155191,7 +155417,7 @@
       "inn": "фипронил, дифенгидрамин, дифлубензурон",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "фипронил 1 мг/мл, димедрол 5 мг/мл, дифлубензурон 0.5 мг/мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -155344,7 +155570,7 @@
       "inn": "Вакцина против чумы, инфекционного гепатита, аденовирусной инфекции, парагриппа, парвовирусного энтерита и лептоспироза собак",
       "form": "Лиофилизированная масса и суспензия для инъекций",
       "form_type": "injection",
-      "concentration": "0 мкг/мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -156403,7 +156629,7 @@
       "inn": "йод",
       "form": "Раствор для наружного и внутреннего применения",
       "form_type": "external",
-      "concentration": "5 г",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -156445,7 +156671,7 @@
       "inn": "циперметрин, амитраз",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "циперметрин 0.3%, амитраз 0.2%",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -156527,7 +156753,7 @@
       "inn": "перметрин",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "1 мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -156709,7 +156935,7 @@
       "inn": "линкомицин, сульфаметоксазол, триметоприм, колистин",
       "form": "Раствор для перорального применения",
       "form_type": "oral",
-      "concentration": "линкомицин 50 мг/мл, сульфаметоксазол 200 мг/мл, триметоприм 20 мг/мл",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "мл",
@@ -157710,7 +157936,7 @@
       "inn": "флувалинат",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "4 мг/",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -157847,7 +158073,7 @@
       "inn": "прополис",
       "form": "Экстракт для наружного и внутреннего применения",
       "form_type": "external",
-      "concentration": "100мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -157893,7 +158119,7 @@
       "inn": "прополис",
       "form": "Мазь",
       "form_type": "topical",
-      "concentration": "100мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -157972,7 +158198,7 @@
       "inn": "флувалинат",
       "form": "Деревянные пластины",
       "form_type": "external",
-      "concentration": "4 мг/",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -158161,7 +158387,7 @@
       "inn": "флувалинат, амитраз",
       "form": "Пластины из древесного шпона, пропитанные акарицидным составом для наружного применения",
       "form_type": "external",
-      "concentration": "80 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -158212,7 +158438,7 @@
       "inn": "амитраз",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "6,0 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -158265,7 +158491,7 @@
       "inn": "колистина сульфат",
       "form": "Порошок для перорального применения",
       "form_type": "powder",
-      "concentration": "по 100 г в пакетах; по 500 и 1000 г в банках",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -159193,7 +159419,7 @@
       "inn": "ивермектин",
       "form": "Полимерная лента",
       "form_type": "other",
-      "concentration": "0,4 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -159334,7 +159560,7 @@
       "inn": "бензатина бензилпенициллин, бензилпенициллин прокаина",
       "form": "Порошок для приготовления раствора для инъекций",
       "form_type": "injection",
-      "concentration": "1500000 ЕД/флакон (бензатина + прокаина бензилпенициллин)",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -159501,7 +159727,7 @@
       "inn": "бензатина бензилпенициллин, бензилпенициллина натриевая соль, бензилпенициллин прокаина",
       "form": "Порошок для приготовления раствора для инъекций",
       "form_type": "injection",
-      "concentration": "1200000 ЕД/флакон (бензатина + натриевая + прокаина бензилпенициллин)",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "г",
@@ -159662,7 +159888,21 @@
       ],
       "category": "Прочие",
       "indications": "в качестве местноанестезирующего средства для животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "0,5%",
+          "concentration": 5.0
+        },
+        {
+          "label": "1%",
+          "concentration": 10.0
+        },
+        {
+          "label": "2%",
+          "concentration": 20.0
+        }
+      ]
     },
     {
       "id": 2336,
@@ -159700,7 +159940,25 @@
       ],
       "category": "Прочие",
       "indications": "при обезвоживании и интоксикации организма животных",
-      "animal_specific": {}
+      "animal_specific": {},
+      "concentration_variants": [
+        {
+          "label": "5%",
+          "concentration": 50.0
+        },
+        {
+          "label": "10%",
+          "concentration": 100.0
+        },
+        {
+          "label": "25%",
+          "concentration": 250.0
+        },
+        {
+          "label": "40%",
+          "concentration": 400.0
+        }
+      ]
     },
     {
       "id": 2337,
@@ -160617,7 +160875,7 @@
       "inn": "флувалинат",
       "form": "Пластины",
       "form_type": "external",
-      "concentration": "4 мг/",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "шт",
@@ -161114,7 +161372,7 @@
         "Собаки"
       ],
       "method": "подкожно",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 28,
       "fixed_dose": null,
@@ -161171,7 +161429,7 @@
       "inn": "перметрин",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "1 мл",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -161292,7 +161550,7 @@
       "inn": "амитраз",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "6,0 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -161661,7 +161919,7 @@
         "Птица"
       ],
       "method": "внутримышечно, подкожно",
-      "frequency": "1 раз в сутки",
+      "frequency": "однократно",
       "course_days": "3-7 дней",
       "withdrawal_days": 0,
       "fixed_dose": {
@@ -161751,7 +162009,7 @@
       "inn": "Вакцина против болезни Гамборо птиц инактивированная",
       "form": "Эмульсия",
       "form_type": "other",
-      "concentration": "0,015 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -162988,7 +163246,7 @@
       "inn": "карбетопендециния бромид",
       "form": "Раствор для наружного применения",
       "form_type": "external",
-      "concentration": "10 мг",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
@@ -163545,7 +163803,7 @@
       "inn": "Ретинола ацетат",
       "form": "Порошок",
       "form_type": "powder",
-      "concentration": "1 000 000 МЕ/г",
+      "concentration": null,
       "concentration_unit": "МЕ/мл",
       "concentration_me": 0.0,
       "unit": "г",
@@ -163608,7 +163866,7 @@
       "inn": "чемерица (Veratrum album)",
       "form": "Настойка",
       "form_type": "other",
-      "concentration": "####",
+      "concentration": null,
       "concentration_unit": "мг/мл",
       "concentration_me": 0,
       "unit": "мл",
