@@ -107,15 +107,17 @@ class SpeciesSafetyFilter {
   /// Виды из 10 поддерживаемых, упомянутые в тексте.
   static Set<String> mentionedSpecies(String text) {
     final normText = _norm(text);
-    // «морск* свинк*» — морские свинки (вид вне приложения), а «ремонтные
+    // «морск* свин*» — морские свинки (вид вне приложения), а «ремонтные
     // свинки» — это Свиньи (5 из 7 «свинк» в базе). Дифференциатор —
-    // «морск» в том же тексте: тогда «свинк*» за Свиней не считается.
+    // «морск» в том же тексте: тогда ЛЮБОЕ слово на «свин» (свинках,
+    // свинкам — и свинок с беглой гласной, свинк-а → свин-ок) за Свиней
+    // не считается. В базе нет случая «свиньям и морским свинкам» рядом.
     final hasMorsk = normText.contains('морск');
     final found = <String>{};
     for (final m in _wordRe.allMatches(normText)) {
       final w = m.group(0)!;
       for (final entry in _prefixStems.entries) {
-        if (entry.key == 'Свиньи' && hasMorsk && w.startsWith('свинк')) {
+        if (entry.key == 'Свиньи' && hasMorsk && w.startsWith('свин')) {
           continue; // морские свинки — не свиньи
         }
         final exceptions = _prefixExceptions[entry.key] ?? const <String>[];

@@ -118,6 +118,12 @@ void main() {
           d.contraindications.getWarningsForAnimal('КРС').join(' ');
       expect(cattle, isNot(contains('кролик')));
       expect(cattle, isNot(contains('морских свинок')));
+      // Регрессия CI-фейла: «морских свинок» (беглая гласная: свинк-а →
+      // свин-ок) не должны матчиться как Свиньи — свиньям этот запрет
+      // про декоративных грызунов не показывается.
+      final pig =
+          d.contraindications.getWarningsForAnimal('Свиньи').join(' ');
+      expect(pig, isNot(contains('морских свинок')));
       final rabbit =
           d.contraindications.getWarningsForAnimal('Кролики').join(' ');
       expect(rabbit, contains('кролик'));

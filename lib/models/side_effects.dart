@@ -102,12 +102,25 @@ class DrugSideEffects {
     return DrugSideEffects(
       drug: json['drug'] as String? ?? '',
       sideEffects: effects,
-      monitoring: (json['monitoring'] as List?)?.map((e) => e.toString()).toList(),
-      riskFactors: (json['risk_factors'] as List?)?.map((e) => e.toString()).toList(),
+      // Task 230: monitoring/risk_factors бывают и строкой («креатинин до
+      // и каждые 48 ч, слух» — 9 записей базы): жёсткий cast к List кидал
+      // TypeError, per-item catch глотал запись ЦЕЛИКОМ — база теряла
+      // препараты (гентамицин, карпрофен...) прямо в рантайме.
+      monitoring: _parseStringOrList(json['monitoring']),
+      riskFactors: _parseStringOrList(json['risk_factors']),
       notes: json['notes'] as String?,
       antidote: json['antidote'] as String?,
       therapeuticRange: json['therapeutic_range'] as String?,
     );
+  }
+
+  /// Список-или-строка → List<String> (S-1-паттерн толерантного парсинга).
+  static List<String>? _parseStringOrList(dynamic raw) {
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    if (raw is String && raw.trim().isNotEmpty) return [raw.trim()];
+    return null;
   }
 }
 
