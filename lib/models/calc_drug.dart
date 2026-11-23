@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'drug.dart';
 import 'vaccine_specific.dart';
+import '../utils/species_safety.dart';
 
 /// Дозировка для конкретного животного
 class AnimalSpecificDose {
@@ -499,16 +500,31 @@ class CalcDrug {
         riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ БЕРЕМЕННОСТИ!');
       }
     }
+    // Task 230: per-species список — семантика как у беременности:
+    // пустой список = флаг действует для всех видов препарата.
     if (isLactating && contraindications.lactation) {
-      riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ ЛАКТАЦИИ!');
+      if (contraindications.lactationContraindicatedAnimals.isEmpty ||
+          _listContainsAnimal(contraindications.lactationContraindicatedAnimals,
+              animalName)) {
+        riskWarnings.add('✗ ЗАПРЕЩЕНО ПРИ ЛАКТАЦИИ'
+            '${animalName != null && animalName.isNotEmpty ? " для $animalName" : ""}!');
+      }
     }
     if (isYoung && contraindications.young) {
-      riskWarnings.add('✗ ЗАПРЕЩЕНО МОЛОДНЯКУ!');
+      if (contraindications.youngContraindicatedAnimals.isEmpty ||
+          _listContainsAnimal(contraindications.youngContraindicatedAnimals,
+              animalName)) {
+        riskWarnings.add('✗ ЗАПРЕЩЕНО МОЛОДНЯКУ!');
+      }
     }
     
     // === ПРЕДУПРЕЖДЕНИЯ С ОСТОРОЖНОСТЬЮ ===
     if (isOld && contraindications.old) {
-      warnings.add('⚠ С осторожностью для пожилых животных');
+      if (contraindications.oldContraindicatedAnimals.isEmpty ||
+          _listContainsAnimal(
+              contraindications.oldContraindicatedAnimals, animalName)) {
+        warnings.add('⚠ С осторожностью для пожилых животных');
+      }
     }
     
     // === ПРЕДУПРЕЖДЕНИЯ ПО ПОЛУ (показываем только для СООТВЕТСТВУЮЩЕГО пола!) ===
@@ -529,12 +545,22 @@ class CalcDrug {
     
     // === ПРЕДУПРЕЖДЕНИЯ ДЛЯ КОНКРЕТНОГО ЖИВОТНОГО ===
     if (animalName != null && animalName.isNotEmpty) {
+      // Task 230: видоспецифичные предупреждения своей дозы (animal_specific)
+      final animalDose = animalSpecific[animalName] ??
+          animalSpecific.entries
+              .where((e) => e.key.toLowerCase() == animalName.toLowerCase())
+              .firstOrNull?.value;
+      if (animalDose != null) {
+        warnings.addAll(animalDose.warnings);
+      }
       final animalWarns = contraindications.getWarningsForAnimal(animalName);
       // Фильтруем - убираем предупреждения для другого пола
       for (final w in animalWarns) {
         // Если в тексте есть маркеры пола, проверяем соответствие
         final lowerW = w.toLowerCase();
-        if (lowerW.contains('самц') || lowerW.contains('кабел') || lowerW.contains('производител')) {
+        // Task 230: «кабел» была опечаткой — предупреждения для кобелей
+        // не матчились никогда (нулевой фильтр пола)
+        if (lowerW.contains('самц') || lowerW.contains('кобел') || lowerW.contains('производител')) {
           if (gender != 'male') continue; // Пропускаем предупреждения для самцов
         }
         // Task 184: скобки вокруг последнего звена — без них приоритет
@@ -559,7 +585,9 @@ class CalcDrug {
   
   /// Получить побочные эффекты для конкретного животного
   List<String> getSideEffectsForAnimal(String animalName) {
-    final result = <String>[...sideEffects];
+    // Task 230: общие побочки фильтруются по выбранному виду —
+    // «ЛАМИНИТ у лошадей!» (#814 Прималакт) не показывается КРС
+    final result = SpeciesSafetyFilter.filterForAnimal(sideEffects, animalName);
     
     // Добавляем побочки из animal_specific
     final animalDose = animalSpecific[animalName] ??
@@ -635,6 +663,12 @@ class ContraindicationResult {
   List<String> get all => [...riskWarnings, ...warnings];
 }
 
+/// Task 230: входит ли вид в per-species список (регистронезависимо).
+bool _listContainsAnimal(List<String> speciesList, String? animalName) {
+  if (animalName == null || animalName.isEmpty) return false;
+  return speciesList.any((a) => a.toLowerCase() == animalName.toLowerCase());
+}
+
 /// Противопоказания для расчётного препарата
 class CalcContraindications {
   final bool pregnancy;
@@ -655,6 +689,11 @@ class CalcContraindications {
   /// Список видов, для которых препарат противопоказан при беременности
   /// Если пустой, а pregnancy=true — противопоказан для ВСЕХ видов препарата
   final List<String> pregnancyContraindicatedAnimals;
+  /// Task 230: per-species списки лактации/молодняка/пожилых — та же
+  /// семантика: пустой список = флаг для всех видов препарата
+  final List<String> lactationContraindicatedAnimals;
+  final List<String> youngContraindicatedAnimals;
+  final List<String> oldContraindicatedAnimals;
 
   const CalcContraindications({
     this.pregnancy = false,
@@ -668,6 +707,9 @@ class CalcContraindications {
     this.femaleWarnings = const [],
     this.genderAnimalWarnings = const {},
     this.pregnancyContraindicatedAnimals = const [],
+    this.lactationContraindicatedAnimals = const [],
+    this.youngContraindicatedAnimals = const [],
+    this.oldContraindicatedAnimals = const [],
   });
 
   factory CalcContraindications.fromJson(Map<String, dynamic>? json) {
@@ -733,6 +775,14 @@ class CalcContraindications {
           .toList();
     }
 
+    // Task 230: лактация/молодняк/пожилые — per-species (аналог беременности)
+    final lactationContraindicatedAnimals =
+        _parseSpeciesList(json['lactation_contraindicated_animals']);
+    final youngContraindicatedAnimals =
+        _parseSpeciesList(json['young_contraindicated_animals']);
+    final oldContraindicatedAnimals =
+        _parseSpeciesList(json['old_contraindicated_animals']);
+
     return CalcContraindications(
       pregnancy: json['pregnancy'] as bool? ?? false,
       lactation: json['lactation'] as bool? ?? false,
@@ -750,9 +800,19 @@ class CalcContraindications {
       femaleWarnings: femaleWarnings,
       genderAnimalWarnings: genderAnimalWarnings,
       pregnancyContraindicatedAnimals: pregnancyContraindicatedAnimals,
+      lactationContraindicatedAnimals: lactationContraindicatedAnimals,
+      youngContraindicatedAnimals: youngContraindicatedAnimals,
+      oldContraindicatedAnimals: oldContraindicatedAnimals,
     );
   }
   
+  /// Task 230: список видов из JSON-поля (строка = один вид).
+  static List<String> _parseSpeciesList(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String && raw.isNotEmpty) return [raw];
+    return [];
+  }
+
   /// Список строк из JSON-поля, которое бывает и списком, и одиночной
   /// строкой (S-1: xlsx-конверт кладёт текст предупреждения строкой).
   static List<String> _parseStringList(dynamic raw) {
@@ -763,7 +823,9 @@ class CalcContraindications {
 
   /// Получить все предупреждения для конкретного животного
   List<String> getWarningsForAnimal(String animalName) {
-    final result = <String>[...warnings];
+    // Task 230: общий текст режется по виду — «Запрещено для кроликов»
+    // не выезжает КРС; animal_warnings добавляются только своему виду
+    final result = SpeciesSafetyFilter.filterForAnimal(warnings, animalName);
     
     // Добавляем animal-specific warnings
     final animalSpecific = animalWarnings[animalName] ?? 

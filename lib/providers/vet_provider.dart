@@ -19,6 +19,7 @@ import '../models/mia.dart';
 import '../services/drug_loader_service.dart';
 import '../services/theme_service.dart';
 import '../utils/concentration_parser.dart';
+import '../utils/species_safety.dart';
 import '../widgets/method_selector.dart';
 
 /// Результат расчёта дозы
@@ -728,6 +729,15 @@ class VetProvider {
     final animal = selectedAnimal;
     final animalName = animal?.name ?? '';
 
+    // Task 230: реестровый contraindications — свободный текст, где
+    // видовые запреты живут вперемешку с общими («противопоказан
+    // лошадям...», «не применять несушкам...»). Режем предложения про
+    // чужие виды: выбранному виду — только его предупреждения.
+    final contraText = animalName.isNotEmpty
+        ? SpeciesSafetyFilter.filterTextForAnimal(
+            drug.contraindications, animalName)
+        : drug.contraindications;
+
     var result = DoseResult(
       drugName: drug.tradeName,
       drugForm: drug.form,
@@ -736,7 +746,7 @@ class VetProvider {
       hasResult: true,
       registryDrug: drug,
       note: drug.indications,
-      contraindications: drug.contraindications.isNotEmpty ? [drug.contraindications] : [],
+      contraindications: contraText.isNotEmpty ? [contraText] : [],
     );
 
     if (_dosageDatabase == null) {
@@ -802,8 +812,8 @@ class VetProvider {
       }
 
       final warnings = <String>[];
-      if (drug.contraindications.isNotEmpty) {
-        warnings.add(drug.contraindications);
+      if (contraText.isNotEmpty) {
+        warnings.add(contraText);
       }
       if (animalDosage.notes.isNotEmpty) {
         warnings.add('ℹ️ ${animalDosage.notes}');
@@ -842,7 +852,7 @@ class VetProvider {
       hasResult: true,
       registryDrug: drug,
       note: 'Дозировка: ${animalDosage.formattedDose}\n${animalDosage.notes}\n\n${drug.indications}',
-      contraindications: drug.contraindications.isNotEmpty ? [drug.contraindications] : [],
+      contraindications: contraText.isNotEmpty ? [contraText] : [],
     );
   }
 
@@ -965,7 +975,10 @@ class VetProvider {
     
     final contraResult = drug.checkContraindications(
       isPregnant: _gender == Gender.female && _pregnancyPeriod.isPregnant,
-      isLactating: false,
+      // Task 230: состояние лактации впервые достижимо из UI — раньше
+      // хардкод false держал 885 lactation-флагов базы мёртвыми
+      isLactating: _gender == Gender.female &&
+          _pregnancyPeriod == PregnancyPeriod.lactating,
       isYoung: ageCategory == AgeCategory.young,
       isOld: ageCategory == AgeCategory.old,
       animalName: animal?.name,
@@ -978,10 +991,17 @@ class VetProvider {
     final interactions = checkInteractions();
     
     // === НОВОЕ: Получаем побочные эффекты из базы ===
-    final drugSideEffects = getSideEffects(drug.name);
+    // Task 230: сперва по МНН (чистое совпадение), затем по торговому
+    // названию; видовые эффекты (species) — только выбранному виду:
+    // «ототоксичность, кошки чувствительнее» не выезжает КРС.
+    final drugSideEffects = drug.inn.isNotEmpty
+        ? (getSideEffects(drug.inn) ?? getSideEffects(drug.name))
+        : getSideEffects(drug.name);
     final allSideEffects = [...sideEffects];
     if (drugSideEffects != null) {
+      final animalName = animal?.name ?? '';
       for (final se in drugSideEffects.sideEffects) {
+        if (animalName.isNotEmpty && !se.matchesAnimal(animalName)) continue;
         if (!allSideEffects.contains(se.effect)) {
           allSideEffects.add('${se.effect}${se.action.isNotEmpty ? " → ${se.action}" : ""}');
         }

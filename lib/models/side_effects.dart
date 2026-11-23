@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart';
 
+import '../utils/species_safety.dart';
+
 /// Побочный эффект
 class SideEffect {
   final String effect;
   final String? age;
   final String? dose;
   final String? condition;
-  final String? species;
+  /// Task 230: виды, к которым эффект относится; null/пусто —
+  /// видонезависимый. База переведена на канонические списки
+  /// (["Кошки"]), строка («кошки») — переходная форма.
+  final List<String>? species;
   final String? breeds;
   final String? frequency;
   final String action;
@@ -29,11 +34,35 @@ class SideEffect {
       age: json['age'] as String?,
       dose: json['dose'] as String?,
       condition: json['condition'] as String?,
-      species: json['species'] as String?,
+      species: _parseSpecies(json['species']),
       breeds: json['breeds'] as String?,
       frequency: json['frequency'] as String?,
       action: json['action'] as String? ?? '',
     );
+  }
+
+  /// Task 230: список видов — и список, и одиночная строка (переходная
+  /// форма базы); пустое/нулевое — видонезависимый эффект.
+  static List<String>? _parseSpecies(dynamic raw) {
+    if (raw is List) {
+      final list =
+          raw.map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
+      return list.isEmpty ? null : list;
+    }
+    if (raw is String && raw.trim().isNotEmpty) return [raw.trim()];
+    return null;
+  }
+
+  /// Относится ли эффект к виду: видонезависимые (species пуст) — ко
+  /// всем; видовые — только «своим» («кошки чувствительнее» → Кошки,
+  /// не КРС/Собакам).
+  bool matchesAnimal(String animalName) {
+    final sp = species;
+    if (sp == null || sp.isEmpty) return true;
+    for (final s in sp) {
+      if (SpeciesSafetyFilter.textMentionsAnimal(s, animalName)) return true;
+    }
+    return false;
   }
 }
 
@@ -119,12 +148,24 @@ class SideEffectsDatabase {
   }
 
   DrugSideEffects? findByDrug(String drugName) {
-    final q = drugName.toLowerCase();
+    // Task 230: нормализация (ё→е, ®™©) вместо голого lowercase —
+    // «Катозал®» не совпадал с «катозал». Инвертированный contains
+    // (запрос содержит ключ) — только для ключей от 5 символов:
+    // короткие ключи ловили мусор; прямое вхождение — без порога.
+    final q = _normKey(drugName);
+    if (q.isEmpty) return null;
     for (final d in drugs) {
-      if (d.drug.toLowerCase().contains(q) || q.contains(d.drug.toLowerCase())) {
+      final k = _normKey(d.drug);
+      if (k.contains(q) || (k.length >= 5 && q.contains(k))) {
         return d;
       }
     }
     return null;
   }
+
+  static String _normKey(String s) => s
+      .toLowerCase()
+      .replaceAll('ё', 'е')
+      .replaceAll(RegExp(r'[®™©]'), '')
+      .trim();
 }

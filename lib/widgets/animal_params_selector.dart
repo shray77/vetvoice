@@ -110,7 +110,10 @@ class PregnancySelector extends StatelessWidget {
 
   Widget _buildPeriodChip(PregnancyPeriod period) {
     final isSelected = selectedPeriod == period;
-    final isWarning = period == PregnancyPeriod.late || period == PregnancyPeriod.mid;
+    // Task 230: лактация — как поздние сроки, оранжевая зона внимания
+    final isWarning = period == PregnancyPeriod.late ||
+        period == PregnancyPeriod.mid ||
+        period == PregnancyPeriod.lactating;
     
     return GestureDetector(
       onTap: () => onPeriodChanged(period),

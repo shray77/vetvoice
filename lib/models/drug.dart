@@ -6,12 +6,14 @@ enum Gender {
   female,
 }
 
-/// Период беременности
+/// Период беременности/физиологическое состояние самки
 enum PregnancyPeriod {
   notPregnant,
   early,    // 1/3 срока
   mid,      // 2/3 срока
   late,     // 3/3 срока (перед родами)
+  lactating, // Task 230: дойная/кормящая — 885 lactation-флагов базы
+             // раньше не срабатывали ни разу (isLactating был false)
 }
 
 /// Возрастная категория
@@ -54,10 +56,13 @@ extension PregnancyPeriodExtension on PregnancyPeriod {
         return 'Средний срок (2/3)';
       case PregnancyPeriod.late:
         return 'Поздний срок (3/3)';
+      case PregnancyPeriod.lactating:
+        return 'Лактация (дойная)';
     }
   }
 
-  bool get isPregnant => this != PregnancyPeriod.notPregnant;
+  bool get isPregnant =>
+      this != PregnancyPeriod.notPregnant && this != PregnancyPeriod.lactating;
 }
 
 /// Расширение для AgeCategory
@@ -258,9 +263,12 @@ class Drug {
       }
     }
 
-    // Проверка лактации (упрощенно - после родов)
-    if (gender == Gender.female && pregnancy == PregnancyPeriod.notPregnant) {
-      // Можно добавить отдельное поле для лактации
+    // Проверка лактации: состояние достижимо из UI с Task 230
+    // (до этого — пустая заглушка, 885 lactation-флагов молчали)
+    if (gender == Gender.female && pregnancy == PregnancyPeriod.lactating) {
+      if (contraindications.lactation) {
+        warnings.add('⚠ ПРОТИВОПОКАЗАН при лактации!');
+      }
     }
 
     // Проверка возраста

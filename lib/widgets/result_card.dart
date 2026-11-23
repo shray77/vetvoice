@@ -524,7 +524,10 @@ class _ResultCardState extends State<ResultCard> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widget.result.sideEffects.take(5).map((se) => 
+                      // Task 230: раскрытие = «покажи всё» — молчаливый
+                      // take(5) противоречил честному счётчику заголовка
+                      // «Побочные эффекты (N)»: обещали 7, показывали 5.
+                      children: widget.result.sideEffects.map((se) =>
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text('• $se',
@@ -621,7 +624,10 @@ class _ResultCardState extends State<ResultCard> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      ...widget.result.contraindications.take(3).map((c) => 
+                      // Task 230: без раскрытия и счётчика take(3) молча
+                      // прятал часть мер; после видового фильтра список
+                      // короткий — показываем целиком.
+                      ...widget.result.contraindications.map((c) =>
                         Padding(
                           padding: const EdgeInsets.only(bottom: 2),
                           child: Text('• $c',
