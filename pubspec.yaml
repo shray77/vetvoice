@@ -1,7 +1,7 @@
 name: vetvoice_ai
 description: "VetVoice AI - Veterinary Drug Dosage Calculator with Voice Recognition"
 publish_to: 'none'
-version: 1.24.0+37  # v1.24.0: Task 231 — ревью 26.11.2026 блок A: критические фиксы доз (VV-001..VV-013) + расчёт на стадо + микрофон в тёмной теме
+version: 1.25.0+38  # v1.24.0: Task 231 — ревью 26.11.2026 блок A: критические фиксы доз (VV-001..VV-013) + расчёт на стадо + микрофон в тёмной теме
 
 environment:
   sdk: ^3.5.0

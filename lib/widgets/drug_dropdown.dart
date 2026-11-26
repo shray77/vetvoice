@@ -124,6 +124,8 @@ class _DrugDropdownState extends State<DrugDropdown> {
             prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
+                    // D3 (ревью 26.11.2026): подпись для иконки-крестика.
+                    tooltip: 'Очистить поиск',
                     icon: Icon(Icons.clear, color: AppTheme.textSecondary),
                     onPressed: () {
                       _searchController.clear();
@@ -223,7 +225,8 @@ class _DrugDropdownState extends State<DrugDropdown> {
                           child: Text(
                             category.length > 20 ? '${category.substring(0, 18)}…' : category,
                             style: TextStyle(
-                              fontSize: 9,
+                              // C15: 9 → 11px (категория — критичные данные).
+                              fontSize: 11,
                               color: catColor,
                               fontWeight: FontWeight.w500,
                             ),
@@ -248,10 +251,11 @@ class _DrugDropdownState extends State<DrugDropdown> {
                             color: AppTheme.safeGreen.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
+                          child: Text(
                             'расчёт',
                             style: TextStyle(
-                              fontSize: 10,
+                              // C15: 10 → 11px.
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.safeGreen,
                             ),

@@ -127,19 +127,26 @@ class MiaPlaque extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: [
-                  Icon(_icon, color: _fg(ctx), size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Разумное использование антимикробных',
-                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ],
+            children: [
+              Icon(_icon, color: _fg(ctx), size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Разумное использование антимикробных',
+                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
+              // C19 (аудит 26.11.2026): явное закрытие шторки —
+              // раньше был только свайп вниз.
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: 'Закрыть',
+                onPressed: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
               const SizedBox(height: 4),
               Text(
                 'Классификация ВОЗ: medically important antimicrobials, издание 2024',

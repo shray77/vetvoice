@@ -5,7 +5,9 @@
 //   - «Безопасность» — safety-кластер: Совместимость + Каренция. Самое
 //     критичное на приёме (не убить животное несовместимой смесью / не
 //     продать молоко с антибиотиком) вынесено первой секцией;
-//   - «Инструменты» — Поиск / Протоколы / Инфузии / Болезни (второй ряд 2×2);
+//   - «Инструменты» — Поиск / Протоколы / Инфузии / Болезни (второй ряд 2×2)
+//     + отдельная плитка «Калькулятор инфузий» (VV-028: раньше экран жил
+//     только в golden-тестах);
 //   - Подсказка голосового сценария.
 //
 // Инфузии и Болезни зависят от вторичных баз (extendedReady): пока грузятся —
@@ -29,6 +31,7 @@ import '../widgets/common/status_chip.dart';
 import '../widgets/compatibility_checker.dart';
 import 'diseases_screen.dart';
 import 'fluid_therapy_screen.dart';
+import 'infusion_calculator_screen.dart';
 import 'symptom_search_screen.dart';
 import 'treatment_protocols_screen.dart';
 import 'withdrawal_calculator_screen.dart';
@@ -193,6 +196,15 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     );
   }
 
+  // VV-028 (ревью 26.11.2026): экран был доступен только из golden-тестов —
+  // из UI вёл только справочник растворов (FluidTherapyScreen).
+  void _openInfusionCalculator() {
+    Navigator.push(
+      context,
+      DsRoute(builder: (_) => const InfusionCalculatorScreen()),
+    );
+  }
+
   // -------------------------------------------------------------------
   // UI
   // -------------------------------------------------------------------
@@ -216,10 +228,39 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     );
   }
 
+  /// Пара плиток. B10 (аудит 26.11.2026): на широких экранах — две колонки
+  /// (как раньше), на узких (<380dp) — одна колонка: в половину 320dp-экрана
+  /// заголовки «Совместимость»/«Каренция» не влезали и резались в «Совм…»,
+  /// «Карен…» даже в две строки.
+  Widget _tileRow(Widget left, Widget right, {required bool twoColumns}) {
+    if (twoColumns) {
+      // B10-фикс: stretch в Row внутри SingleChildScrollView (небаунд-высота)
+      // ронял layout («BoxConstraints forces an infinite height» — 4 голдена).
+      // Раскладку ширины делает Expanded; плитки выравниваются по верху.
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: left),
+          const SizedBox(width: 12),
+          Expanded(child: right),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        left,
+        const SizedBox(height: 12),
+        right,
+      ],
+    );
+  }
+
   /// Плитка инструмента. [outlined] — safety-вариант с контуром цвета риска.
   /// [loading] — база ещё парсится: вместо подписи — скелетон-полоска
   /// (Фаза 3: disabled-плитка с «Загрузка…» не показывала форму будущего
   /// контента; скелетон читается как «здесь скоро будет живое»).
+  /// [compact] — B10: узкий экран — иконка компактнее, высота под 2 строки.
   Widget _tile({
     required IconData icon,
     required Color color,
@@ -229,6 +270,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     bool enabled = true,
     bool outlined = false,
     bool loading = false,
+    bool compact = false,
   }) {
     final disabled = !enabled || onTap == null;
     final effectiveColor = disabled ? AppTheme.textTertiary : color;
@@ -243,7 +285,8 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
           onTap: disabled ? null : () { AppHaptics.tap(); onTap!(); },
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           child: Container(
-            height: 76,
+            // B10: высота не фиксирована — растёт под две строки подписи.
+            constraints: BoxConstraints(minHeight: compact ? 88 : 76),
             padding: const EdgeInsets.symmetric(
               horizontal: AppTheme.paddingSmall + 4,
               vertical: AppTheme.paddingSmall,
@@ -257,16 +300,18 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  // B10: на узких экранах иконка компактнее.
+                  width: compact ? 32 : 40,
+                  height: compact ? 32 : 40,
                   decoration: BoxDecoration(
                     color: effectiveColor.withAlpha(28),
                     borderRadius:
                         BorderRadius.circular(AppTheme.radiusSmall),
                   ),
-                  child: Icon(icon, size: 22, color: effectiveColor),
+                  child: Icon(
+                      icon, size: compact ? 20 : 22, color: effectiveColor),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: compact ? 8 : 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,7 +319,8 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                     children: [
                       Text(
                         title,
-                        maxLines: 1,
+                        // B10: 2 строки вместо обрезки «Совм…»/«Проверк…».
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14.5,
@@ -287,7 +333,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                           ? const SkeletonBox(width: 92, height: 11)
                           : Text(
                               subtitle,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
@@ -317,11 +363,16 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppTheme.paddingMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        // B10: адаптив по доступной ширине — на узких экранах пары плиток
+        // складываются в одну колонку, иконки компактнее.
+        child: LayoutBuilder(builder: (context, constraints) {
+          final twoColumns = constraints.maxWidth >= 380;
+          final compact = !twoColumns;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // --- Шапка ---
               // Task 194: заголовок вкладки «Главная» — Prata (дисплей DS,
               // как на всех AppBar); раньше жил на Inter w800 и выбивался
@@ -372,84 +423,84 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
 
               // --- Safety-кластер ---
               _sectionLabel('Безопасность'),
-              Row(
-                children: [
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.compare_arrows_rounded,
-                      color: AppTheme.warningOrange,
-                      title: 'Совместимость',
-                      subtitle: 'Проверка сочетаний',
-                      onTap: _openCompatibility,
-                      outlined: true,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.schedule_rounded,
-                      color: AppTheme.errorRed,
-                      title: 'Каренция',
-                      subtitle: 'Молоко / мясо / яйца',
-                      onTap: _openWithdrawal,
-                      outlined: true,
-                    ),
-                  ),
-                ],
+              _tileRow(
+                _tile(
+                  icon: Icons.compare_arrows_rounded,
+                  color: AppTheme.warningOrange,
+                  title: 'Совместимость',
+                  subtitle: 'Проверка сочетаний',
+                  onTap: _openCompatibility,
+                  outlined: true,
+                  compact: compact,
+                ),
+                _tile(
+                  icon: Icons.schedule_rounded,
+                  color: AppTheme.errorRed,
+                  title: 'Каренция',
+                  subtitle: 'Молоко / мясо / яйца',
+                  onTap: _openWithdrawal,
+                  outlined: true,
+                  compact: compact,
+                ),
+                twoColumns: twoColumns,
               ),
 
               // --- Инструменты (2×2) ---
               _sectionLabel('Инструменты'),
-              Row(
-                children: [
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.search_rounded,
-                      color: AppTheme.safeGreen,
-                      title: 'Поиск',
-                      subtitle: 'Симптомы → препараты',
-                      onTap: _openSymptomSearch,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.medical_information_outlined,
-                      color: AppTheme.maleBlue,
-                      title: 'Протоколы',
-                      subtitle: '124 схемы лечения',
-                      onTap: _openProtocols,
-                    ),
-                  ),
-                ],
+              _tileRow(
+                _tile(
+                  icon: Icons.search_rounded,
+                  color: AppTheme.safeGreen,
+                  title: 'Поиск',
+                  subtitle: 'Симптомы → препараты',
+                  onTap: _openSymptomSearch,
+                  compact: compact,
+                ),
+                _tile(
+                  icon: Icons.medical_information_outlined,
+                  color: AppTheme.maleBlue,
+                  title: 'Протоколы',
+                  subtitle: '124 схемы лечения',
+                  onTap: _openProtocols,
+                  compact: compact,
+                ),
+                twoColumns: twoColumns,
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.water_drop_rounded,
-                      color: AppTheme.maleBlue,
-                      title: 'Инфузии',
-                      subtitle: 'Растворы и скорости',
-                      loading: !infusionsReady,
-                      onTap: infusionsReady ? _openFluidTherapy : null,
-                      enabled: infusionsReady,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _tile(
-                      icon: Icons.coronavirus_rounded,
-                      color: AppTheme.safeGreen,
-                      title: 'Болезни',
-                      subtitle: '${_vetProvider.diseasesCount} в справочнике',
-                      loading: !diseasesReady,
-                      onTap: diseasesReady ? _openDiseases : null,
-                      enabled: diseasesReady,
-                    ),
-                  ),
-                ],
+              _tileRow(
+                _tile(
+                  icon: Icons.water_drop_rounded,
+                  color: AppTheme.maleBlue,
+                  title: 'Инфузии',
+                  subtitle: 'Растворы и скорости',
+                  loading: !infusionsReady,
+                  onTap: infusionsReady ? _openFluidTherapy : null,
+                  enabled: infusionsReady,
+                  compact: compact,
+                ),
+                _tile(
+                  icon: Icons.coronavirus_rounded,
+                  color: AppTheme.safeGreen,
+                  title: 'Болезни',
+                  subtitle: '${_vetProvider.diseasesCount} в справочнике',
+                  loading: !diseasesReady,
+                  onTap: diseasesReady ? _openDiseases : null,
+                  enabled: diseasesReady,
+                  compact: compact,
+                ),
+                twoColumns: twoColumns,
+              ),
+              const SizedBox(height: 12),
+              // VV-028 (ревью 26.11.2026): отдельная плитка калькулятора
+              // инфузий — раньше экран открывался только из golden-тестов,
+              // «Инфузии» ведёт в справочник растворов, не в калькулятор.
+              _tile(
+                icon: Icons.calculate_outlined,
+                color: AppTheme.maleBlue,
+                title: 'Калькулятор инфузий',
+                subtitle: 'Скорость инфузии, мл/ч и капли/мин',
+                onTap: _openInfusionCalculator,
+                compact: compact,
               ),
 
               // --- Голосовая подсказка ---
@@ -466,7 +517,7 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.mic_rounded,
+                      Icon(Icons.mic_rounded,
                         size: 20, color: AppTheme.safeGreen),
                     const SizedBox(width: 10),
                     Expanded(
@@ -484,7 +535,8 @@ class _HomeGridScreenState extends State<HomeGridScreen> {
               ),
             ],
           ),
-        ),
+        );
+        }),
       ),
     );
   }

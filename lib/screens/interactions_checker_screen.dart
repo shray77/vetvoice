@@ -1,7 +1,8 @@
 // InteractionsCheckerScreen — интерактивная проверка совместимости препаратов.
 //
 // Пользователь добавляет 2-3 препарата, видит все их взаимодействия.
-// Использует drug_interactions.json (severity: critical/major/moderate/minor).
+// Использует drug_interactions.json (severity: critical/warning/info
+// → severity-лестница DS: warning → major, info → minor, VV-026).
 //
 // Логика:
 //   1. Загружаем drug_interactions.json
@@ -52,30 +53,60 @@ class DrugInteractionExtended {
     );
   }
 
-  Color get severityColor {
+  /// ⚠ Фикс VV-026 (ревью 26.11.2026): drug_interactions.json пишет severity
+  /// как critical/warning/info (73 пары: 18/49/6), а геттеры ниже понимали
+  /// только critical/major/moderate/minor — 55 из 73 пар показывали сырое
+  /// «warning» с серой иконкой help и не сортировались по опасности.
+  /// Маппинг: warning → major, info → minor (moderate оставлен для
+  /// совместимости; неизвестное значение — наименее опасный уровень).
+  SeverityLevel get severityLevel {
     switch (severity) {
       case 'critical':
-        return AppTheme.errorRed;
+        return SeverityLevel.critical;
       case 'major':
-        return AppTheme.warningOrange;
+      case 'warning':
+        return SeverityLevel.major;
       case 'moderate':
-        return Colors.amber;
+        return SeverityLevel.moderate;
       case 'minor':
-        return AppTheme.safeGreen;
+      case 'info':
+        return SeverityLevel.minor;
       default:
-        return AppTheme.textSecondary;
+        return SeverityLevel.minor;
     }
   }
+
+  /// Порядок опасности для сортировки (0 — самый опасный).
+  int get severityRank {
+    switch (severityLevel) {
+      case SeverityLevel.critical:
+        return 0;
+      case SeverityLevel.major:
+        return 1;
+      case SeverityLevel.moderate:
+        return 2;
+      case SeverityLevel.minor:
+        return 3;
+    }
+  }
+
+  /// ⚠ Фикс C1 (аудит 26.11.2026): бейджи — единая severity-лестница DS
+  /// (SeverityColors), а не raw Colors.amber/orange с withOpacity
+  /// (жёлтый текст давал 1.51:1).
+  Color severityColor(Brightness brightness) =>
+      SeverityColors.text(severityLevel, brightness);
 
   String get severityLabel {
     switch (severity) {
       case 'critical':
         return 'Критическое';
       case 'major':
+      case 'warning':
         return 'Серьёзное';
       case 'moderate':
         return 'Умеренное';
       case 'minor':
+      case 'info':
         return 'Незначительное';
       default:
         return severity;
@@ -87,10 +118,12 @@ class DrugInteractionExtended {
       case 'critical':
         return Icons.dangerous;
       case 'major':
+      case 'warning':
         return Icons.warning;
       case 'moderate':
         return Icons.info;
       case 'minor':
+      case 'info':
         return Icons.check_circle;
       default:
         return Icons.help;
@@ -112,6 +145,14 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   List<DrugInteractionExtended> _allInteractions = [];
   final Map<String, List<DrugInteractionExtended>> _index = {};
   bool _isLoading = true;
+
+  /// ⚠ Фикс B1 (аудит 26.11.2026): раньше ошибка чтения базы молча
+  /// оставляла пустой список — на пустом списке рисовался зелёный
+  /// «Взаимодействий не найдено», и врач принимал решение «можно вместе»
+  /// на несуществующей проверке. Теперь: ошибка загрузки — честный
+  /// error-state с «Повторить»; пустой список — только после успешной
+  /// загрузки.
+  bool _loadFailed = false;
   final List<CalcDrug> _selectedDrugs = [];
   List<DrugInteractionExtended> _foundInteractions = [];
 
@@ -122,6 +163,9 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   Future<void> _loadInteractions() async {
+    // Первый вызов идёт из initState (spinner ещё не построен) — setState
+    // не нужен; повторный (кнопка «Повторить») переключает экран на spinner.
+    if (mounted && !_isLoading) setState(() => _isLoading = true);
     try {
       final jsonString = await rootBundle
           .loadString('assets/data/advanced/drug_interactions.json');
@@ -138,9 +182,12 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
         _index.putIfAbsent(d1, () => []).add(inter);
         _index.putIfAbsent(d2, () => []).add(inter);
       }
+      _loadFailed = false;
     } catch (e) {
       debugPrint('Interactions load error: $e');
+      _loadFailed = true;
     }
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
@@ -182,106 +229,150 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
       appBar: AppBar(title: const Text('Проверка совместимости')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Список выбранных препаратов
+          : _loadFailed
+              ? _buildLoadError()
+              : _buildCheckerBody(),
+    );
+  }
+
+  /// Тело проверки: выбранные препараты + результаты. Отдельный метод —
+  /// при ошибке загрузки базы вместо него рисуется error-state (B1).
+  Widget _buildCheckerBody() {
+    return Column(
+      children: [
+        // Список выбранных препаратов
+        Container(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Выбранные препараты',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (_selectedDrugs.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _selectedDrugs.clear();
+                          _foundInteractions.clear();
+                        });
+                      },
+                      icon: const Icon(Icons.clear_all, size: 16),
+                      label: const Text('Очистить',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (_selectedDrugs.isEmpty)
                 Container(
-                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Выбранные препараты',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (_selectedDrugs.isNotEmpty)
-                            TextButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedDrugs.clear();
-                                  _foundInteractions.clear();
-                                });
-                              },
-                              icon: const Icon(Icons.clear_all, size: 16),
-                              label: const Text('Очистить',
-                                  style: TextStyle(fontSize: 12)),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      if (_selectedDrugs.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.backgroundGray,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Добавьте 2+ препарата для проверки совместимости',
-                              // v1.16: textTertiary был почти невидим на светлом фоне
-                              style:
-                                  TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )
-                      else
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: _selectedDrugs.asMap().entries.map((entry) {
-                            final i = entry.key;
-                            final drug = entry.value;
-                            return Chip(
-                              label: Text('${i + 1}. ${drug.name}',
-                                  style: const TextStyle(fontSize: 12)),
-                              onDeleted: () {
-                                setState(() {
-                                  _selectedDrugs.removeAt(i);
-                                  _checkInteractions();
-                                });
-                              },
-                              backgroundColor: AppTheme.safeGreen.withOpacity(0.1),
-                              side: BorderSide(
-                                  color: AppTheme.safeGreen.withOpacity(0.3)),
-                            );
-                          }).toList(),
-                        ),
-                      const SizedBox(height: 8),
-                      // Кнопка добавить
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _showAddDrugDialog,
-                          icon: const Icon(Icons.add),
-                          label: Text(
-                            _selectedDrugs.isEmpty
-                                ? 'Добавить первый препарат'
-                                : 'Добавить ещё препарат',
-                          ),
-                        ),
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.backgroundGray,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Добавьте 2+ препарата для проверки совместимости',
+                      // v1.16: textTertiary был почти невидим на светлом фоне
+                      style:
+                          TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _selectedDrugs.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final drug = entry.value;
+                    return Chip(
+                      label: Text('${i + 1}. ${drug.name}',
+                          style: const TextStyle(fontSize: 12)),
+                      onDeleted: () {
+                        setState(() {
+                          _selectedDrugs.removeAt(i);
+                          _checkInteractions();
+                        });
+                      },
+                      backgroundColor: AppTheme.safeGreen.withOpacity(0.1),
+                      side: BorderSide(
+                          color: AppTheme.safeGreen.withOpacity(0.3)),
+                    );
+                  }).toList(),
+                ),
+              const SizedBox(height: 8),
+              // Кнопка добавить
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _showAddDrugDialog,
+                  icon: const Icon(Icons.add),
+                  label: Text(
+                    _selectedDrugs.isEmpty
+                        ? 'Добавить первый препарат'
+                        : 'Добавить ещё препарат',
                   ),
                 ),
-                const Divider(height: 1),
-                // Результаты проверки
-                Expanded(
-                  child: _selectedDrugs.length < 2
-                      ? _buildHint()
-                      : _foundInteractions.isEmpty
-                          ? _buildSafeResult()
-                          : _buildInteractionsList(),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        // Результаты проверки
+        Expanded(
+          child: _selectedDrugs.length < 2
+              ? _buildHint()
+              : _foundInteractions.isEmpty
+                  ? _buildSafeResult()
+                  : _buildInteractionsList(),
+        ),
+      ],
+    );
+  }
+
+  /// B1: честный error-state при незагруженной базе — вместо ложного
+  /// зелёного «Взаимодействий не найдено» на пустом списке.
+  Widget _buildLoadError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off_outlined,
+                size: 64, color: AppTheme.textTertiary),
+            const SizedBox(height: 16),
+            Text(
+              'База не загрузилась — проверка недоступна',
+              style: Theme.of(context).textTheme.headlineMedium,
+              textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Не удалось прочитать базу взаимодействий. '
+              'База поставляется в комплекте — повторите попытку.',
+              style: TextStyle(color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _loadInteractions,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Повторить'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -307,11 +398,15 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   Widget _buildSafeResult() {
+    // ⚠ Фикс C2 (аудит 26.11.2026): успех — theme-aware зелёный
+    // (safeGreen из светлой палитры на тёмном фоне давал 2.4–2.9:1).
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final green = isDark ? AppTheme.safeGreenLight : AppTheme.success;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle, size: 72, color: AppTheme.success),
+          Icon(Icons.check_circle, size: 72, color: green),
           const SizedBox(height: 16),
           Text(
             'Взаимодействий не найдено',
@@ -491,12 +586,12 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
   }
 
   Widget _buildInteractionsList() {
-    // Сортируем по severity (critical → minor)
-    final severityOrder = {'critical': 0, 'major': 1, 'moderate': 2, 'minor': 3};
+    // Сортируем по severity (critical → minor).
+    // ⚠ Фикс VV-026: сортировка идёт по severityRank модели, который
+    // понимает реальные значения базы (warning → major, info → minor):
+    // раньше 55 из 73 пар попадали в «неизвестный» хвост списка.
     final sorted = List<DrugInteractionExtended>.from(_foundInteractions)
-      ..sort((a, b) =>
-          (severityOrder[a.severity] ?? 4)
-              .compareTo(severityOrder[b.severity] ?? 4));
+      ..sort((a, b) => a.severityRank.compareTo(b.severityRank));
 
     final hasStewardship = _miaEntries.isNotEmpty;
     return ListView.builder(
@@ -517,21 +612,30 @@ class _InteractionsCheckerScreenState extends State<InteractionsCheckerScreen> {
       context: context,
       isScrollControlled: true,
       builder: (ctx) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          padding: const EdgeInsets.all(AppTheme.paddingMedium),
-          child: _AddDrugSearch(
-            allDrugs: allDrugs,
-            excludeDrugs: _selectedDrugs,
-            onSelected: (drug) {
-              setState(() {
-                _selectedDrugs.add(drug);
-                if (_selectedDrugs.length >= 2) {
-                  _checkInteractions();
-                }
-              });
-              Navigator.pop(ctx);
-            },
+        // ⚠ Фикс B3 (аудит 26.11.2026): высота считалась в контексте
+        // РОДИТЕЛЯ без учёта viewInsets — autofocus-поле уезжало под
+        // клавиатуру. Теперь высота — от окна в контексте шторки,
+        // а сама шторка поднимается над клавиатурой нижним Padding.
+        final keyboard = MediaQuery.viewInsetsOf(ctx).bottom;
+        final availableHeight = MediaQuery.sizeOf(ctx).height - keyboard;
+        return Padding(
+          padding: EdgeInsets.only(bottom: keyboard),
+          child: Container(
+            height: availableHeight * 0.85,
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: _AddDrugSearch(
+              allDrugs: allDrugs,
+              excludeDrugs: _selectedDrugs,
+              onSelected: (drug) {
+                setState(() {
+                  _selectedDrugs.add(drug);
+                  if (_selectedDrugs.length >= 2) {
+                    _checkInteractions();
+                  }
+                });
+                Navigator.pop(ctx);
+              },
+            ),
           ),
         );
       },
@@ -546,7 +650,18 @@ class _InteractionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = interaction.severityColor;
+    // C1/C2: severity- и success-цвета — от фактической яркости темы.
+    final brightness = Theme.of(context).brightness;
+    final level = interaction.severityLevel;
+    final color = interaction.severityColor(brightness);
+    // C2: зелёный успеха — DsDark.accent на тёмном, AA-зелёный на светлом
+    // (фиксированный светлый safeGreen давал в тёмной теме 2.4–2.9:1).
+    final successFg = brightness == Brightness.dark
+        ? AppTheme.safeGreenLight
+        : AppTheme.accentText;
+    final successBg = brightness == Brightness.dark
+        ? AppTheme.darkPrimaryContainer
+        : AppTheme.successContainer;
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
@@ -573,17 +688,19 @@ class _InteractionCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                // C1: бейдж — SeverityColors.text/bg (жёлтый на жёлтом
+                // давал 1.51:1); C15: fontSize 10 → 11.
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: SeverityColors.bg(level, brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     interaction.severityLabel,
                     style: TextStyle(
-                      fontSize: 10,
-                      color: color,
+                      fontSize: 11,
+                      color: SeverityColors.onBg(level, brightness),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -603,21 +720,22 @@ class _InteractionCard extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.safeGreen.withOpacity(0.1),
+                  // C2: success-подложка — theme-aware (в тёмной теме был
+                  // светлый зелёный остров с тёмным текстом 2.4–2.9:1).
+                  color: successBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lightbulb,
-                        color: AppTheme.safeGreen, size: 16),
+                    Icon(Icons.lightbulb, color: successFg, size: 16),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         interaction.recommendation,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.safeGreenDark,
+                          color: successFg,
                         ),
                       ),
                     ),
@@ -693,6 +811,14 @@ class _AddDrugSearchState extends State<_AddDrugSearch> {
         .toList();
   }
 
+  // ⚠ Фикс VV-024 (ревью 26.11.2026): контроллер не освобождался —
+  // утечка на каждое открытие шторки.
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _filter(String query) {
     final q = query.toLowerCase();
     setState(() {
@@ -708,13 +834,28 @@ class _AddDrugSearchState extends State<_AddDrugSearch> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('Добавить препарат',
-            style: Theme.of(context).textTheme.headlineMedium),
+        Row(
+          children: [
+            Expanded(
+              child: Text('Добавить препарат',
+                  style: Theme.of(context).textTheme.headlineMedium),
+            ),
+            // C19: явное закрытие шторки — не только свайпом вниз.
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Закрыть',
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
         TextField(
           controller: _controller,
           autofocus: true,
           decoration: InputDecoration(
+            // C10: labelText — после ввода видно, что это за поле
+            // (hint исчезает при вводе; единицы здесь не нужны).
+            labelText: 'Название или МНН',
             hintText: 'Поиск по названию или МНН...',
             prefixIcon: const Icon(Icons.search),
             // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme

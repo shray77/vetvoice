@@ -9,12 +9,16 @@
 //   - SharedPreferences для сохранения выбранной темы
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
+import '../providers/vet_provider.dart';
 import '../services/theme_service.dart';
 import '../widgets/common/haptics.dart';
 import '../widgets/common/voice_status_bar.dart';
 import '../widgets/common/gigaam_status_bar.dart';
 import '../widgets/common/app_scaffold.dart';
+// D12: общий хелпер плюрализации (2401 препарат / 2 протокола / 73 взаимодействия)
+import 'history_screen.dart';
 import 'terms_screen.dart';
 import '../theme/ds.dart';
 
@@ -28,6 +32,11 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final ThemeService _themeService = ThemeService();
 
+  /// B7 (аудит 26.11.2026): реальный timestamp последней локальной
+  /// проверки базы в SharedPreferences (была константа «сегодня»).
+  static const String _lastDbCheckKey = 'vetvoice_last_db_check';
+  DateTime? _lastDbCheck;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +44,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // v1.17.0: живой статус Vosk переехал в VoiceStatusBar — компонент
     // сам подписан на все стримы (onStateChanged/onDownloadProgress/onError/
     // onListeningStateChanged) и сам перерисовывается.
+    _loadLastDbCheck();
+  }
+
+  Future<void> _loadLastDbCheck() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ms = prefs.getInt(_lastDbCheckKey);
+    if (ms == null || !mounted) return;
+    setState(() =>
+        _lastDbCheck = DateTime.fromMillisecondsSinceEpoch(ms));
+  }
+
+  String _formatDbCheckDate(DateTime d) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thatDay = DateTime(d.year, d.month, d.day);
+    String two(int v) => v.toString().padLeft(2, '0');
+    if (thatDay == today) {
+      return 'сегодня, ${two(d.hour)}:${two(d.minute)}';
+    }
+    return '${two(d.day)}.${two(d.month)}.${d.year}';
+  }
+
+  /// B7: реальная ЛОКАЛЬНАЯ проверка — приложение офлайн, сетевой проверки
+  /// нет (и не выдумываем). Считаем фактические базы из провайдера тем же
+  /// путём, которым их стартуют экраны (provider.initialize()), показываем
+  /// числа и запоминаем время проверки.
+  Future<void> _checkDatabaseUpdate() async {
+    final vetProvider = VetProvider();
+    await vetProvider.initialize();
+    final drugs = vetProvider.totalDrugs;
+    final protocols = vetProvider.treatmentProtocolsCount;
+    final interactions = vetProvider.interactionsCount;
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lastDbCheckKey, now.millisecondsSinceEpoch);
+    if (!mounted) return;
+    setState(() => _lastDbCheck = now);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'База проверена (локально): $drugs '
+          '${pluralizeRu(drugs, 'препарат', 'препарата', 'препаратов')}, '
+          '$protocols '
+          '${pluralizeRu(protocols, 'протокол', 'протокола', 'протоколов')}, '
+          '$interactions '
+          '${pluralizeRu(interactions, 'взаимодействие', 'взаимодействия', 'взаимодействий')}',
+        ),
+      ),
+    );
   }
 
   @override
@@ -79,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8),
           const Divider(),
 
-          // === 🆕 v1.20.0: офлайн-движок GigaAM (Сбер) ===
+          // === 🆕 v1.25.0: офлайн-движок GigaAM (Сбер) ===
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: GigaAmStatusBar(),
@@ -106,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.20.0',
+                applicationVersion: '1.25.0',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),
@@ -146,12 +204,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.refresh),
             title: const Text('Проверить обновления базы'),
-            subtitle: const Text('Последняя проверка: сегодня'),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Проверка обновлений...')),
-              );
-            },
+            // B7: реальная дата последней проверки (SharedPreferences),
+            // а не константа «сегодня».
+            subtitle: Text(_lastDbCheck == null
+                ? 'База в комплекте — обновления приходят с релизом'
+                : 'Последняя проверка: ${_formatDbCheckDate(_lastDbCheck!)}'),
+            onTap: _checkDatabaseUpdate,
           ),
           ListTile(
             leading: const Icon(Icons.source),

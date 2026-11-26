@@ -105,12 +105,18 @@ class MethodSelector extends StatelessWidget {
             children: [
               Icon(Icons.vaccines_outlined, size: 18, color: AppTheme.textSecondary),
               const SizedBox(width: 8),
-              Text(
-                availableMethodsString,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textPrimary,
+              // D6 (визуальный аудит 26.11.2026): Text без Expanded —
+              // длинный список методов выпирал за край DropdownButton.
+              Expanded(
+                child: Text(
+                  availableMethodsString,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

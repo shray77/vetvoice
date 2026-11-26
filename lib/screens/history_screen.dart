@@ -12,6 +12,25 @@ import '../services/history_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/empty_state.dart';
+import '../widgets/common/skeleton.dart';
+
+/// D12 (ревью 26.11.2026): честная русская плюрализация — раньше диалог
+/// очистки говорил «Будет удалено 1 записей».
+///
+/// Правило: n%10 == 1 && n%100 != 11 → одна форма; n%10 ∈ 2..4 и
+/// n%100 ∉ 12..14 → «мало»; иначе — «много».
+String pluralizeRu(int n, String one, String few, String many) {
+  final abs = n.abs();
+  final mod10 = abs % 10;
+  final mod100 = abs % 100;
+  if (mod10 == 1 && mod100 != 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
+/// «1 запись / 2 записи / 5 записей» (для диалога очистки истории).
+String historyRecordsPlural(int n) =>
+    pluralizeRu(n, 'запись', 'записи', 'записей');
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -23,6 +42,11 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final HistoryService _histService = HistoryService();
 
+  // ⚠ Фикс B8 (аудит 26.11.2026): до завершения init() история пуста —
+  // экран мигал «История пустая» до первой загрузки. Теперь до init —
+  // честный скелетон списка.
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +55,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> _initData() async {
     await _histService.init();
-    setState(() {});
+    // ⚠ Фикс VV-021 (ревью 26.11.2026): setState после await без
+    // mounted — крашился при быстром «назад» с экрана.
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -48,9 +77,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Очистить историю?'),
+                  // D12: 1 запись / 2 записи / 5 записей.
                   content: Text(
-                    'Будет удалено ${_histService.history.length} '
-                    'записей истории.',
+                    'Будет удалено: ${_histService.history.length} '
+                    '${historyRecordsPlural(_histService.history.length)} истории.',
                   ),
                   actions: [
                     TextButton(
@@ -66,14 +96,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
               );
               if (confirmed == true) {
                 await _histService.clear();
-                setState(() {});
+                if (mounted) setState(() {});
               }
             },
           ),
       ],
-      body: _histService.history.isEmpty
-          ? _buildEmptyState()
-          : _buildHistoryList(),
+      body: _isLoading
+          ? const SkeletonList()
+          : _histService.history.isEmpty
+              ? _buildEmptyState()
+              : _buildHistoryList(),
     );
   }
 
@@ -104,9 +136,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
           onDismissed: (_) async {
             await _histService.removeAt(index);
-            setState(() {});
+            if (mounted) setState(() {});
           },
-          child: _HistoryEntryCard(entry: entry),
+          child: _HistoryEntryCard(
+            entry: entry,
+            onDismiss: () async {
+              // C20: удаление — не только свайпом (явная кнопка с тултипом).
+              await _histService.removeAt(index);
+              if (mounted) setState(() {});
+            },
+          ),
         );
       },
     );
@@ -115,8 +154,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
 class _HistoryEntryCard extends StatelessWidget {
   final HistoryEntry entry;
+  final VoidCallback? onDismiss;
 
-  const _HistoryEntryCard({required this.entry});
+  const _HistoryEntryCard({required this.entry, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +174,7 @@ class _HistoryEntryCard extends StatelessWidget {
                 color: AppTheme.safeGreen.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               ),
-              child: const Icon(
+              child:   Icon(
                 Icons.access_time,
                 color: AppTheme.safeGreen,
                 size: 24,
@@ -160,11 +200,13 @@ class _HistoryEntryCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
+                      // B8: Colors.grey[500] на белой карточке = 2.68:1 —
+                      // заменён на theme-aware токен второстепенного текста.
                       Text(
                         entry.formattedTime,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey[500],
+                          color: AppTheme.textTertiary,
                         ),
                       ),
                     ],
@@ -196,7 +238,7 @@ class _HistoryEntryCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                          Icon(
                           Icons.medication,
                           color: AppTheme.safeGreen,
                           size: 16,
@@ -204,7 +246,7 @@ class _HistoryEntryCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           entry.formattedResult,
-                          style: const TextStyle(
+                          style:   TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.safeGreen,
@@ -216,7 +258,7 @@ class _HistoryEntryCard extends StatelessWidget {
                             '· ${entry.frequency}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                         ],
@@ -226,6 +268,14 @@ class _HistoryEntryCard extends StatelessWidget {
                 ],
               ),
             ),
+            // C20: явная кнопка удаления (свайп остаётся).
+            if (onDismiss != null)
+              IconButton(
+                icon: Icon(Icons.delete_outline,
+                    color: AppTheme.errorRed),
+                tooltip: 'Удалить',
+                onPressed: onDismiss,
+              ),
           ],
         ),
       ),
@@ -243,14 +293,16 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        // B8: raw Colors.grey[200]/[700] — светлый чип в тёмной теме;
+        // теперь theme-aware токены.
+        color: AppTheme.fieldFill,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
-          color: Colors.grey[700],
+          color: AppTheme.textSecondary,
         ),
       ),
     );

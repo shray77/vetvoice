@@ -15294,7 +15294,7 @@
       "source": "Приказ Минсельхоза РФ №62 от 09.03.2011 (ред. от 25.09.2020)"
     },
     {
-      "disease_id": null,
+      "disease_id": 88,
       "diagnosis": "Инфекционный бурсит (Болезнь Гамборо)",
       "code": "",
       "category": "infectious",
@@ -18641,7 +18641,7 @@
       }
     },
     {
-      "disease_id": 201,
+      "disease_id": 88,
       "diagnosis": "Инфекционный бурсит (болезнь Гамборо)",
       "code": "IBD",
       "category": "infectious",
@@ -18669,7 +18669,7 @@
       }
     },
     {
-      "disease_id": 202,
+      "disease_id": null,
       "diagnosis": "Некробактериоз",
       "code": "NCB",
       "category": "infectious",

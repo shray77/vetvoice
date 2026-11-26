@@ -51,6 +51,12 @@ class _ResultCardState extends State<ResultCard> {
     if (oldWidget.result.dosePerKg != widget.result.dosePerKg) {
       _selectedDose = widget.result.dosePerKg;
     }
+    // D14 (ревью 26.11.2026): _savedToHistory сбрасывался только в initState
+    // — после смены препарата кнопка «В историю» показывала «Сохранено»
+    // и была мертва для нового расчёта. Сброс при смене результата.
+    if (oldWidget.result != widget.result) {
+      _savedToHistory = false;
+    }
   }
 
   @override
@@ -678,34 +684,36 @@ class _ResultCardState extends State<ResultCard> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
-                onPressed: _savedToHistory
-                    ? null
-                    : () async {
-                        await _histService.addCalculation(
-                          drugId: widget.result.calcDrug!.id,
-                          drugName: widget.result.drugName,
-                          inn: widget.result.calcDrug!.inn,
-                          animal: widget.animalName!,
-                          weightKg: widget.weightKg ?? 0,
-                          dosePerKg: widget.result.dosePerKg,
-                          volumeMl: widget.result.volume,
-                          method: widget.result.selectedMethodName.isNotEmpty
-                              ? widget.result.selectedMethodName
-                              : widget.result.method,
-                          frequency: widget.result.frequency,
-                        );
-                        setState(() {
-                          _savedToHistory = true;
-                        });
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('✓ Сохранено в историю'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      },
+              onPressed: _savedToHistory
+                  ? null
+                  : () async {
+                      await _histService.addCalculation(
+                        drugId: widget.result.calcDrug!.id,
+                        drugName: widget.result.drugName,
+                        inn: widget.result.calcDrug!.inn,
+                        animal: widget.animalName!,
+                        weightKg: widget.weightKg ?? 0,
+                        dosePerKg: widget.result.dosePerKg,
+                        volumeMl: widget.result.volume,
+                        method: widget.result.selectedMethodName.isNotEmpty
+                            ? widget.result.selectedMethodName
+                            : widget.result.method,
+                        frequency: widget.result.frequency,
+                      );
+                      // ⚠ Фикс VV-059 (ревью 26.11.2026): setState после
+                      // await без mounted — крашился при уходе с экрана
+                      // до завершения записи в историю.
+                      if (!mounted) return;
+                      setState(() {
+                        _savedToHistory = true;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✓ Сохранено в историю'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
                 icon: Icon(
                   _savedToHistory ? Icons.check : Icons.history_edu,
                   size: 18,

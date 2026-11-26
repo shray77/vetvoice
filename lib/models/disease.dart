@@ -90,9 +90,20 @@ class Disease {
     };
   }
 
-  /// Проверяет, применима ли болезнь к указанному животному
+  /// Проверяет, применима ли болезнь к указанному животному.
+  // VV-031 (ревью 26.11.2026): наивное сравнение toLowerCase без ё→е
+  // роняло записи: чип «Пчёлы» не находил болезни с «Пчелы» и наоборот.
+  // Нормализация ё→е + префикс в обе стороны (алиасы «Пушные» ↔
+  // «Пушные звери»).
+  static String _norm(String s) =>
+      s.toLowerCase().replaceAll('ё', 'е').trim();
+
   bool isForAnimal(String animalName) {
-    return animals.any((a) => a.toLowerCase() == animalName.toLowerCase() || a == 'Все');
+    final n = _norm(animalName);
+    return animals.any((a) {
+      final x = _norm(a);
+      return a == 'Все' || x == n || x.startsWith(n) || n.startsWith(x);
+    });
   }
 
   /// Человекочитаемое название категории

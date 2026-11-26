@@ -41,6 +41,11 @@ class UnofficialRecord {
   final String description;
   final String form;
   final List<UnofficialAnimalDose> animalDosages;
+
+  /// VV-030 (ревью 26.11.2026): сырой текст дозировок — у 490 записей
+  /// animal_dosages — невалидный JSON из PDF, раньше они молча
+  /// превращались в «нет данных». Теперь текст доезжает до карточки.
+  final String animalDosagesText;
   final String warnings;
   final String source;
   final String sourceUrl;
@@ -52,6 +57,7 @@ class UnofficialRecord {
     required this.description,
     required this.form,
     required this.animalDosages,
+    required this.animalDosagesText,
     required this.warnings,
     required this.source,
     required this.sourceUrl,
@@ -91,6 +97,7 @@ class UnofficialRecord {
       description: json['description'] as String? ?? '',
       form: json['form'] as String? ?? '',
       animalDosages: parseDosages(json['animal_dosages']),
+      animalDosagesText: json['animal_dosages_text'] as String? ?? '',
       warnings: json['warnings'] as String? ?? '',
       source: json['source'] as String? ?? '',
       sourceUrl: json['source_url'] as String? ?? '',

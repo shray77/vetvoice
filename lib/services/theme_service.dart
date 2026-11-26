@@ -50,6 +50,12 @@ class ThemeService extends ChangeNotifier {
         _themeMode = ThemeMode.dark;
         break;
       case 'system':
+        // VV-043 (ревью 26.11.2026): «Системная» тема больше не молча
+        // превращается в светлую после рестарта — main.dart слушает
+        // платформенную яркость (didChangePlatformBrightness →
+        // notifyPlatformBrightness → applyBrightness).
+        _themeMode = ThemeMode.system;
+        break;
       default:
         _themeMode = ThemeMode.light;
     }

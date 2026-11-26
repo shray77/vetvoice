@@ -66,6 +66,13 @@ class SymptomSearchService {
   ///
   /// Сырой JSON берётся из кеша DrugLoaderService (уже прочитан при старте),
   /// тяжёлый jsonDecode уходит в background-isolate.
+  ///
+  /// ⚠ Фикс VV-042 (ревью 26.11.2026): раньше в compute() уходил ТОЛЬКО
+  /// jsonDecode — цикл по ~7 МБ / тысячам CalcDrug.fromJson и _tokenize()
+  /// (с новым RegExp на каждый вызов) оставался на главном изоляте и
+  /// морозил UI на секунды. Теперь в изолят уходит ВСЯ работа: decode +
+  /// fromJson + построение обратного индекса — назад прилетает готовый
+  /// индекс (_SymptomIndex). Публичный API сервиса не изменился.
   Future<void> init() async {
     if (_isLoaded || _isLoading) return;
     _isLoading = true;
@@ -75,39 +82,31 @@ class SymptomSearchService {
         debugPrint('SymptomSearch: нет доступа к $_assetPath');
         return;
       }
-      final data = await compute(_decodeJsonInIsolate, jsonString);
-      final drugsList = data['drugs_calc'] as List<dynamic>? ?? [];
-
-      for (final drugJson in drugsList) {
-        try {
-          final drug = CalcDrug.fromJson(drugJson as Map<String, dynamic>);
-          _drugs[drug.id] = drug;
-
-          // Индексируем indications + name + inn + category
-          final text = '${drug.indications} ${drug.name} ${drug.inn} '
-              '${drug.category}';
-          final tokens = _tokenize(text);
-          for (final token in tokens) {
-            _index.putIfAbsent(token, () => {}).add(drug.id);
-            // Префиксная форма (первые 4 буквы) — покрывает русскую
-            // морфологию: «кошка»/«кошки»/«кошке» → общий префикс «кошк».
-            if (token.length >= 5) {
-              _index.putIfAbsent(token.substring(0, 4), () => {}).add(drug.id);
-            }
-          }
-        } catch (e) {
-          debugPrint('SymptomSearch: skip drug: $e');
-        }
-      }
+      final built = await compute(_buildSymptomIndex, jsonString);
+      _index
+        ..clear()
+        ..addAll(built.index);
+      _drugs
+        ..clear()
+        ..addAll(built.drugs);
       _isLoaded = true;
+      final skippedNote =
+          built.skipped > 0 ? ' (пропущено записей: ${built.skipped})' : '';
       debugPrint('SymptomSearch: ${_drugs.length} drugs, '
-          '${_index.length} unique tokens');
+          '${_index.length} unique tokens$skippedNote');
     } catch (e) {
       debugPrint('SymptomSearch init error: $e');
     } finally {
       _isLoading = false;
     }
   }
+
+  // VV-042: статические финальные RegExp — раньше _tokenize создавал
+  // НОВЫЕ RegExp на каждый вызов (тысячи раз при индексации базы и потом
+  // на каждый поиск).
+  static final RegExp _punctuationRegExp =
+      RegExp(r'[^\p{L}\p{N}\s\-]', unicode: true);
+  static final RegExp _whitespaceRegExp = RegExp(r'\s+');
 
   /// Токенизация текста: lower-case, удаление пунктуации, фильтр стоп-слов.
   ///
@@ -117,12 +116,14 @@ class SymptomSearchService {
   /// превращались в пустоту → поиск всегда возвращал 0 результатов.
   /// Теперь юникодный класс \p{L}\p{N} (unicode: true) — буквы всех
   /// алфавитов, включая кириллицу, остаются в токенах.
-  List<String> _tokenize(String text) {
+  ///
+  /// VV-042: метод статический — используется и в background-isolate
+  /// (_buildSymptomIndex), и в search().
+  static List<String> _tokenize(String text) {
     final lower = text.toLowerCase();
     // Удаляем пунктуацию, оставляем буквы/цифры/пробелы/дефис
-    final cleaned =
-        lower.replaceAll(RegExp(r'[^\p{L}\p{N}\s\-]', unicode: true), ' ');
-    final tokens = cleaned.split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
+    final cleaned = lower.replaceAll(_punctuationRegExp, ' ');
+    final tokens = cleaned.split(_whitespaceRegExp).where((t) => t.isNotEmpty);
     // Фильтр стоп-слов и слишком коротких
     return tokens
         .where((t) => t.length >= 3 && !_stopWords.contains(t))
@@ -208,7 +209,52 @@ class SymptomSearchService {
   ];
 }
 
-/// Top-level функция для compute(): jsonDecode в background-isolate.
-Map<String, dynamic> _decodeJsonInIsolate(String raw) {
-  return jsonDecode(raw) as Map<String, dynamic>;
+/// Готовый обратный индекс симптомов: строится ЦЕЛИКОМ в background-isolate
+/// (VV-042) и одним сообщением возвращается на главный изолят.
+class _SymptomIndex {
+  final Map<String, Set<int>> index; // token -> {drug_id, ...}
+  final Map<int, CalcDrug> drugs;   // drug_id -> CalcDrug
+  final int skipped;                // записи, которые не удалось распарсить
+
+  const _SymptomIndex({
+    required this.index,
+    required this.drugs,
+    required this.skipped,
+  });
+}
+
+/// Top-level функция для compute(): jsonDecode + CalcDrug.fromJson +
+/// построение обратного индекса — всё целиком в background-isolate (VV-042),
+/// главный изолят получает готовую структуру и не морозится.
+_SymptomIndex _buildSymptomIndex(String jsonString) {
+  final data = jsonDecode(jsonString) as Map<String, dynamic>;
+  final drugsList = data['drugs_calc'] as List<dynamic>? ?? [];
+
+  final index = <String, Set<int>>{};
+  final drugs = <int, CalcDrug>{};
+  var skipped = 0;
+
+  for (final drugJson in drugsList) {
+    try {
+      final drug = CalcDrug.fromJson(drugJson as Map<String, dynamic>);
+      drugs[drug.id] = drug;
+
+      // Индексируем indications + name + inn + category
+      final text =
+          '${drug.indications} ${drug.name} ${drug.inn} ${drug.category}';
+      for (final token in SymptomSearchService._tokenize(text)) {
+        index.putIfAbsent(token, () => {}).add(drug.id);
+        // Префиксная форма (первые 4 буквы) — покрывает русскую
+        // морфологию: «кошка»/«кошки»/«кошке» → общий префикс «кошк».
+        if (token.length >= 5) {
+          index.putIfAbsent(token.substring(0, 4), () => {}).add(drug.id);
+        }
+      }
+    } catch (e) {
+      skipped++;
+      debugPrint('SymptomSearch: skip drug: $e');
+    }
+  }
+
+  return _SymptomIndex(index: index, drugs: drugs, skipped: skipped);
 }

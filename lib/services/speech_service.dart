@@ -18,12 +18,13 @@ class SpeechService {
   bool _isSTTReady = false;
   bool _isListening = false;
   bool _continuousMode = false; // Hands-free режим
-  // 🆕 v1.16.1: флаг «сейчас говорит TTS». Пока он поднят — STT не запускается,
-  // а результаты, пришедшие во время озвучки, игнорируются (эхо-защита).
+  // 🆕 v1.16.1: эхо-защита «сейчас говорит TTS». Пока она поднята — STT
+  // не запускается, а результаты, пришедшие во время озвучки, игнорируются.
   // Раньше в hands-free STT перезапускался через 800 мс после финального
   // результата — пока TTS ещё говорил → микрофон слышал собственный голос
   // и парсил его как новый ввод («приложение слушает само себя»).
-  bool _isSpeaking = false;
+  // 🆕 v1.20.1 (VV-039): состояние держит счётчик _speakGuard: completion
+  // первой из параллельных озвучек больше не снимает защиту досрочно.
   String _lastRecognizedWords = '';
   String _statusText = 'Голос не активен';
   String _currentLocaleId = 'ru_RU'; // Сохраняем выбранную локаль
@@ -32,11 +33,32 @@ class SpeechService {
   StreamSubscription<String>? _gigaAmResultSub;
   StreamSubscription<String>? _gigaAmStateSub;
   StreamSubscription<String>? _gigaAmErrorSub;
+  // 🆕 v1.20.1 (VV-039): счётчик активных озвучек — источник правды для
+  // эхо-защиты (см. SpeakGuard ниже): защита снимается, только когда
+  // завершились ВСЕ параллельные speak().
+  final SpeakGuard _speakGuard = SpeakGuard();
+  // 🆕 v1.20.1 (VV-015): синхронный guard от параллельного запуска STT —
+  // раньше _isListening проверялся после await initializeSTT()/listen(),
+  // и кнопка микрофона + wake word одновременно открывали два STT-сеанса.
+  bool _startInProgress = false;
+  // 🆕 v1.20.1 (VV-014/VV-040/VV-041): отложенные рестарты hands-free —
+  // раньше Future.delayed(600/800/1000 мс) нигде не сохранялись и не
+  // отменялись: dispose() закрывал стримы, а колбэк через 600–1000 мс
+  // писал в закрытый контроллер («Bad state: Cannot add new events after
+  // calling close») и дёргал микрофон мёртвого сервиса. См.
+  // SpeechRestartScheduler ниже.
+  final SpeechRestartScheduler _restarts = SpeechRestartScheduler();
+
+  // Ключи отложенных рестартов (VV-014): у каждого источника свой слот,
+  // повторный schedule с тем же ключом заменяет предыдущий таймер.
+  static const String _kRestartAfterTts = 'afterTts';
+  static const String _kRestartAfterResult = 'afterResult';
+  static const String _kRestartAfterError = 'afterError';
 
   // Геттеры
   bool get isSTTReady => _isSTTReady;
   bool get isListening => _isListening || _offlineTranscribing; // v1.20.0: офлайн-запись тоже «слушаю»
-  bool get isSpeaking => _isSpeaking; // 🆕 v1.16.1
+  bool get isSpeaking => _speakGuard.isSpeaking; // 🆕 v1.16.1; v1.20.1 (VV-039) — счётчик
   bool get continuousMode => _continuousMode;
   String get lastRecognizedWords => _lastRecognizedWords;
   String get statusText => _statusText;
@@ -149,29 +171,44 @@ class SpeechService {
         // Слушаем завершение озвучивания для hands-free режима
         _tts.setCompletionHandler(() {
           debugPrint('🔊 TTS completed');
-          _isSpeaking = false; // 🆕 эхо-защита снята
+          // v1.20.1 (VV-039): эхо-защиту больше НЕ снимаем здесь: при двух
+          // параллельных speak() completion первой озвучки снимал флаг,
+          // пока вторая ещё говорила, — и STT распознавал собственный TTS.
+          // Флаг снимает speak() по счётчику (см. SpeakGuard). Здесь только
+          // планирование рестарта listening.
           if (_continuousMode && !_isListening) {
             // Автоматически продолжаем слушать после озвучивания
             // (хвост 600 мс — чтобы не поймать реверберацию последнего слога)
-            Future.delayed(const Duration(milliseconds: 600), () {
-              if (_continuousMode && !_isListening && !_isSpeaking) {
-                startListening();
-              }
-            });
+            // v1.20.1 (VV-014): рестарт через планировщик — отменяется
+            // в dispose()/stopListening().
+            _restarts.schedule(
+              _kRestartAfterTts,
+              const Duration(milliseconds: 600),
+              () {
+                if (_disposed) return; // VV-014: сервис мёртв — не дёргаем
+                if (_continuousMode && !_isListening && !_speakGuard.isSpeaking) {
+                  startListening();
+                }
+              },
+            );
           }
         });
 
         // Обработчик ошибок TTS
         _tts.setErrorHandler((message) {
           debugPrint('❌ TTS Error: $message');
-          _isSpeaking = false; // 🆕 эхо-защита снята и при ошибке
+          // v1.20.1 (VV-039): флаг не трогаем — сброс делает speak() в
+          // finally по счётчику (здесь неизвестно, чья именно озвучка
+          // упала, и ранняя очистка открыла бы микрофон поверх второй).
           _statusText = 'Ошибка озвучки: $message';
         });
 
         // Обработчик начала озвучивания
         _tts.setStartHandler(() {
           debugPrint('🔊 TTS started speaking');
-          _isSpeaking = true; // 🆕 микрофон молчит, пока звучит озвучка
+          // v1.20.1 (VV-039): флаг не трогаем — speak() поднимает счётчик
+          // ДО вызова _tts.speak, дублирование здесь только маскировало
+          // рассинхрон при параллельных озвучках.
         });
 
         _isTTSReady = true;
@@ -198,37 +235,52 @@ class SpeechService {
 
   /// Начать прослушивание
   Future<void> startListening() async {
-    // 🆕 v1.16.1: не открываем микрофон, пока звучит TTS — иначе STT
-    // распознаёт собственную озвучку (самопрослушивание).
-    if (_isSpeaking) {
-      debugPrint('🎤 TTS говорит — запуск STT отложен до конца озвучки');
+    // 🆕 v1.20.1 (VV-015): синхронный guard ДО первого await — раньше
+    // _isListening проверялся только после await initializeSTT()/_stt.listen(),
+    // и два параллельных вызова (кнопка микрофона + wake word) успевали оба
+    // дойти до нативного старта → два открытых STT-сеанса.
+    if (_startInProgress) {
+      debugPrint('🎤 startListening уже выполняется, пропускаем');
       return;
     }
-
-    // 🆕 v1.20.0: офлайн-движок GigaAM — приоритетный путь, если включён
-    // пользователем и модель готова (READY = сессии в памяти).
-    if (_gigaAm.shouldUseForRecognition && !_gigaAm.isActive) {
-      await _startOfflineListening();
-      return;
-    }
-
-    if (!_isSTTReady) {
-      final ready = await initializeSTT();
-      if (!ready) {
-        _onError.add('Распознавание голоса недоступно');
+    _startInProgress = true;
+    try {
+      // 🆕 v1.16.1: не открываем микрофон, пока звучит TTS — иначе STT
+      // распознаёт собственную озвучку (самопрослушивание).
+      if (_speakGuard.isSpeaking) {
+        debugPrint('🎤 TTS говорит — запуск STT отложен до конца озвучки');
         return;
       }
-    }
 
-    if (_isListening) {
-      debugPrint('🎤 Already listening, skipping');
-      return;
-    }
+      // 🆕 v1.20.1 (VV-036): ждём загрузку persist-флага офлайн-движка —
+      // до этого shouldUseForRecognition ложно, и первый микрофон уходил
+      // бы на системный STT вместо GigaAM (флаг грузится в конструкторе
+      // GigaAmService без await).
+      await _gigaAm.ensurePrefsLoaded();
 
-    _lastRecognizedWords = '';
-    _statusText = 'Слушаю...';
+      // 🆕 v1.20.0: офлайн-движок GigaAM — приоритетный путь, если включён
+      // пользователем и модель готова (READY = сессии в памяти).
+      if (_gigaAm.shouldUseForRecognition && !_gigaAm.isActive) {
+        await _startOfflineListening();
+        return;
+      }
 
-    try {
+      if (!_isSTTReady) {
+        final ready = await initializeSTT();
+        if (!ready) {
+          _onError.add('Распознавание голоса недоступно');
+          return;
+        }
+      }
+
+      if (_isListening) {
+        debugPrint('🎤 Already listening, skipping');
+        return;
+      }
+
+      _lastRecognizedWords = '';
+      _statusText = 'Слушаю...';
+
       await _stt.listen(
         onResult: _handleSTTResult,
         localeId: _currentLocaleId, // КРИТИЧЕСКИ ВАЖНО — без этого слушает на системном языке!
@@ -247,15 +299,27 @@ class SpeechService {
       _isListening = false;
       debugPrint('❌ STT listen error: $e');
       _onError.add('Не удалось запустить распознавание: $e');
+    } finally {
+      // 🆕 v1.20.1 (VV-015): освобождаем guard на любом выходе, включая
+      // ранние return и исключения.
+      _startInProgress = false;
     }
   }
 
   /// Остановить прослушивание
   Future<void> stopListening() async {
-    // 🆕 v1.20.0: офлайн-транскрипция останавливается нативным флагом
+    // 🆕 v1.20.1 (VV-041): явная остановка отменяет отложенные рестарты —
+    // «стоп» означает «не перезапускаться» (иначе отложенный рестарт после
+    // остановки снова открывал микрофон).
+    _restarts.cancelAll();
+    // 🆕 v1.20.0: офлайн-транскрипция останавливается нативным флагом.
+    // v1.20.1 (VV-041): событие публикуем и флаг сбрасываем ПОСЛЕ
+    // await stopTranscribe() — раньше публикация уходила до освобождения
+    // микрофона, и отложенный рестарт/результат мог запросить запись,
+    // пока нативный AudioRecord ещё активен.
     if (_offlineTranscribing) {
-      _offlineTranscribing = false;
       await _gigaAm.stopTranscribe();
+      _offlineTranscribing = false;
       _statusText = 'Готово';
       _onListeningStateChanged.add(false);
       return;
@@ -330,8 +394,10 @@ class SpeechService {
   /// Результат офлайн-транскрипции — тот же контракт, что у _handleSTTResult
   /// (финальный результат): эхо-фильтр → команды → текст дозировки.
   void _handleOfflineResult(String text) {
+    if (_disposed) return; // v1.20.1 (VV-014): после dispose стримы закрыты
+
     // Эхо-защита v1.16.1 (та же, что у системного STT)
-    if (_isSpeaking) {
+    if (_speakGuard.isSpeaking) {
       debugPrint('🎤 [GigaAM] Эхо-фильтр: игнорируем результат во время TTS');
       return;
     }
@@ -353,12 +419,19 @@ class SpeechService {
 
     // Hands-free: продолжаем слушать после обработки (тот же контракт,
     // что в _handleSTTResult: рестарт только когда TTS замолчал)
-    if (_continuousMode && !_isSpeaking) {
-      Future.delayed(const Duration(milliseconds: 800), () {
-        if (_continuousMode && !_isListening && !_isSpeaking) {
-          startListening();
-        }
-      });
+    // v1.20.1 (VV-014): рестарт через планировщик — отменяется
+    // в dispose()/stopListening().
+    if (_continuousMode && !_speakGuard.isSpeaking) {
+      _restarts.schedule(
+        _kRestartAfterResult,
+        const Duration(milliseconds: 800),
+        () {
+          if (_disposed) return; // VV-014: сервис мёртв — не дёргаем
+          if (_continuousMode && !_isListening && !_speakGuard.isSpeaking) {
+            startListening();
+          }
+        },
+      );
     }
   }
 
@@ -396,7 +469,21 @@ class SpeechService {
         _isListening = false;
         _onListeningStateChanged.add(false);
       }
-      _isSpeaking = true;
+      // 🆕 v1.20.1 (VV-016): офлайн-запись GigaAM тоже держит микрофон.
+      // Раньше speak('Слушаю') останавливал только системный _stt, а
+      // нативный startTranscribe продолжал писать — TTS слышал сам себя
+      // и распознавался как эхо. Останавливаем запись ДО озвучки.
+      if (_offlineTranscribing || _gigaAm.isActive) {
+        final wasTranscribing = _offlineTranscribing;
+        _offlineTranscribing = false;
+        await _gigaAm.stopTranscribe();
+        if (wasTranscribing) {
+          _onListeningStateChanged.add(false);
+        }
+      }
+      // 🆕 v1.20.1 (VV-039): счётчик активных озвучек — эхо-защита
+      // снимается, только когда обнулился (см. SpeakGuard).
+      _speakGuard.begin();
       // Убираем переносы строк - TTS их не озвучивает
       // Заменяем на паузу через точку или запятую
       final cleanText = text
@@ -404,30 +491,40 @@ class SpeechService {
           .replaceAll('\n', ', ')     // Одиночный перенос = короткая пауза
           .replaceAll(RegExp(r'\s+'), ' ')  // Убираем лишние пробелы
           .trim();
-      
+
       debugPrint('🔊 Speaking: $cleanText');
       final result = await _tts.speak(cleanText);
       debugPrint('🔊 speak result: $result');
-      _isSpeaking = false;
     } catch (e) {
       debugPrint('❌ speak error: $e');
-      _isSpeaking = false;
       // Пробуем переинициализировать при ошибке
       _isTTSReady = false;
+    } finally {
+      // v1.20.1 (VV-039): снимаем эхо-защиту, только если это была
+      // ПОСЛЕДНЯЯ из параллельных озвучек — раньше флаг снимался
+      // безусловно и по success, и по error.
+      if (_speakGuard.end()) {
+        debugPrint('🔊 Все озвучки завершены — эхо-защита снята');
+      }
     }
   }
 
   /// Остановить озвучивание
   Future<void> stopSpeaking() async {
     await _tts.stop();
-    _isSpeaking = false; // 🆕 ручная остановка тоже снимает эхо-защиту
+    // 🆕 v1.20.1 (VV-039): ручная остановка сбрасывает счётчик целиком —
+    // все зависшие await _tts.speak завершатся как cancelled, микрофон
+    // открываем сразу, не дожидаясь их.
+    _speakGuard.reset(); // 🆕 ручная остановка тоже снимает эхо-защиту
   }
 
   /// Обработка результата распознавания
   void _handleSTTResult(SpeechRecognitionResult result) {
+    if (_disposed) return; // v1.20.1 (VV-014): после dispose стримы закрыты
+
     // 🆕 v1.16.1: эхо-защита — всё, что пришло во время озвучки (или в
     // первые 300 мс после неё), это собственный голос TTS, не пользователь.
-    if (_isSpeaking) {
+    if (_speakGuard.isSpeaking) {
       debugPrint('🎤 Эхо-фильтр: игнорируем распознанное во время TTS');
       return;
     }
@@ -460,30 +557,51 @@ class SpeechService {
       // рестарт через 800 мс попадал в середину озвучки, микрофон слышал
       // сам себя и приложение начинало разговаривать с собой по кругу.
       // Рестарт выполнит completion-handler TTS после конца озвучки.
-      if (_continuousMode && !_isSpeaking) {
-        Future.delayed(const Duration(milliseconds: 800), () {
-          if (_continuousMode && !_isListening && !_isSpeaking) {
-            startListening();
-          }
-        });
+      // v1.20.1 (VV-014): рестарт через планировщик — отменяется
+      // в dispose()/stopListening().
+      if (_continuousMode && !_speakGuard.isSpeaking) {
+        _restarts.schedule(
+          _kRestartAfterResult,
+          const Duration(milliseconds: 800),
+          () {
+            if (_disposed) return; // VV-014: сервис мёртв — не дёргаем
+            if (_continuousMode && !_isListening && !_speakGuard.isSpeaking) {
+              startListening();
+            }
+          },
+        );
       }
     }
   }
 
   /// Обработка ошибок STT
   void _handleSTTError(SpeechRecognitionError error) {
+    if (_disposed) return; // v1.20.1 (VV-014): после dispose стримы закрыты
     debugPrint('❌ STT error: ${error.errorMsg} (permanent=${error.permanent})');
     _isListening = false;
     _statusText = 'Ошибка: ${error.errorMsg}';
     _onListeningStateChanged.add(false);
-    
+
     // В hands-free режиме пробуем восстановиться
+    // v1.20.1 (VV-040): те же проверки, что и в основном рестарте (TTS
+    // молчит, офлайн-запись не активна) — раньше условие
+    // hands-free && !_isListening пропускало рестарт системного STT
+    // поверх занятого микрофона. Рестарт через планировщик — отменяется
+    // в dispose()/stopListening().
     if (_continuousMode && error.permanent != true) {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (_continuousMode && !_isListening) {
-          startListening();
-        }
-      });
+      _restarts.schedule(
+        _kRestartAfterError,
+        const Duration(seconds: 1),
+        () {
+          if (_disposed) return; // VV-014: сервис мёртв — не дёргаем
+          if (_continuousMode &&
+              !_isListening &&
+              !_speakGuard.isSpeaking &&
+              !_gigaAm.isActive) {
+            startListening();
+          }
+        },
+      );
     } else if (error.permanent != true) {
       // Для не-permanent ошибок уведомляем подписчика — home_screen решит что делать
       // (например, перезапустить Vosk после STT сессии)
@@ -495,6 +613,7 @@ class SpeechService {
 
   /// Обработка статуса STT
   void _handleSTTStatus(String status) {
+    if (_disposed) return; // v1.20.1 (VV-014): после dispose стримы закрыты
     switch (status) {
       case 'listening':
         _statusText = 'Слушаю...';
@@ -517,6 +636,10 @@ class SpeechService {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    // v1.20.1 (VV-014): гасим отложенные рестарты ДО закрытия стримов —
+    // раньше Future.delayed переживал dispose и писал в закрытый
+    // контроллер («Bad state: Cannot add new events after calling close»).
+    _restarts.dispose();
     _stt.cancel();
     _tts.stop();
     // v1.20.0: не оставляем подписки на стримы синглтона GigaAM
@@ -528,6 +651,89 @@ class SpeechService {
     if (!_onError.isClosed) _onError.close();
     if (!_onCommand.isClosed) _onCommand.close();
   }
+}
+
+/// v1.20.1 (VV-039): счётчик активных озвучек. Раньше speak() ставил
+/// _isSpeaking=true, а TTS-completion первой из параллельных озвучек
+/// снимал флаг, пока вторая ещё говорила, — и STT распознавал
+/// собственный TTS (эхо). Эхо-защита снимается, только когда счётчик
+/// обнулился.
+@visibleForTesting
+class SpeakGuard {
+  int _active = 0;
+
+  /// Число активных озвучек (для тестов/диагностики).
+  int get active => _active;
+
+  /// Говорит ли сейчас хоть одна озвучка (эхо-защита поднята).
+  bool get isSpeaking => _active > 0;
+
+  /// Началась озвучка (вызывается до await _tts.speak).
+  void begin() => _active++;
+
+  /// Озвучка завершилась или упала (finally в speak()). Возвращает true,
+  /// если это была последняя — эхо-защиту можно снять.
+  bool end() {
+    // Двойной finally (сбой плагина после завершения) не должен «открыть»
+    // несуществующую озвучку: снимать было нечего — защита и не поднималась.
+    if (_active > 0) {
+      _active--; // защита от двойного снятия — не уходим в минус
+      return _active == 0;
+    }
+    return false;
+  }
+
+  /// Жёсткий сброс (ручная остановка TTS) — открывает микрофон сразу.
+  void reset() => _active = 0;
+}
+
+/// v1.20.1 (VV-014/VV-040/VV-041): планировщик отложенных рестартов
+/// hands-free. Раньше Future.delayed(600/800/1000 мс) нигде не
+/// сохранялись и не отменялись: dispose() закрывал стрим-контроллеры,
+/// а колбэк через секунду писал в закрытый контроллер и дёргал
+/// микрофон мёртвого сервиса. Теперь рестарты идут через планировщик:
+/// cancelAll() в stopListening() (явная остановка = не перезапускаться),
+/// dispose() гасит планировщик навсегда.
+@visibleForTesting
+class SpeechRestartScheduler {
+  final Map<String, Timer> _timers = {};
+  bool _disposed = false;
+
+  /// Запланировать [callback] через [delay] под ключом [key]. Повторный
+  /// schedule с тем же ключом заменяет предыдущий таймер (не копим стопку).
+  void schedule(String key, Duration delay, VoidCallback callback) {
+    if (_disposed) return; // после dispose рестарты больше не планируются
+    _timers.remove(key)?.cancel();
+    _timers[key] = Timer(delay, () {
+      _timers.remove(key);
+      if (_disposed) return; // VV-014: не дёргаем мёртвый сервис
+      callback();
+    });
+  }
+
+  /// Отменить конкретный отложенный рестарт.
+  void cancel(String key) {
+    _timers.remove(key)?.cancel();
+  }
+
+  /// Отменить все отложенные рестарты (явная остановка прослушивания).
+  /// Планировщик остаётся рабочим для следующих рестартов.
+  void cancelAll() {
+    for (final timer in _timers.values) {
+      timer.cancel();
+    }
+    _timers.clear();
+  }
+
+  /// Навсегда погасить планировщик (dispose сервиса).
+  void dispose() {
+    cancelAll();
+    _disposed = true;
+  }
+
+  /// Ждёт ли рестарт под ключом [key] (для тестов).
+  @visibleForTesting
+  bool isPending(String key) => _timers.containsKey(key);
 }
 
 /// Голосовая команда

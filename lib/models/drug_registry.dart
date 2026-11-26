@@ -92,9 +92,18 @@ class RegistryDrug {
     };
   }
 
-  /// Проверяет, подходит ли препарат для указанного животного
+  /// Проверяет, подходит ли препарат для указанного животного.
+  // VV-031 (ревью 26.11.2026): ё→е-нормализация + алиасы-префиксы —
+  // «Пчелы»/«Пчёлы» и «Пушные»/«Пушные звери» больше не роняют записи.
+  static String _norm(String s) =>
+      s.toLowerCase().replaceAll('ё', 'е').trim();
+
   bool isForAnimal(String animalName) {
-    return animals.any((a) => a.toLowerCase() == animalName.toLowerCase());
+    final n = _norm(animalName);
+    return animals.any((a) {
+      final x = _norm(a);
+      return x == n || x.startsWith(n) || n.startsWith(x);
+    });
   }
 
   /// Короткое название для отображения

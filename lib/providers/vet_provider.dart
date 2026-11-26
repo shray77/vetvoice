@@ -243,7 +243,8 @@ class VetProvider {
     _dosageDatabase = dosageDatabase;
   }
 
-  bool _initialized = false;
+  // VV-034: прежний bool-гард _initialized заменён мемоизацией in-flight
+  // Future (_initFuture) — см. initialize().
 
   CalcDrugDatabase? _calcDatabase;
   DrugRegistry? _registry;
@@ -522,7 +523,7 @@ class VetProvider {
     
     final innList = drug.inn
         .split(RegExp('[,;]'))
-        .map((s) => s.trim().toLowerCase())
+        .map((s) => s.trim().toLowerCase().replaceAll('ё', 'е'))
         .where((s) => s.isNotEmpty)
         .toList();
 
@@ -543,15 +544,36 @@ class VetProvider {
   /// СТАДИЯ 2 — вторичные базы (антидоты, инфузии, каренция, неофициальные
   /// протоколы...) парсятся фоном; [extendedReady] резолвится, когда всё
   /// готово — home по нему дорисовывает навигационные кнопки.
-  /// Повторные вызовы — мгновенный no-op.
-  final Completer<void> _extendedCompleter = Completer<void>();
+  ///
+  /// ⚠ Фикс VV-034 (ревью 26.11.2026): мемоизируется in-flight Future, а не
+  /// bool-флаг до await. Раньше гард `_initialized = true` ДО await без
+  /// сброса в catch навсегда оставлял провайдер «инициализированным» после
+  /// transient-ошибки чтения assets — все экраны жили с пустыми базами,
+  /// ретрая не было. Теперь успешно завершённая инициализация не
+  /// перезапускается (повторные вызовы — мгновенный no-op, как и раньше),
+  /// а после ошибки мемо сбрасывается — повторный initialize() ретраит
+  /// загрузку. Паттерном согласовано с VV-035 (in-flight мемоизация
+  /// DrugLoaderService.loadCore).
+  Completer<void> _extendedCompleter = Completer<void>();
+  Future<void>? _initFuture;
 
   /// Готовность вторичных баз (СТАДИЯ 2). Никогда не бросает исключение.
   Future<void> get extendedReady => _extendedCompleter.future;
 
-  Future<void> initialize() async {
-    if (_initialized) return;
-    _initialized = true; // гард ДО await — параллельные вызовы не задвоят загрузку
+  Future<void> initialize() {
+    final inFlight = _initFuture;
+    if (inFlight != null) return inFlight; // успех или загрузка в полёте
+    // Ретрай после ошибки: старый completer уже завершён в catch — создаём
+    // свежий, чтобы extendedReady новой попытки честно ждал СТАДИЮ 2.
+    if (_extendedCompleter.isCompleted) {
+      _extendedCompleter = Completer<void>();
+    }
+    final future = _initialize();
+    _initFuture = future;
+    return future;
+  }
+
+  Future<void> _initialize() async {
     try {
       _isLoading = true;
       _statusMessage = 'Загрузка баз препаратов...';
@@ -564,6 +586,13 @@ class VetProvider {
       _interactionDatabase = loadResult.interactionDatabase;
       _isOnline = loadResult.fromNetwork;
       _statusMessage = loadResult.source;
+
+      // VV-033: частичная потеря базы дозировок (битые записи пропущены)
+      // — факт обязан быть виден наверху, а не тихо потерян.
+      if (loadResult.skippedDosageCount > 0) {
+        debugPrint('⚠ База дозировок: пропущено битых МНН-записей: '
+            '${loadResult.skippedDosageCount}');
+      }
 
       // v1.16.4: «Версия базы» в настройках вечно показывала «Загрузка...» —
       // ThemeService.setDatabaseInfo не вызывался НИГДЕ (мёртвый фиче-код).
@@ -592,7 +621,10 @@ class VetProvider {
     } catch (e) {
       _isLoading = false;
       _statusMessage = 'Ошибка: $e';
-      _extendedCompleter.complete(); // не оставляем вечный Future
+      _initFuture = null; // VV-034: сброс мемо — повторный initialize() ретраит
+      if (!_extendedCompleter.isCompleted) {
+        _extendedCompleter.complete(); // не оставляем вечный Future
+      }
       return;
     }
 
@@ -603,6 +635,12 @@ class VetProvider {
   /// v1.16.3: вторичные базы + болезни + протоколы лечения — строго после
   /// первого кадра. Ошибки гасим: эти базы факультативны для расчёта доз,
   /// экраны уже имеют null-guard'ы.
+  ///
+  /// ⚠ Фикс VV-017 (ревью 26.11.2026): внешний try/catch всего тела. Раньше
+  /// сбой вне per-spec блоков (parseExtended и др.) улетал из unawaited() в
+  /// unhandled zone: auxiliary-базы молча оставались null, extendedReady при
+  /// этом «успешно» резолвился. Теперь и сбой логируется, и complete() у
+  /// extendedReady гарантирован в finally.
   Future<void> _loadExtendedDatabases() async {
     try {
       final ext = await DrugLoaderService.parseExtended();
@@ -649,6 +687,10 @@ class VetProvider {
       } catch (e) {
         debugPrint('⚠ Treatment protocols not loaded: $e');
       }
+    } catch (e) {
+      // VV-017: гарантия — сбой ЛЮБОЙ auxiliary-базы не уходит в unhandled
+      // zone (unawaited) и не оставляет extendedReady висеть.
+      debugPrint('⚠ Extended databases not loaded: $e');
     } finally {
       if (!_extendedCompleter.isCompleted) _extendedCompleter.complete();
     }
@@ -781,7 +823,7 @@ class VetProvider {
 
     final innList = drug.inn
         .split(RegExp('[,;]'))
-        .map((s) => s.trim().toLowerCase())
+        .map((s) => s.trim().toLowerCase().replaceAll('ё', 'е'))
         .where((s) => s.isNotEmpty)
         .toList();
 

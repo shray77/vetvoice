@@ -139,11 +139,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// C9: ядро баз не загрузилось — загрузка завершена, а препаратов нет
+  /// (0 и в реестре, и в calc-базе). В этом случае статус-строка честно
+  /// говорит «Не удалось загрузить» и предлагает «Повторить».
+  bool get _databasesFailed =>
+      !_vetProvider.isLoading && _vetProvider.totalDrugs == 0;
+
   Future<void> _initializeApp() async {
     await _vetProvider.initialize();
     await _speechService.initializeSTT();
     await _speechService.initializeTTS();
-
     // v1.16.2: Vosk инициализируем БЕЗ ожидания. Если модель не скачана —
     // скачивание (46 МБ) идёт фоном, статус живёт в настройках. Раньше
     // await здесь блокировал старт на ~7 с (3 ретрая по 2-4 с), даже когда
@@ -690,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
+            CircularProgressIndicator(
             color: AppTheme.safeGreen,
           ),
           const SizedBox(height: 24),
@@ -871,14 +876,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             // Task 194: заголовок вкладки «Калькулятор» — Prata (дисплей DS,
             // как на всех AppBar); раньше жил на Inter w700.
-            Text(
-              'VetVoice AI',
-              style: TextStyle(
-                fontFamily: AppTheme.fontDisplay,
-                fontSize: AppTheme.fontSizeTitle,
-                fontWeight: FontWeight.w400,
-                color: AppTheme.textPrimary,
-                letterSpacing: -0.2,
+            // B5 (аудит 26.11.2026): на 320dp заголовок 28px + wake-word
+            // кнопка + 2 IconButton не помещались в Row (RenderFlex
+            // overflow) — теперь заголовок в Expanded с ellipsis; функционал
+            // контролов не тронут.
+            Expanded(
+              child: Text(
+                'VetVoice AI',
+                style: TextStyle(
+                  fontFamily: AppTheme.fontDisplay,
+                  fontSize: AppTheme.fontSizeTitle,
+                  fontWeight: FontWeight.w400,
+                  color: AppTheme.textPrimary,
+                  letterSpacing: -0.2,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             // v1.16.3: компактный ряд системных контролов. Раньше здесь же
@@ -938,53 +951,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         // v1.18.0 (Фаза 2): лента фич-чипов переехала на вкладку «Главная»
         // (HomeGridScreen: 2×3 сетка + safety-кластер) и «Ещё» (MoreScreen).
         // Здесь — только статус-строка; микрофонный контур не изменён.
-        Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: _vetProvider.isOnline ? AppTheme.safeGreen : AppTheme.warningOrange,
-                shape: BoxShape.circle,
+        // C9 (аудит 26.11.2026): если ядро баз не загрузилось — честная
+        // ошибка с «Повторить» (приложение офлайн, «проверьте сеть» — ложь).
+        Builder(builder: (context) {
+          final coreFailed = _databasesFailed;
+          return Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: coreFailed
+                      ? AppTheme.errorRed
+                      : (_vetProvider.isOnline
+                          ? AppTheme.safeGreen
+                          : AppTheme.warningOrange),
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            // Глиф микрофона/ошибки — правило DS «эмодзи в UI запрещены»
-            // (заменил текстовые префиксы 🎤 / ⚠️).
-            if (_wakeWordEnabled ||
-                _wakeWordService.isModelLoading ||
-                _wakeWordService.errorMessage != null) ...[
-              Icon(
-                _wakeWordService.errorMessage != null
-                    ? Icons.error_outline
-                    : Icons.mic,
-                size: 14,
-                color: _wakeWordService.errorMessage != null
-                    ? AppTheme.errorRed
-                    : AppTheme.textTertiary,
-              ),
-              const SizedBox(width: 4),
-            ],
-            Expanded(
-              child: Text(
-                _wakeWordService.isModelLoading
-                    ? _wakeWordService.loadingMessage
-                    : (_wakeWordService.errorMessage != null
-                        ? _wakeWordService.errorMessage!
-                        : (_wakeWordEnabled
-                            ? 'Скажите "ВетВойс"...'
-                            : _vetProvider.statusMessage)),
-                style: TextStyle(
-                  fontSize: AppTheme.fontSizeSmall,
+              const SizedBox(width: 8),
+              if (!coreFailed &&
+                  (_wakeWordEnabled ||
+                      _wakeWordService.isModelLoading ||
+                      _wakeWordService.errorMessage != null)) ...[
+                Icon(
+                  _wakeWordService.errorMessage != null
+                      ? Icons.error_outline
+                      : Icons.mic,
+                  size: 14,
                   color: _wakeWordService.errorMessage != null
                       ? AppTheme.errorRed
                       : AppTheme.textTertiary,
                 ),
-                overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(
+                  coreFailed
+                      ? 'Не удалось загрузить базы препаратов'
+                      : _wakeWordService.isModelLoading
+                          ? _wakeWordService.loadingMessage
+                          : (_wakeWordService.errorMessage != null
+                              ? _wakeWordService.errorMessage!
+                              : (_wakeWordEnabled
+                                  ? 'Скажите "ВетВойс"...'
+                                  : _vetProvider.statusMessage)),
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeSmall,
+                    color: coreFailed
+                        ? AppTheme.errorRed
+                        : (_wakeWordService.errorMessage != null
+                            ? AppTheme.errorRed
+                            : AppTheme.textTertiary),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
-        ),
+              if (coreFailed) ...[
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _initializeApp,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 36),
+                  ),
+                  child: const Text('Повторить'),
+                ),
+              ],
+            ],
+          );
+        }),
         // Показываем что услышал wake word сервис
         if (_wakeWordEnabled && _wakeWordHeard.isNotEmpty) ...[
           const SizedBox(height: 4),
@@ -996,7 +1033,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             child: Text(
               'Слышу: "$_wakeWordHeard"',
-              style: const TextStyle(
+              style:   TextStyle(
                 fontSize: 11,
                 color: AppTheme.safeGreen,
                 fontStyle: FontStyle.italic,
@@ -1046,8 +1083,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           // Круговой прогресс с процентами
           SizedBox(
-            width: 20,
-            height: 20,
+            // C15: было 20px под текст 7px — «100» не влезало; теперь
+            // индикатор 28px и текст процентов 11px.
+            width: 28,
+            height: 28,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -1061,15 +1100,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Center(
                     child: Text(
                       '${(progress * 100).toInt()}',
-                      style: const TextStyle(
-                        fontSize: 7,
+                      style:   TextStyle(
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.safeGreen,
                       ),
                     ),
                   )
                 else
-                  const SizedBox(
+                    SizedBox(
                     width: 12,
                     height: 12,
                     child: CircularProgressIndicator(
@@ -1084,7 +1123,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Текст этапа
           Text(
             label,
-            style: const TextStyle(
+            style:   TextStyle(
               fontSize: 11,
               color: AppTheme.safeGreen,
               fontWeight: FontWeight.w500,
@@ -1709,13 +1748,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
             children: [
               // Ручка для перетаскивания
+              // D11: унификация с home_grid — AppTheme.dividerGray
+              // (был хардкод Colors.grey.shade300).
               Center(
                 child: Container(
                   width: 40,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppTheme.dividerGray,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1814,27 +1855,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           final label = w >= 100 ? '${w.toInt()}' : w >= 10 ? '${w.toInt()}' : '${w.toStringAsFixed(1)}';
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () {
-                _weightController.text = label;
-                _vetProvider.setWeight(w);
-                _validateWeight(w);
-                _dismissKeyboard();
-                setState(() {});
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppTheme.safeGreen.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                  border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
-                ),
-                child: Text(
-                  '$label кг',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.safeGreen,
+            // C7 (аудит 26.11.2026): тап-цель пресета была ~34px — теперь
+            // ≥48dp (границы/полготвы в поле) и честный ripple (InkWell
+            // поверх Material, а не GestureDetector).
+            child: Material(
+              color: AppTheme.safeGreen.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              child: InkWell(
+                onTap: () {
+                  _weightController.text = label;
+                  _vetProvider.setWeight(w);
+                  _validateWeight(w);
+                  _dismissKeyboard();
+                  setState(() {});
+                },
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    border: Border.all(color: AppTheme.safeGreen.withOpacity(0.2)),
+                  ),
+                  child: Text(
+                    '$label кг',
+                    style:   TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.safeGreen,
+                    ),
                   ),
                 ),
               ),

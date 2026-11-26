@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/calc_drug.dart';
 import '../models/drug_interaction.dart';
+import '../models/drug_registry.dart';
 import '../utils/app_theme.dart';
 
 /// Экран/диалог для проверки совместимости двух препаратов
@@ -29,8 +31,29 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   DrugInteraction? _interactionResult;
   bool _searching = false;
 
-  /// Получить имя и МНН препарата
+  // ⚠ Фикс VV-023 (ревью 26.11.2026): контроллеры создавались прямо в
+  // build() на каждый введённый символ и не освобождались — утечка
+  // TextEditingController на каждый кадр ввода. Теперь они персистентные
+  // поля State; TextField реагирует на изменения как раньше (onChanged),
+  // поле синхронизируется при выборе из подсказок и очистке.
+  final TextEditingController _drug1Controller = TextEditingController();
+  final TextEditingController _drug2Controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _drug1Controller.dispose();
+    _drug2Controller.dispose();
+    super.dispose();
+  }
+
+  /// Получить имя и МНН препарата.
+  /// ⚠ Фикс VV-025 (ревью 26.11.2026): allDrugs из VetProvider — это
+  /// объекты CalcDrug (name/inn) и RegistryDrug (tradeName/inn), а не Map:
+  /// имя бралось из toString(), МНН всегда был '' — автодополнение не
+  /// находило препараты. Map оставлен как fallback.
   String _getDrugName(dynamic drug) {
+    if (drug is CalcDrug) return drug.name;
+    if (drug is RegistryDrug) return drug.tradeName;
     if (drug is Map) {
       return drug['name'] as String? ?? drug['trade_name'] as String? ?? '';
     }
@@ -38,6 +61,8 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   }
 
   String _getDrugInn(dynamic drug) {
+    if (drug is CalcDrug) return drug.inn;
+    if (drug is RegistryDrug) return drug.inn;
     if (drug is Map) {
       return drug['inn'] as String? ?? '';
     }
@@ -113,13 +138,15 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
 
   @override
   Widget build(BuildContext context) {
+    // C3: весь блок — theme-aware (раньше кроме этого контейнера жили
+    // Colors.grey.shade700/50/300 и black87: в тёмной теме — светлый
+    // остров с нечитаемым текстом).
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         // v1.16: theme-aware — в тёмной теме был белый остров с белым текстом
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkSurface
-            : AppTheme.white,
+        color: isDark ? AppTheme.darkSurface : AppTheme.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -136,7 +163,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
           // Заголовок
           Row(
             children: [
-              const Icon(Icons.compare_arrows, color: AppTheme.safeGreen),
+                Icon(Icons.compare_arrows, color: AppTheme.safeGreen),
               const SizedBox(width: 8),
               const Text(
                 'Проверка совместимости',
@@ -153,12 +180,13 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
           const SizedBox(height: 4),
           Text(
             'Выберите два препарата для проверки взаимодействий',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
           ),
           const SizedBox(height: 16),
 
           // Препарат 1
           _buildDrugSelector(
+            controller: _drug1Controller,
             label: 'Препарат 1',
             query: _drug1Query,
             selectedName: _selectedDrug1Name,
@@ -175,12 +203,16 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
               _selectedDrug1Inn = inn;
               _drug1Query = name;
               _interactionResult = null;
+              // VV-023: поле держим синхронным с выбором (раньше это
+              // делал пересозданный контроллер в build()).
+              _drug1Controller.text = name;
             }),
           ),
           const SizedBox(height: 12),
 
           // Препарат 2
           _buildDrugSelector(
+            controller: _drug2Controller,
             label: 'Препарат 2',
             query: _drug2Query,
             selectedName: _selectedDrug2Name,
@@ -197,6 +229,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
               _selectedDrug2Inn = inn;
               _drug2Query = name;
               _interactionResult = null;
+              _drug2Controller.text = name;
             }),
           ),
           const SizedBox(height: 16),
@@ -216,12 +249,25 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                     )
                   : const Icon(Icons.search),
               label: const Text('Проверить совместимость'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.safeGreen,
-                foregroundColor: AppTheme.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              // ⚠ Фикс A5 (аудит 26.11.2026): styleFrom применяет
+              // backgroundColor ко ВСЕМ состояниям (внутри — All), и
+              // disabled-кнопка была неотличима от активной. Теперь —
+              // resolveWith: disabled = приглушённые фон/текст.
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.disabled)
+                        ? AppTheme.safeGreen.withOpacity(0.35)
+                        : AppTheme.safeGreen),
+                foregroundColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.disabled)
+                        ? Colors.white.withOpacity(0.6)
+                        : Colors.white),
+                padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(vertical: 12)),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ),
@@ -243,6 +289,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   }
 
   Widget _buildDrugSelector({
+    required TextEditingController controller,
     required String label,
     required String query,
     required String? selectedName,
@@ -250,6 +297,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
     required void Function(String name, String inn) onSelected,
   }) {
     final results = _searchDrugs(query);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -258,38 +306,46 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
+            color: AppTheme.textSecondary,
           ),
         ),
         const SizedBox(height: 4),
         TextField(
-          controller: TextEditingController(text: query)..selection = TextSelection.collapsed(offset: query.length),
+          // VV-023: персистентный контроллер из State — больше не
+          // пересоздаётся (и не течёт) на каждый символ.
+          controller: controller,
           onChanged: onQueryChanged,
           decoration: InputDecoration(
             hintText: selectedName ?? 'Начните вводить название...',
             hintStyle: TextStyle(
-              color: selectedName != null ? Colors.black87 : Colors.grey.shade400,
+              color: selectedName != null
+                  ? AppTheme.textPrimary
+                  : AppTheme.textTertiary,
             ),
-            prefixIcon: Icon(Icons.medication, size: 20, color: Colors.grey.shade500),
+            prefixIcon: Icon(Icons.medication, size: 20,
+                color: AppTheme.textTertiary),
             suffixIcon: selectedName != null
                 ? IconButton(
                     icon: const Icon(Icons.clear, size: 18),
-                    onPressed: () => onQueryChanged(''),
+                    onPressed: () {
+                      controller.clear();
+                      onQueryChanged('');
+                    },
                   )
                 : null,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppTheme.dividerGray),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppTheme.dividerGray),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppTheme.safeGreen, width: 2),
+              borderSide:   BorderSide(color: AppTheme.safeGreen, width: 2),
             ),
           ),
         ),
@@ -298,9 +354,11 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
             margin: const EdgeInsets.only(top: 4),
             constraints: const BoxConstraints(maxHeight: 150),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              // C3: theme-aware — в тёмной теме светлый grey.shade50
+              // давал белый остров поверх тёмной плашки.
+              color: isDark ? AppTheme.darkSurfaceLight : AppTheme.fieldFill,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppTheme.dividerGray),
             ),
             child: ListView.builder(
               shrinkWrap: true,
@@ -321,7 +379,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                         if (drug['inn']!.isNotEmpty)
                           Text(
                             drug['inn']!,
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                           ),
                       ],
                     ),
@@ -335,16 +393,33 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   }
 
   Widget _buildResult(DrugInteraction interaction) {
+    // ⚠ Фикс A2 (аудит 26.11.2026): вердикты — самые важные строки экрана,
+    // а красились в raw Colors.red/orange/blue с withOpacity-тонировками
+    // (контраст 1.5–3:1). Теперь — единая severity-лестница DS:
+    // critical → critical, warning → major, info → minor.
+    final brightness = Theme.of(context).brightness;
     final isCritical = interaction.isCritical;
     final isWarning = interaction.isWarning;
-    final color = isCritical ? Colors.red : (isWarning ? Colors.orange : Colors.blue);
+    final level = isCritical
+        ? SeverityLevel.critical
+        : (isWarning ? SeverityLevel.major : SeverityLevel.minor);
+    final color = SeverityColors.text(level, brightness);
+    final containerBg = SeverityColors.bg(level, brightness);
+    final onContainerBg = SeverityColors.onBg(level, brightness);
+    // Успешная рекомендация — theme-aware зелёный (в тёмной теме был
+    // светлый green.shade50-остров с тёмным текстом).
+    final isDark = brightness == Brightness.dark;
+    final successFg =
+        isDark ? AppTheme.safeGreenLight : AppTheme.accentText;
+    final successBg =
+        isDark ? AppTheme.darkPrimaryContainer : AppTheme.successContainer;
 
     return Container(
       margin: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: containerBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +427,7 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: containerBg,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
             ),
             child: Row(
@@ -362,13 +437,15 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                   color: color,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  isCritical
-                      ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ'
-                      : (isWarning ? '⚠ Взаимодействие обнаружено' : 'Информация'),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: color,
+                Expanded(
+                  child: Text(
+                    isCritical
+                        ? 'КРИТИЧЕСКОЕ ВЗАИМОДЕЙСТВИЕ'
+                        : (isWarning ? '⚠ Взаимодействие обнаружено' : 'Информация'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
                 ),
               ],
@@ -387,12 +464,13 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: containerBg,
                     borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: color),
                   ),
                   child: Text(
                     interaction.effect,
-                    style: TextStyle(fontSize: 13, color: color.shade900),
+                    style: TextStyle(fontSize: 13, color: onContainerBg),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -409,19 +487,18 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: successBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.lightbulb_outline, size: 16, color: Colors.green.shade700),
+                      Icon(Icons.lightbulb_outline, size: 16, color: successFg),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           interaction.recommendation,
-                          style: TextStyle(fontSize: 12, color: Colors.green.shade900),
+                          style: TextStyle(fontSize: 12, color: successFg),
                         ),
                       ),
                     ],
@@ -436,24 +513,31 @@ class _CompatibilityCheckerState extends State<CompatibilityChecker> {
   }
 
   Widget _buildNoInteraction() {
+    // A2: «взаимодействий нет» — theme-aware успех, а не Colors.green
+    // (light-токены слепли в тёмной теме).
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isDark ? AppTheme.safeGreenLight : AppTheme.accentText;
+    final bg = isDark ? AppTheme.darkPrimaryContainer : AppTheme.successContainer;
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: fg),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green),
-          SizedBox(width: 8),
-          Text(
-            'Взаимодействий не обнаружено',
-            style: TextStyle(
-              color: Colors.green,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+          Icon(Icons.check_circle, color: fg),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Взаимодействий не обнаружено',
+              style: TextStyle(
+                color: fg,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
         ],

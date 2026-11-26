@@ -213,7 +213,18 @@ class _WithdrawalCalculatorScreenState
               drugs: widget.vetProvider.allDrugs
                   .whereType<CalcDrug>()
                   .where((d) =>
-                      d.withdrawalDays > 0 || d.withdrawalText.isNotEmpty)
+                      d.withdrawalDays > 0 ||
+                      d.withdrawalText.isNotEmpty ||
+                      // Разбор бага «при каренции выкидывает животных»
+                      // (сессия 26.11.2026): видовые сроки живут в
+                      // withdrawal_by_product.json (83 МНН), но пикер
+                      // показывал только препараты с withdrawalDays/
+                      // withdrawalText на CalcDrug — видовые записи
+                      // (ципрофлоксацин: Собаки/Кошки, толтразурил:
+                      // Кролики…) были недостижимы вовсе.
+                      widget.vetProvider.withdrawalDatabase
+                              ?.findByInn(d.inn) !=
+                          null)
                   .toList(),
               hint: 'Название или МНН…',
               resultsMaxHeight: 240,
@@ -272,6 +283,7 @@ class _WithdrawalCalculatorScreenState
             ),
             const SizedBox(height: 8),
             InkWell(
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               onTap: () async {
                 final date = await showDatePicker(
                   context: context,
@@ -298,10 +310,14 @@ class _WithdrawalCalculatorScreenState
                 decoration: BoxDecoration(
                   color: AppTheme.backgroundGray,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  // C11 (визуальный аудит 26.11.2026): поле даты выглядело
+                  // плашкой фона — рамка + ripple делают его читаемым
+                  // как интерактивное.
+                  border: Border.all(color: AppTheme.dividerGray),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today,
+                      Icon(Icons.calendar_today,
                         color: AppTheme.safeGreen, size: 20),
                     const SizedBox(width: 12),
                     Text(
@@ -327,19 +343,35 @@ class _WithdrawalCalculatorScreenState
               const SizedBox(height: 12),
               ..._results.map((r) => _WithdrawalResultCard(result: r)),
             ] else if (_selectedDrug != null) ...[
+              // C1/A2 (визуальный аудит 26.11.2026): сырой Colors.orange
+              // на 10%-тонировке = 1.99:1 — SeverityColors-пара, theme-aware.
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: (AppTheme.isDarkNow
+                          ? SeverityColors.majorDarkBg
+                          : SeverityColors.majorLightBg)
+                      .withOpacity(0.5),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.orange, size: 32),
+                    Icon(
+                      Icons.warning_amber,
+                      color: AppTheme.isDarkNow
+                          ? SeverityColors.majorDark
+                          : SeverityColors.majorLight,
+                      size: 32,
+                    ),
                     SizedBox(height: 8),
                     Text(
                       'Для этого препарата нет данных по каренции',
-                      style: TextStyle(fontSize: 13, color: Colors.orange),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.isDarkNow
+                            ? SeverityColors.majorDark
+                            : SeverityColors.majorLight,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 4),
@@ -598,7 +630,7 @@ class _WithdrawalResultCard extends StatelessWidget {
                   if (hasDate) ...[
                     Text(
                       'Безопасно с: ${result.safeDateFormatted}',
-                      style: const TextStyle(
+                      style:   TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.safeGreen,

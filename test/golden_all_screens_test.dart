@@ -66,6 +66,10 @@ Future<void> _render(WidgetTester tester, Widget screen, String name,
   tester.view.physicalSize = Size(logical.width * dpr, logical.height * dpr);
   addTearDown(tester.view.reset);
 
+  // A1 (визуальный аудит 26.11.2026): синхронизируем глобальный флаг —
+  // без этого dark-голдены рисовались светлыми токенами AppTheme
+  // (_darkNow дефолт false) и пиксельно повторяли light.
+  AppTheme.applyBrightness(dark);
   await tester.pumpWidget(_wrap(screen, dark: dark));
   // Ждём баз/анимаций входа: IndexedStack-экраны строятся целиком,
   // вторичные базы дорисовываются по extendedReady.

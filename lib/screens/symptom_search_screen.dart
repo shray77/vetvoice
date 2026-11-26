@@ -40,6 +40,11 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
   bool _isLoading = true;
   bool _hasSearched = false;
 
+  /// B2 (аудит 26.11.2026): при ошибке init() скелетон висел вечно
+  /// (флаг сбрасывался только после успешного await), а поле ввода
+  /// оставалось недоступным. Теперь — error-state с «Повторить».
+  bool _initFailed = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,10 +52,21 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
   }
 
   Future<void> _initSearch() async {
-    await _searchService.init();
-    setState(() {
-      _isLoading = false;
-    });
+    // Повторный запуск (кнопка «Повторить») возвращает скелетон;
+    // первый — из initState, он уже на экране.
+    if (mounted && !_isLoading) setState(() => _isLoading = true);
+    try {
+      await _searchService.init();
+      _initFailed = false;
+    } catch (e) {
+      debugPrint('SymptomSearch init error: $e');
+      _initFailed = true;
+    } finally {
+      // B2: _isLoading сбрасывается ВСЕГДА — и при ошибке тоже
+      // (плюс mounted-гвард: setState после dispose).
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -82,72 +98,113 @@ class _SymptomSearchScreenState extends State<SymptomSearchScreen> {
       // будущего контента, а не «подвисание»).
       body: _isLoading
           ? const SkeletonList()
-          : Column(
-              children: [
-                // Поле поиска
-                Container(
-                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    autofocus: true,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Что у пациента? Например: рвота у собаки',
-                      hintStyle: TextStyle(
-                          color: AppTheme.textTertiary, fontSize: 14),
-                      prefixIcon:
-                          const Icon(Icons.search, color: AppTheme.safeGreen),
-                      suffixIcon: _controller.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear,
-                                  color: AppTheme.textSecondary),
-                              onPressed: () {
-                                _controller.clear();
-                                _performSearch('');
-                              },
-                            )
-                          : null,
-                      // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusLarge),
-                        borderSide: BorderSide.none,
+          : _initFailed
+              ? _buildInitError()
+              : Column(
+                  children: [
+                    // Поле поиска
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          // C10: labelText — после ввода видно, что это
+                          // за поле (hint при вводе исчезает).
+                          labelText: 'Симптом, диагноз или МНН',
+                          hintText: 'Что у пациента? Например: рвота у собаки',
+                          hintStyle: TextStyle(
+                              color: AppTheme.textTertiary, fontSize: 14),
+                          prefixIcon:
+                                Icon(Icons.search, color: AppTheme.safeGreen),
+                          suffixIcon: _controller.text.isNotEmpty
+                              ? IconButton(
+                                  // D3: подпись для иконки-крестика.
+                                  tooltip: 'Очистить поиск',
+                                  icon: Icon(Icons.clear,
+                                      color: AppTheme.textSecondary),
+                                  onPressed: () {
+                                    _controller.clear();
+                                    _performSearch('');
+                                  },
+                                )
+                              : null,
+                          // v1.16: filled/fillColor убраны — наследуют theme-aware inputDecorationTheme
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusLarge),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusLarge),
+                            borderSide:   BorderSide(
+                                color: AppTheme.safeGreen, width: 2),
+                          ),
+                        ),
+                        onSubmitted: _performSearch,
+                        onChanged: (value) {
+                          // Триггерим rebuild для suffixIcon
+                          setState(() {});
+                          // Дебаунс 300мс
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (_controller.text == value) {
+                              _performSearch(value);
+                            }
+                          });
+                        },
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusLarge),
-                        borderSide: const BorderSide(
-                            color: AppTheme.safeGreen, width: 2),
-                      ),
                     ),
-                    onSubmitted: _performSearch,
-                    onChanged: (value) {
-                      // Триггерим rebuild для suffixIcon
-                      setState(() {});
-                      // Дебаунс 300мс
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        if (_controller.text == value) {
-                          _performSearch(value);
-                        }
-                      });
-                    },
-                  ),
-                ),
 
-                // Результаты или подсказки
-                Expanded(
-                  child: !_hasSearched
-                      ? _buildSuggestions()
-                      : _results.isEmpty
-                          ? _buildNoResults()
-                          : _buildResultsList(),
+                    // Результаты или подсказки
+                    Expanded(
+                      child: !_hasSearched
+                          ? _buildSuggestions()
+                          : _results.isEmpty
+                              ? _buildNoResults()
+                              : _buildResultsList(),
+                    ),
+                  ],
                 ),
-              ],
+    );
+  }
+
+  /// B2: честный error-state — база поиска не инициализировалась,
+  /// поле недоступно осознанно, с кнопкой «Повторить».
+  Widget _buildInitError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: AppTheme.textTertiary),
+            const SizedBox(height: 16),
+            Text(
+              'Не удалось загрузить базу поиска',
+              style: Theme.of(context).textTheme.headlineMedium,
+              textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Поиск по симптомам недоступен. Повторите попытку.',
+              style: TextStyle(color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _initSearch,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Повторить'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -388,6 +445,7 @@ class _SearchResultCard extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 4,
                       children: [
+                        // C15: 9 → 11px (категория — критичные данные).
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 1),
@@ -398,13 +456,14 @@ class _SearchResultCard extends StatelessWidget {
                           child: Text(
                             drug.category,
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 11,
                               color: catColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                         // Совпавшие термины
+                        // C15: 9 → 11px (совпавшие симптомы — критичные данные).
                         ...result.matchedTerms.map((t) => Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 1),
@@ -418,7 +477,7 @@ class _SearchResultCard extends StatelessWidget {
                               child: Text(
                                 t,
                                 style: const TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 11,
                                   color: Colors.blue,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -432,16 +491,22 @@ class _SearchResultCard extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 6),
                         child: Row(
                           children: [
-                            const Icon(Icons.medication,
+                              Icon(Icons.medication,
                                 size: 14, color: AppTheme.safeGreen),
                             const SizedBox(width: 4),
-                            Text(
-                              '${drug.dosePerKg} ${drug.doseUnit} '
-                              '${drug.method.isNotEmpty ? "· ${drug.method}" : ""}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.safeGreenDark,
-                                fontWeight: FontWeight.w500,
+                            // C13: текст дозы в Expanded — длинный способ
+                            // введения переполнял Row на узких экранах.
+                            Expanded(
+                              child: Text(
+                                '${drug.dosePerKg} ${drug.doseUnit} '
+                                '${drug.method.isNotEmpty ? "· ${drug.method}" : ""}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.safeGreenDark,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

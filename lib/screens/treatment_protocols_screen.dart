@@ -118,16 +118,21 @@ class TreatmentProtocol {
     }
   }
 
-  Color get severityColor {
+  /// ⚠ Фикс C1 (аудит 26.11.2026): severity-бейджи — единая severity-лестница
+  /// DS (SeverityColors от яркости темы), а не raw Colors с withOpacity
+  /// (жёлтый/оранжевый на 15%-тинте давали 1.51:1). Тяжесть течения болезни
+  /// маппится на уровни опасности: severe → critical, moderate → moderate,
+  /// mild → minor.
+  SeverityLevel get severityLevel {
     switch (severity) {
       case 'severe':
-        return AppTheme.errorRed;
+        return SeverityLevel.critical;
       case 'moderate':
-        return AppTheme.warningOrange;
+        return SeverityLevel.moderate;
       case 'mild':
-        return AppTheme.safeGreen;
+        return SeverityLevel.minor;
       default:
-        return AppTheme.textSecondary;
+        return SeverityLevel.minor;
     }
   }
 
@@ -169,6 +174,10 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String? _selectedCategory;
+
+  /// C9 (аудит 26.11.2026): базы нет — честный error-state с «Повторить»
+  /// (приложение офлайн, базы в комплекте — «проверьте сеть» здесь ложь).
+  bool _loadFailed = false;
   // v1.18.0: фильтр «протоколы, в которых есть этот препарат» (DrugPicker).
   CalcDrug? _drugFilter;
 
@@ -191,6 +200,9 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
   }
 
   Future<void> _loadProtocols() async {
+    // Повторный запуск (кнопка «Повторить») возвращает спиннер;
+    // первый — из initState, спиннер уже на экране.
+    if (mounted && !_isLoading) setState(() => _isLoading = true);
     try {
       // v1.16.3: сырьё через DrugLoaderService (кеш/память), парсинг в
       // background-isolate. Раньше jsonDecode 1 МБ протоколов считался на
@@ -201,9 +213,16 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
         _allProtocols = await compute(_parseProtocolsInIsolate, jsonString);
       }
       _filtered = _allProtocols;
+      // C9: пустой результат без исключения — тоже «не загрузилось»
+      // (в комплекте 124 протокола: пусто бывает только при сбое чтения).
+      _loadFailed = _allProtocols.isEmpty;
     } catch (e) {
       debugPrint('TreatmentProtocols load error: $e');
+      _loadFailed = true;
     }
+    // ⚠ Фикс VV-022 (ревью 26.11.2026): setState после await без mounted —
+    // крашился при быстром возврате с экрана во время парсинга в изоляте.
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
@@ -276,11 +295,16 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
                     controller: _searchController,
                     style: const TextStyle(fontSize: 15),
                     decoration: InputDecoration(
-                      hintText: 'Поиск: диагноз, вид, код...',
-                      prefixIcon: const Icon(Icons.search,
+                      // C10: labelText — после ввода видно, что это за поле
+                      // (hint при вводе исчезает).
+                      labelText: 'Поиск по протоколам',
+                      hintText: 'Диагноз, вид, код...',
+                      prefixIcon:   Icon(Icons.search,
                           color: AppTheme.safeGreen),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
+                              // D3: подпись для иконки-крестика.
+                              tooltip: 'Очистить поиск',
                               icon: const Icon(Icons.clear),
                               onPressed: () {
                                 _searchController.clear();
@@ -428,6 +452,18 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
     final hasFilter = _drugFilter != null ||
         _searchController.text.trim().isNotEmpty ||
         _selectedCategory != null;
+    // C9: базы нет — честная ошибка с «Повторить» (приложение офлайн,
+    // базы поставляются в комплекте — «проверьте сеть» тут ложь).
+    if (!hasFilter && _loadFailed) {
+      return EmptyState(
+        icon: Icons.cloud_off_outlined,
+        title: 'Не удалось загрузить протоколы',
+        message: 'База протоколов не прочиталась из данных приложения. '
+            'Повторите попытку.',
+        actionLabel: 'Повторить',
+        onAction: _loadProtocols,
+      );
+    }
     return EmptyState(
       icon: Icons.list_alt,
       title: hasFilter ? 'Ничего не найдено' : 'Протоколы не загружены',
@@ -436,7 +472,7 @@ class _TreatmentProtocolsScreenState extends State<TreatmentProtocolsScreen> {
               'Попробуйте МНН или сбросьте фильтр.'
           : hasFilter
               ? 'Попробуйте другой запрос или категорию.'
-              : 'Проверьте сеть и перезапустите приложение — база подтянется.',
+              : 'В данных приложения не найдено ни одного протокола.',
       actionLabel: _drugFilter != null ? 'Сбросить фильтр препарата' : null,
       onAction: _drugFilter != null
           ? () {
@@ -469,7 +505,9 @@ class _ProtocolCardState extends State<_ProtocolCard> {
   @override
   Widget build(BuildContext context) {
     final p = widget.protocol;
-    final sevColor = p.severityColor;
+    // C1: severity-цвета — от фактической яркости темы (SeverityColors).
+    final brightness = Theme.of(context).brightness;
+    final sevColor = SeverityColors.text(p.severityLevel, brightness);
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
@@ -515,8 +553,11 @@ class _ProtocolCardState extends State<_ProtocolCard> {
                             if (p.code.isNotEmpty)
                               _MiniChip(
                                   label: p.code, color: AppTheme.maleBlue),
-                            _MiniChip(
-                                label: p.severityLabel, color: sevColor),
+                            // C1: бейдж тяжести — SeverityColors (жёлтый
+                            // на 15%-тинте давал 1.51:1); C15: 9 → 11px.
+                            _SeverityChip(
+                                label: p.severityLabel,
+                                level: p.severityLevel),
                             if (p.species.isNotEmpty)
                               _MiniChip(
                                   label: p.species.take(3).join(', '),
@@ -708,8 +749,40 @@ class _MiniChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 9,
+          // C15: 9 → 11px (критичные данные — коды и виды).
+          fontSize: 11,
           color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+/// C1: severity-бейдж тяжести течения — на SeverityColors от яркости темы
+/// (текст ≥ 4.5:1 в обеих темах), не на raw Colors с 15%-тинтом.
+class _SeverityChip extends StatelessWidget {
+  final String label;
+  final SeverityLevel level;
+
+  const _SeverityChip({required this.label, required this.level});
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: SeverityColors.bg(level, brightness),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: SeverityColors.text(level, brightness)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          // C15: 9 → 11px.
+          fontSize: 11,
+          color: SeverityColors.onBg(level, brightness),
           fontWeight: FontWeight.w500,
         ),
       ),

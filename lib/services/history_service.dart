@@ -116,20 +116,59 @@ class HistoryService extends ChangeNotifier {
   static const String _key = 'vetvoice_history';
   static const int _maxEntries = 50;  // храним последние 50 расчётов
 
-  SharedPreferences? _prefs;
   List<HistoryEntry> _entries = [];
+
+  // ⚠ Фикс VV-018 (ревью 26.11.2026): кеш Future<SharedPreferences>.
+  // init() из UI вызывается БЕЗ await (result_card.dart), а _save() работал
+  // через `_prefs?.` и до завершения getInstance() молча нет-опил: запись
+  // жила только в памяти и пропадала после перезапуска. Теперь init() и
+  // _save() ждут один и тот же Future — гонка исчезла без правок виджетов.
+  // Неудача в кеше не оседает — повторный вызов ретраит.
+  Future<SharedPreferences>? _prefsFuture;
+  Future<void>? _initFuture;
+
+  /// Единая точка доступа к SharedPreferences: один Future на сессию —
+  /// его ждут и init(), и _save().
+  Future<SharedPreferences> _getPrefs() {
+    final cached = _prefsFuture;
+    if (cached != null) return cached;
+    final future = SharedPreferences.getInstance();
+    return _prefsFuture = future.then(
+      (prefs) => prefs,
+      onError: (Object e) {
+        _prefsFuture = null; // transient-сбой плагина — кеш сбрасываем
+        throw e;
+      },
+    );
+  }
 
   /// Список записей истории (новые — в начале).
   List<HistoryEntry> get history => List.unmodifiable(_entries);
 
-  Future<void> init() async {
-    if (_prefs != null) return; // идемпотентно: повторный вызов — no-op
-    _prefs = await SharedPreferences.getInstance();
-    _loadHistory();
+  /// Инициализация — загрузка из SharedPreferences.
+  ///
+  /// VV-018: мемоизируется in-flight Future (не bool-флаг): параллельные
+  /// init() разделяют одну загрузку, после успеха повторный вызов — no-op,
+  /// после неудачи — ретрай.
+  Future<void> init() {
+    final inFlight = _initFuture;
+    if (inFlight != null) return inFlight;
+    final future = _init();
+    _initFuture = future;
+    return future;
   }
 
-  void _loadHistory() {
-    final json = _prefs?.getString(_key);
+  Future<void> _init() async {
+    try {
+      _loadHistory(await _getPrefs());
+    } catch (e) {
+      _initFuture = null; // неудача не мемоизируется — ретрай возможен
+      rethrow;
+    }
+  }
+
+  void _loadHistory(SharedPreferences prefs) {
+    final json = prefs.getString(_key);
     if (json == null) return;
     try {
       final list = jsonDecode(json) as List<dynamic>;
@@ -144,8 +183,11 @@ class HistoryService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
+    // VV-018: ждём тот же Future, что и init() — запись больше не теряется
+    // в гонке «init() без await + мгновенный расчёт дозы».
+    final prefs = await _getPrefs();
     final json = jsonEncode(_entries.map((e) => e.toJson()).toList());
-    await _prefs?.setString(_key, json);
+    await prefs.setString(_key, json);
   }
 
   /// Добавить расчёт в историю.

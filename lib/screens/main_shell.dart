@@ -65,8 +65,12 @@ class _MainShellState extends State<MainShell> {
           index: _index,
           children: [
             HomeGridScreen(onOpenCalculator: () => _goTo(1)),
-            const HomeScreen(),
-            const MoreScreen(),
+            // VV-027 (ревью 26.11.2026): const убран сознательно — при
+            // возврате из «Избранного» с препаратом провайдер обновлён,
+            // но const-виджет не перестраивается и калькулятор не
+            // подхватывает выбранный препарат.
+            HomeScreen(),
+            MoreScreen(onOpenCalculator: () => _goTo(1)),
           ],
         ),
         // Фаза 3: индикатор wake word над панелью — виден на ЛЮБОЙ вкладке

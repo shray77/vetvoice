@@ -34,6 +34,10 @@ class _WakeWordIndicatorState extends State<WakeWordIndicator>
   StreamSubscription? _subState;
   StreamSubscription? _subListen;
 
+  // C16 (аудит 26.11.2026): reduced-motion (MediaQuery.disableAnimations) —
+  // плашка не пульсирует: статичные цвет и прозрачность.
+  bool _reducedMotion = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +51,16 @@ class _WakeWordIndicatorState extends State<WakeWordIndicator>
     if (_isListening) _pulse.repeat(reverse: true);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reducedMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (_reducedMotion && _pulse.isAnimating) {
+      _pulse.stop();
+    }
+  }
+
   bool get _isListening =>
       _service.state == 'LISTENING' && _service.isListening;
 
@@ -54,8 +68,8 @@ class _WakeWordIndicatorState extends State<WakeWordIndicator>
     if (!mounted) return;
     setState(() {});
     // Пульс строго пока слушаем (урок MicButton: старт/стоп по состоянию,
-    // а не по факту перестройки).
-    if (_isListening) {
+    // а не по факту перестройки). C16: при reduced-motion — без пульса.
+    if (_isListening && !_reducedMotion) {
       if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
     } else {
       if (_pulse.isAnimating) {
@@ -83,7 +97,9 @@ class _WakeWordIndicatorState extends State<WakeWordIndicator>
     return AnimatedBuilder(
       animation: _pulse,
       builder: (context, child) {
-        final double t = _pulse.value;
+        // C16: reduced-motion — без пульсации: фиксируем середину шкалы
+        // (контроллер остановлен, кадр статичен).
+        final double t = _reducedMotion ? 0.5 : _pulse.value;
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

@@ -163,10 +163,10 @@ class SoundWaveVisualizer extends StatefulWidget {
   final bool isActive;
   final Color color;
 
-  const SoundWaveVisualizer({
+    SoundWaveVisualizer({
     super.key,
     required this.isActive,
-    this.color = AppTheme.safeGreen,
+    this.color = AppTheme.safeGreenDark,
   });
 
   @override

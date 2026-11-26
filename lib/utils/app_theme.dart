@@ -47,7 +47,12 @@ class AppTheme {
   // Акцент «Safe Green» (бренд).
   /// Основной акцент: кнопки, иконки, selected-состояния.
   /// Для МЕЛКОГО акцентного текста на светлом использовать accentText.
-  static const Color safeGreen = DsLight.accent; // характер: AA на бумаге
+  // A3 (визуальный аудит 26.11.2026): theme-aware акцент. Было: const
+  // светлой темы — в тёмной теме контраст 2.76:1 (иконки <3:1, текст
+  // <4.5:1). Теперь: тёмно-зелёный на светлой бумаге, светлый #3DDC7B
+  // на тёмной (8.39:1). Const-контексты по lib разконстанчены сканером
+  // (scripts/task232_code_fixes.py) — геттер в const не компилируется.
+  static Color get safeGreen => _darkNow ? safeGreenLight : safeGreenDark;
   /// Яркий характер для тёмного фона (= DsDark.accent).
   static const Color safeGreenLight = DsDark.accent;
   /// Тёмно-зелёный: акцентный текст/иконки с контрастом ≥ 4.5:1 на светлом.
@@ -398,7 +403,7 @@ class AppTheme {
       visualDensity: VisualDensity.comfortable,
       materialTapTargetSize: MaterialTapTargetSize.padded,
       dialogBackgroundColor: _whiteLight,
-      colorScheme: const ColorScheme.light(
+      colorScheme:   ColorScheme.light(
         primary: safeGreen,
         onPrimary: _whiteLight,
         primaryContainer: primaryContainer,
@@ -480,7 +485,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: const DividerThemeData(color: _dividerGrayLight, thickness: 1),
-      inputDecorationTheme: const InputDecorationTheme(
+      inputDecorationTheme:   InputDecorationTheme(
         filled: true,
         fillColor: _fieldFillLight,
         hintStyle: TextStyle(
@@ -519,7 +524,7 @@ class AppTheme {
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-      elevatedButtonTheme: const ElevatedButtonThemeData(
+      elevatedButtonTheme:   ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(safeGreen),
           foregroundColor: WidgetStatePropertyAll(_whiteLight),
@@ -642,7 +647,7 @@ class AppTheme {
         ),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme:   SliderThemeData(
         activeTrackColor: safeGreen,
         inactiveTrackColor: Color(0xFFE9E6DC),
         thumbColor: safeGreen,
@@ -663,7 +668,7 @@ class AppTheme {
               : _textTertiaryLight,
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      progressIndicatorTheme:   ProgressIndicatorThemeData(
         color: safeGreen,
         linearTrackColor: Color(0xFFE0E8DC),
         circularTrackColor: Color(0xFFE0E8DC),
@@ -711,7 +716,7 @@ class AppTheme {
       visualDensity: VisualDensity.comfortable,
       materialTapTargetSize: MaterialTapTargetSize.padded,
       dialogBackgroundColor: darkSurface,
-      colorScheme: const ColorScheme.dark(
+      colorScheme:   ColorScheme.dark(
         primary: darkPrimary,
         onPrimary: DsDark.accentInk,
         primaryContainer: darkPrimaryContainer,

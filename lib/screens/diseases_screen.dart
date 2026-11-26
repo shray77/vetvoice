@@ -99,7 +99,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                  borderSide: const BorderSide(color: AppTheme.safeGreen, width: 2),
+                  borderSide:   BorderSide(color: AppTheme.safeGreen, width: 2),
                 ),
               ),
             ),
@@ -242,7 +242,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                   color: AppTheme.safeGreen.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(
+                child:   Icon(
                   Icons.medication,
                   size: 12,
                   color: AppTheme.safeGreen,
@@ -395,9 +395,9 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
           // Заголовок протокола
           Row(
             children: [
-              const Icon(Icons.medication, size: 18, color: AppTheme.safeGreen),
+                Icon(Icons.medication, size: 18, color: AppTheme.safeGreen),
               const SizedBox(width: 8),
-              const Text(
+                Text(
                 'ПРОТОКОЛ ЛЕЧЕНИЯ',
                 style: TextStyle(
                   fontSize: 13,

@@ -30,10 +30,30 @@ class SkeletonBox extends StatefulWidget {
 
 class _SkeletonBoxState extends State<SkeletonBox>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1400),
-  )..repeat();
+  // C16 (аудит 26.11.2026): reduced-motion (MediaQuery.disableAnimations) —
+  // бегущий блик не запускается: каркас остаётся статичной заливкой.
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduced =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduced) {
+      if (_controller.isAnimating) _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
 
   @override
   void dispose() {
@@ -55,6 +75,11 @@ class _SkeletonBoxState extends State<SkeletonBox>
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
+            // C16: анимации отключены (или ещё не запущены) — статичный
+            // цвет вместо блика.
+            if (!_controller.isAnimating) {
+              return ColoredBox(color: base);
+            }
             // Блик уезжает слева направо: alignment от -1 до 2
             // (заходит за край с обеих сторон — без «телепорта»).
             final double t = -1 + _controller.value * 3;

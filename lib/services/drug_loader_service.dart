@@ -36,6 +36,11 @@ class LoadResult {
   final VerifiedDosageDatabase? verifiedDosageDatabase;
   final bool fromNetwork;
   final String source;
+  // ⚠ Фикс VV-033 (ревью 26.11.2026): сколько МНН-записей базы дозировок
+  // пропущено при парсинге. Битая запись больше не роняет базу целиком,
+  // но факт частичной потери данных обязан быть виден наверху (провайдер
+  // пишет в лог, сессию можно диагностировать).
+  final int skippedDosageCount;
 
   const LoadResult({
     this.database,
@@ -53,6 +58,7 @@ class LoadResult {
     this.verifiedDosageDatabase,
     required this.fromNetwork,
     required this.source,
+    this.skippedDosageCount = 0,
   });
 
   int get totalDrugs => registry?.totalDrugs ?? calcDatabase?.drugs.length ?? database?.drugs.length ?? 0;
@@ -88,7 +94,8 @@ class _DbSpec {
 /// могло откатить данные НАЗАД на дорефакторные (фиксы доз Task 182/186
 /// живут только в assets GitHub). Обновление баз теперь = новый релиз APK.
 ///
-///  • loadDatabase()/loadCore() мемоизированы — один раз на сессию;
+///  • loadDatabase()/loadCore() мемоизируют in-flight Future — один вызов
+///    загрузки на сессию, параллельные вызовы разделяют тот же Future;
 ///  • тяжёлый jsonDecode больших файлов уходит в background-isolate;
 ///  • staged-загрузка (ядро сразу, вторичные базы после первого кадра)
 ///    сохранена — старт дома по-прежнему быстрый.
@@ -96,8 +103,14 @@ class DrugLoaderService {
   /// Файлы больше этого размера декодируются в background-isolate.
   static const int _isolateDecodeThreshold = 512 * 1024;
 
-  /// Мемо: базы собираются один раз на сессию.
-  static LoadResult? _memo;
+  /// ⚠ Фикс VV-035 (ревью 26.11.2026): мемо — in-flight Future, а не готовый
+  /// результат. Раньше мемоизировался сам LoadResult: два ПАРАЛЛЕЛЬНЫХ
+  /// вызова loadDatabase()/loadCore() успевали ОБА пройти проверку
+  /// `_memo == null` и запускали по два _loadRaws() (~20 МБ JSON) и по два
+  /// набора compute() — двойной memory spike и тормоза старта. Теперь
+  /// первый вызов создаёт Future, параллельный получает тот же. Неудача не
+  /// мемоизируется: сброс мемо в catch — повторный вызов может ретраить.
+  static Future<LoadResult>? _loadFuture;
 
   // v1.16.3: staged-загрузка. Ядро (расчёт доз на home) парсим сразу,
   // остальные базы — фоном ПОСЛЕ первого кадра: «секунд 5 пишет что идёт
@@ -109,7 +122,9 @@ class DrugLoaderService {
     'dosage_database.json', // дозировки по МНН
     'drug_interactions.json', // предупреждения совместимости в result_card
   };
-  static LoadResult? _coreMemo;
+
+  /// VV-035: мемо СТАДИИ 1 — тоже in-flight Future (см. _loadFuture).
+  static Future<LoadResult>? _coreFuture;
 
   /// v1.16.3: источник последней _loadOnce — для корректного статуса в UI
   /// (loadCore вызывает _buildResult уже ПОСЛЕ _loadOnce).
@@ -207,25 +222,42 @@ class DrugLoaderService {
   // ============================================================
 
   /// Загружает все базы (кешировано на сессию).
-  static Future<LoadResult> loadDatabase() async {
-    if (_memo != null) return _memo!;
-    final result = await _loadOnce();
-    _memo = result;
-    return result;
+  ///
+  /// VV-035: in-flight мемоизация — параллельные вызовы разделяют один
+  /// Future (не запускают вторую загрузку ~20 МБ JSON), после успеха
+  /// повторный вызов — мгновенный no-op, после неудачи — ретрай.
+  static Future<LoadResult> loadDatabase() {
+    final inFlight = _loadFuture;
+    if (inFlight != null) return inFlight;
+    final future = _loadOnce();
+    _loadFuture = future;
+    return future;
   }
 
   /// v1.16.3: СТАДИЯ 1 — только ядро для home (расчёт доз, выбор препарата,
   /// совместимость). Сырьё читается целиком (assets), но парсинг
   /// вторичных баз откладывается до [parseExtended].
-  static Future<LoadResult> loadCore() async {
-    if (_coreMemo != null) return _coreMemo!;
-    final raws = await _loadRaws();
-    final result = await _buildResult(raws,
-        online: _lastLoadWasOnline,
-        source: _lastLoadSource,
-        coreOnly: true);
-    _coreMemo = result;
-    return result;
+  static Future<LoadResult> loadCore() {
+    final inFlight = _coreFuture;
+    if (inFlight != null) return inFlight;
+    final future = _loadCoreOnce();
+    _coreFuture = future;
+    return future;
+  }
+
+  /// VV-035: реализация loadCore. Ошибка сбрасывает мемо (см. _loadFuture),
+  /// а сама пробрасывается вызывающим — успешный же результат живёт в кеше.
+  static Future<LoadResult> _loadCoreOnce() async {
+    try {
+      final raws = await _loadRaws();
+      return await _buildResult(raws,
+          online: _lastLoadWasOnline,
+          source: _lastLoadSource,
+          coreOnly: true);
+    } catch (e) {
+      _coreFuture = null; // неудача не мемоизируется — ретрай возможен
+      rethrow;
+    }
   }
 
   /// v1.16.3: СТАДИЯ 2 — парсинг остальных баз из уже прочитанного сырья
@@ -357,10 +389,16 @@ class DrugLoaderService {
   }
 
   /// Загружает и парсит ВСЕ базы (legacy-путь; home использует loadCore+parseExtended).
+  /// VV-035: ошибка сбрасывает мемо loadDatabase — ретрай возможен.
   static Future<LoadResult> _loadOnce() async {
-    final raws = await _loadRaws();
-    return await _buildResult(raws,
-        online: _lastLoadWasOnline, source: _lastLoadSource);
+    try {
+      final raws = await _loadRaws();
+      return await _buildResult(raws,
+          online: _lastLoadWasOnline, source: _lastLoadSource);
+    } catch (e) {
+      _loadFuture = null; // неудача не мемоизируется — ретрай возможен
+      rethrow;
+    }
   }
 
   /// Собирает LoadResult из сырых JSON-строк (assetPath → содержимое).
@@ -430,6 +468,11 @@ class DrugLoaderService {
       } else if (parsed is DosageDatabase) {
         dosageDatabase = parsed;
         debugPrint('✅ База дозировок: ${dosageDatabase.dosages.length} МНН');
+        // VV-033: факт частичной потери данных — наверх (в LoadResult и лог)
+        if (dosageDatabase.skippedCount > 0) {
+          debugPrint('⚠️ База дозировок: пропущено битых МНН-записей: '
+              '${dosageDatabase.skippedCount}');
+        }
       } else if (parsed is InteractionDatabase) {
         interactionDatabase = parsed;
         debugPrint('✅ Взаимодействия: ${interactionDatabase.interactions.length} пар');
@@ -500,6 +543,7 @@ class DrugLoaderService {
       verifiedDosageDatabase: verifiedDosageDatabase,
       fromNetwork: online,
       source: resolvedSource,
+      skippedDosageCount: dosageDatabase?.skippedCount ?? 0,
     );
   }
 

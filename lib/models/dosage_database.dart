@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// База дозировок активных веществ (МНН)
 class DosageDatabase {
   final String version;
@@ -5,23 +7,47 @@ class DosageDatabase {
   final String lastUpdated;
   final Map<String, ActiveSubstanceDosage> dosages;
 
+  // ⚠ Фикс VV-033 (ревью 26.11.2026): сколько МНН-записей пропущено как
+  // битые (per-item защита в fromJson). Проброс факта частичной неудачи
+  // наверх (DrugLoaderService → LoadResult): раньше одна битая запись
+  // обнуляла ВСЮ базу — compute()-обёртка подставляла null, findByInnList()
+  // → null, реестровая ветка теряла все 671 МНН молча.
+  final int skippedCount;
+
   const DosageDatabase({
     required this.version,
     required this.description,
     required this.lastUpdated,
     required this.dosages,
+    this.skippedCount = 0,
   });
 
   factory DosageDatabase.fromJson(Map<String, dynamic> json) {
     final meta = json['meta'] as Map<String, dynamic>? ?? {};
     final dosagesRaw = json['dosages'] as Map<String, dynamic>? ?? {};
 
+    // ⚠ Фикс VV-033: per-item try/catch — битая запись МНН пропускается
+    // с debugPrint, а не роняет всю базу (жёсткий каст каждого элемента
+    // раньше превращал ОДНУ запись в null для всей DosageDatabase).
+    final dosages = <String, ActiveSubstanceDosage>{};
+    var skipped = 0;
+    for (final entry in dosagesRaw.entries) {
+      try {
+        dosages[entry.key] =
+            ActiveSubstanceDosage.fromJson(entry.value as Map<String, dynamic>);
+      } catch (e) {
+        skipped++;
+        debugPrint(
+            '⚠️ DosageDatabase: пропущена битая запись МНН «${entry.key}»: $e');
+      }
+    }
+
     return DosageDatabase(
       version: meta['version'] as String? ?? '1.0.0',
       description: meta['description'] as String? ?? '',
       lastUpdated: meta['last_updated'] as String? ?? '',
-      dosages: dosagesRaw.map((key, value) =>
-        MapEntry(key, ActiveSubstanceDosage.fromJson(value as Map<String, dynamic>))),
+      dosages: dosages,
+      skippedCount: skipped,
     );
   }
 
@@ -127,13 +153,17 @@ class ActiveSubstanceDosage {
   }
 
   /// Получить дозировку по имени животного
+  // VV-044 (ревью 26.11.2026): «МРС» не находил овец/коз (ключ в базе —
+  // sheep; getForAnimal('МРС') → null → «дозировка не найдена»).
+  // ё→е — «Пчёлы»/«Пчелы» и склонения.
   AnimalDosage? getForAnimal(String animalName) {
-    final lower = animalName.toLowerCase();
+    final lower =
+        animalName.toLowerCase().replaceAll('ё', 'е').trim();
     if (lower.contains('собак') || lower.contains('dog')) return dogs;
     if (lower.contains('кошк') || lower.contains('cat')) return cats;
     if (lower.contains('крс') || lower.contains('cattle') || lower.contains('коро')) return cattle;
     if (lower.contains('свин') || lower.contains('pig')) return pigs;
-    if (lower.contains('овц') || lower.contains('sheep')) return sheep;
+    if (lower.contains('мрс') || lower.contains('овц') || lower.contains('коз') || lower.contains('sheep')) return sheep;
     if (lower.contains('лошад') || lower.contains('horse')) return horses;
     if (lower.contains('птиц') || lower.contains('poultry') || lower.contains('куриц')) return poultry;
     if (lower.contains('кролик') || lower.contains('rabbit')) return rabbits;

@@ -118,6 +118,8 @@ class _DrugPickerState extends State<DrugPicker> {
             suffixIcon: _controller.text.isEmpty
                 ? null
                 : IconButton(
+                    // D3 (ревью 26.11.2026): подпись для иконки-крестика.
+                    tooltip: 'Очистить поиск',
                     icon: const Icon(Icons.clear, size: 20),
                     onPressed: () {
                       _controller.clear();

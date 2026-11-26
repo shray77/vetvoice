@@ -28,29 +28,70 @@ class FavoritesService extends ChangeNotifier {
   static const String _key = 'vetvoice_favorites';
   static const int _maxFavorites = 200;  // ограничение, чтобы не засорять
 
-  SharedPreferences? _prefs;
   List<int> _favorites = [];
+
+  // ⚠ Фикс VV-018 (ревью 26.11.2026): кеш Future<SharedPreferences>.
+  // init() из UI вызывается БЕЗ await (result_card.dart), а _save() работал
+  // через `_prefs?.` и до завершения getInstance() молча нет-опил: состояние
+  // в памяти расходилось с диском и пропадало после перезапуска. Теперь
+  // init() и _save() ждут один и тот же Future — гонка исчезла без правок
+  // виджетов. Неудача в кеше не оседает — повторный вызов ретраит.
+  Future<SharedPreferences>? _prefsFuture;
+  Future<void>? _initFuture;
+
+  /// Единая точка доступа к SharedPreferences: один Future на сессию —
+  /// его ждут и init(), и _save().
+  Future<SharedPreferences> _getPrefs() {
+    final cached = _prefsFuture;
+    if (cached != null) return cached;
+    final future = SharedPreferences.getInstance();
+    return _prefsFuture = future.then(
+      (prefs) => prefs,
+      onError: (Object e) {
+        _prefsFuture = null; // transient-сбой плагина — кеш сбрасываем
+        throw e;
+      },
+    );
+  }
 
   /// Список ID избранных препаратов (отсортирован: свежие — в начале).
   List<int> get favorites => List.unmodifiable(_favorites);
 
   /// Инициализация — загрузка из SharedPreferences.
   /// Идемпотентна: повторные вызовы — no-op. Вызывается при старте приложения.
-  Future<void> init() async {
-    if (_prefs != null) return;
-    _prefs = await SharedPreferences.getInstance();
-    _loadFavorites();
+  ///
+  /// VV-018: мемоизируется in-flight Future (не bool-флаг): параллельные
+  /// init() разделяют одну загрузку, после успеха повторный вызов — no-op,
+  /// после неудачи — ретрай.
+  Future<void> init() {
+    final inFlight = _initFuture;
+    if (inFlight != null) return inFlight;
+    final future = _init();
+    _initFuture = future;
+    return future;
   }
 
-  void _loadFavorites() {
-    final list = _prefs?.getStringList(_key) ?? [];
+  Future<void> _init() async {
+    try {
+      _loadFavorites(await _getPrefs());
+    } catch (e) {
+      _initFuture = null; // неудача не мемоизируется — ретрай возможен
+      rethrow;
+    }
+  }
+
+  void _loadFavorites(SharedPreferences prefs) {
+    final list = prefs.getStringList(_key) ?? [];
     _favorites = list.map((s) => int.tryParse(s) ?? 0).where((n) => n > 0).toList();
     notifyListeners();
   }
 
   Future<void> _save() async {
+    // VV-018: ждём тот же Future, что и init() — запись больше не теряется
+    // в гонке «init() без await + мгновенный тумблер звезды».
+    final prefs = await _getPrefs();
     final list = _favorites.map((n) => n.toString()).toList();
-    await _prefs?.setStringList(_key, list);
+    await prefs.setStringList(_key, list);
   }
 
   /// Проверить, в избранном ли препарат.

@@ -54,10 +54,12 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
     // Ревью 26.11.2026, VV-051: цвет суточного лимита — severity-лестница
     // DS от фактической яркости темы (Theme.of(context), не светлые
     // константы — иначе нечитаемо в тёмной, класс бага VV-065).
-    final warnColor = SeverityColors.text(
-      SeverityLevel.major,
-      Theme.of(context).brightness,
-    );
+    final brightness = Theme.of(context).brightness;
+    final warnColor = SeverityColors.text(SeverityLevel.major, brightness);
+    // C2: бейдж типа раствора — theme-aware зелёный (фиксированный светлый
+    // safeGreen давал 2.4–2.9:1 на тёмном фоне).
+    final isDark = brightness == Brightness.dark;
+    final green = isDark ? AppTheme.safeGreenLight : AppTheme.accentText;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -74,11 +76,12 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.safeGreen.withOpacity(0.1),
+                  color: green.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(s.type, style: const TextStyle(
-                  fontSize: 11, color: AppTheme.safeGreen, fontWeight: FontWeight.w600)),
+                child: Text(s.type,
+                    style: TextStyle(
+                        fontSize: 11, color: green, fontWeight: FontWeight.w600)),
               ),
               const SizedBox(width: 8),
               Expanded(child: Text(s.name, style: TextStyle(
@@ -137,6 +140,9 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
   }
 
   Widget _buildProtocolCard(FluidSpecialProtocol p) {
+    // C2: additives — theme-aware зелёный (светлый токен слеп в тёмной теме).
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final green = isDark ? AppTheme.safeGreenLight : AppTheme.accentText;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -181,7 +187,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
           if (p.additives.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(spacing: 6, runSpacing: 4,
-              children: p.additives.map((a) => Text('$a ', style: const TextStyle(fontSize: 12, color: AppTheme.safeGreen))).toList()),
+                children: p.additives.map((a) => Text('$a ', style: TextStyle(fontSize: 12, color: green))).toList()),
           ],
           if (p.monitoring.isNotEmpty) ...[
             const Divider(height: 24),
@@ -202,6 +208,10 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
     // тёмной, класс бага VV-065).
     final brightness = Theme.of(context).brightness;
     final monitorColor = SeverityColors.text(SeverityLevel.major, brightness);
+    // C2: дозы — theme-aware зелёный (светлый токен слеп в тёмной теме).
+    final green = brightness == Brightness.dark
+        ? AppTheme.safeGreenLight
+        : AppTheme.accentText;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -219,7 +229,7 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
           const SizedBox(height: 6),
           Text('Показание: ${a.indication}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
           if (a.concentration.isNotEmpty) Text('Концентрация: ${a.concentration}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-          if (a.doses.isNotEmpty) Text(a.doses.entries.map((e) => '${e.key}: ${e.value}').join(', '), style: const TextStyle(fontSize: 13, color: AppTheme.safeGreen, fontWeight: FontWeight.w500)),
+          if (a.doses.isNotEmpty) Text(a.doses.entries.map((e) => '${e.key}: ${e.value}').join(', '), style: TextStyle(fontSize: 13, color: green, fontWeight: FontWeight.w500)),
           // Ревью 26.11.2026, VV-012: max_rate был в модели, но не
           // выводился — потолок скорости инфузии KCl врач не видел.
           if (a.maxRate.isNotEmpty) Text('Макс. скорость: ${a.maxRate}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
@@ -257,12 +267,21 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
   }
 
   Widget _buildCalcTab() {
+    // C2: результат — theme-aware зелёный (фиксированный светлый safeGreen
+    // давал 2.4–2.9:1 на тёмном фоне).
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final green = isDark ? AppTheme.safeGreenLight : AppTheme.accentText;
+    // C14: ошибка валидации («Укажите вес») — не результат расчёта.
+    final hasWeight = _weightInput != null && _weightInput! > 0;
     return ListView(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       children: [
         TextField(
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
+            // C10: labelText с единицами — после ввода видно, что это за поле
+            // (hint исчезает при вводе).
+            labelText: 'Вес животного (кг)',
             hintText: 'Вес животного (кг)',
             prefixIcon: Icon(Icons.scale, color: AppTheme.textTertiary),
           ),
@@ -275,10 +294,26 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
         const SizedBox(height: 4),
         Text('50 мл/кг/сут', style: TextStyle(fontSize: 13, color: AppTheme.textTertiary)),
         const SizedBox(height: 8),
+        // C14: «Укажите вес» раньше жил в зелёном блоке с fontWeight 600 —
+        // выглядел как рассчитанная доза. Теперь — цвет ошибки и без
+        // «успешного» жирного вида.
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppTheme.safeGreen.withOpacity(0.08), borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
-          child: Text(_calcMaintenance(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.safeGreen)),
+          decoration: BoxDecoration(
+            color: hasWeight
+                ? green.withOpacity(0.08)
+                : AppTheme.errorRed.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
+          child: Text(
+            hasWeight ? _calcMaintenance() : 'Укажите вес животного',
+            style: TextStyle(
+              fontSize: hasWeight ? 18 : 14,
+              fontWeight: hasWeight ? FontWeight.w600 : FontWeight.w500,
+              color: hasWeight ? green : AppTheme.errorRed,
+              height: 1.4,
+            ),
+          ),
         ),
         const SizedBox(height: 24),
         const Text('Дефицит жидкости', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
@@ -295,8 +330,22 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppTheme.warningOrange.withOpacity(0.08), borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
-          child: Text(_calcDeficit(), style: TextStyle(fontSize: 15, color: AppTheme.textPrimary, height: 1.5)),
+          decoration: BoxDecoration(
+            color: hasWeight
+                ? AppTheme.warningOrange.withOpacity(0.08)
+                : AppTheme.errorRed.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
+          child: Text(
+            hasWeight
+                ? _calcDeficit()
+                : 'Укажите вес животного для расчёта дефицита',
+            style: TextStyle(
+              fontSize: 15,
+              color: hasWeight ? AppTheme.textPrimary : AppTheme.errorRed,
+              height: 1.5,
+            ),
+          ),
         ),
         const SizedBox(height: 24),
         const Text('Шоковая доза (кристаллоиды)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),

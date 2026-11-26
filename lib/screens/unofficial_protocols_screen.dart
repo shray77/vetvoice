@@ -64,7 +64,14 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
       }).toList();
     }
     if (_filterAnimal != null && _filterAnimal!.isNotEmpty) {
-      list = list.where((p) => p.animalDosages.any((d) => d.animal == _filterAnimal)).toList();
+      // VV-030 (ревью 26.11.2026): фильтр по виду прятал 569 протоколов
+      // — записи с дозами только в тексте (невалидный JSON из PDF)
+      // больше не выбрасываются: структурные дозы матчатся по виду,
+      // текстовые остаются с пометкой «структурных нет».
+      list = list.where((p) =>
+              p.animalDosages.any((d) => d.animal == _filterAnimal) ||
+              (p.animalDosages.isEmpty && p.animalDosagesText.isNotEmpty))
+          .toList();
     }
     _resultCount = list.length;
     return list;
@@ -198,6 +205,18 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
               child: Text(p.tradeNames.take(3).join(', '), style: const TextStyle(fontSize: 12, color: AppTheme.maleBlue)),
             ),
           if (p.form.isNotEmpty) Text(p.form, style: TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+          if (p.animalDosagesText.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            // VV-030: дозы, которые не распарсились в структуру — текстом,
+            // а не «нет данных» (490 записей из PDF).
+            Text('Дозы (текст протокола):',
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+            Text(p.animalDosagesText,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                    height: 1.35)),
+          ],
           if (p.description.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(p.description.length > 150 ? '${p.description.substring(0, 150)}...' : p.description,
@@ -226,7 +245,7 @@ class _UnofficialRecordsScreenState extends State<UnofficialRecordsScreen> {
               child: Row(
                 children: [
                   Container(width: 6, height: 6, margin: const EdgeInsets.only(top: 7, right: 6),
-                    decoration: const BoxDecoration(color: AppTheme.safeGreen, shape: BoxShape.circle)),
+                    decoration:   BoxDecoration(color: AppTheme.safeGreen, shape: BoxShape.circle)),
                   Text('${d.animal}: ', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   Expanded(child: Text('${d.doseMin > 0 ? d.doseMin : ''}${d.doseMin != d.doseMax ? '-${d.doseMax}' : ''} ${d.unit} ${d.route}',
                     style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),

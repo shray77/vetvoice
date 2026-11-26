@@ -238,7 +238,10 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _VialCalculator extends StatelessWidget {
+// D7 (ревью 26.11.2026): StatefulWidget вместо хака
+// (context as Element).markNeedsBuild() в StatelessWidget —
+// прямой вызов жизненного цикла элемента из build-кода небезопасен.
+class _VialCalculator extends StatefulWidget {
   final VaccineSpecific vaccine;
   final TextEditingController animalsController;
   final int? selectedVialOption;
@@ -252,7 +255,13 @@ class _VialCalculator extends StatelessWidget {
   });
 
   @override
+  State<_VialCalculator> createState() => _VialCalculatorState();
+}
+
+class _VialCalculatorState extends State<_VialCalculator> {
+  @override
   Widget build(BuildContext context) {
+    final vaccine = widget.vaccine;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -261,7 +270,7 @@ class _VialCalculator extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -274,7 +283,7 @@ class _VialCalculator extends StatelessWidget {
             SizedBox(
               width: 80,
               child: TextField(
-                controller: animalsController,
+                controller: widget.animalsController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   isDense: true,
@@ -283,8 +292,8 @@ class _VialCalculator extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (_) {
-                  // trigger rebuild
-                  (context as Element).markNeedsBuild();
+                  // D7: честный setState вместо markNeedsBuild.
+                  setState(() {});
                 },
               ),
             ),
@@ -298,11 +307,11 @@ class _VialCalculator extends StatelessWidget {
           Wrap(
             spacing: 6,
             children: vaccine.dosesPerVialOptions.map((option) {
-              final selected = option == selectedVialOption;
+              final selected = option == widget.selectedVialOption;
               return ChoiceChip(
                 label: Text('$option доз'),
                 selected: selected,
-                onSelected: (_) => onVialOptionChanged(option),
+                onSelected: (_) => widget.onVialOptionChanged(option),
               );
             }).toList(),
           ),
@@ -311,11 +320,11 @@ class _VialCalculator extends StatelessWidget {
 
         // Результат расчёта
         Builder(builder: (context) {
-          final animals = int.tryParse(animalsController.text) ?? 0;
-          if (animals <= 0 || selectedVialOption == null) {
+          final animals = int.tryParse(widget.animalsController.text) ?? 0;
+          if (animals <= 0 || widget.selectedVialOption == null) {
             return const SizedBox.shrink();
           }
-          final vials = (animals / selectedVialOption!).ceil();
+          final vials = (animals / widget.selectedVialOption!).ceil();
           final volume = vaccine.calculateVolumeForAnimals(animals);
 
           return Container(
@@ -329,7 +338,7 @@ class _VialCalculator extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Нужно: $vials флакон(а) по $selectedVialOption доз',
+                  'Нужно: $vials флакон(а) по ${widget.selectedVialOption} доз',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

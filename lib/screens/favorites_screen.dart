@@ -17,6 +17,8 @@ import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/haptics.dart';
 import '../widgets/common/skeleton.dart';
+// D12: общий хелпер плюрализации (1 препарат / 2 препарата / 5 препаратов)
+import 'history_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -31,6 +33,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   List<CalcDrug> _favoriteDrugs = [];
   bool _isLoading = true;
 
+  /// C9 (аудит 26.11.2026): если базы не загрузились, «Избранное пустое» —
+  /// ложь (оно неизвестно). Честный error-state с «Повторить» — без
+  /// «проверьте сеть» (приложение офлайн, базы в комплекте).
+  bool _loadFailed = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,19 +45,30 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Future<void> _initData() async {
+    // Повторный запуск (кнопка «Повторить») возвращает скелетон.
+    if (mounted && !_isLoading) setState(() => _isLoading = true);
     await _favService.init();
+    // ⚠ Фикс VV-020 (ревью 26.11.2026): два await без mounted-проверок,
+    // затем _loadFavorites() звал setState уже после dispose при быстром
+    // возврате с экрана — теперь после каждого await проверяем mounted.
+    if (!mounted) return;
     // initialize() — публичный метод провайдера (как в home_screen):
     // грузит calc-базу, реестр и все справочники.
     await _vetProvider.initialize();
+    if (!mounted) return;
     _loadFavorites();
   }
 
   void _loadFavorites() {
+    // VV-020: гвард — метод зовут и из async-колбэков (после await).
+    if (!mounted) return;
     final allDrugs = _vetProvider.calcDatabase?.drugs ?? [];
     final favIds = _favService.favorites.toSet();
     setState(() {
       _favoriteDrugs = allDrugs.where((d) => favIds.contains(d.id)).toList();
       _isLoading = false;
+      // C9: calc-базы нет — это ошибка загрузки, а не «пусто».
+      _loadFailed = _vetProvider.calcDatabase == null;
     });
   }
 
@@ -68,9 +86,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Очистить избранное?'),
+                  // D12: 1 препарат / 2 препарата / 5 препаратов.
                   content: Text(
-                    'Будет удалено ${_favoriteDrugs.length} '
-                    'препаратов из избранного.',
+                    'Будет удалено: ${_favoriteDrugs.length} '
+                    '${pluralizeRu(_favoriteDrugs.length, 'препарат', 'препарата', 'препаратов')} '
+                    'из избранного.',
                   ),
                   actions: [
                     TextButton(
@@ -94,9 +114,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       body: _isLoading
           // Фаза 3: каркас списка вместо спиннера.
           ? const SkeletonList()
-          : _favoriteDrugs.isEmpty
-              ? _buildEmptyState()
-              : _buildFavoritesList(),
+          : _loadFailed
+              ? _buildLoadError()
+              : _favoriteDrugs.isEmpty
+                  ? _buildEmptyState()
+                  : _buildFavoritesList(),
+    );
+  }
+
+  /// C9: базы не загрузились — честная ошибка + «Повторить» (тот же путь,
+  /// которым экран стартует загрузку: _initData → provider.initialize()).
+  Widget _buildLoadError() {
+    return EmptyState(
+      icon: Icons.cloud_off_outlined,
+      title: 'Не удалось загрузить',
+      message: 'База препаратов не загрузилась — избранное недоступно.\n'
+          'Повторите попытку.',
+      actionLabel: 'Повторить',
+      onAction: _initData,
     );
   }
 

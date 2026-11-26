@@ -33,6 +33,11 @@ class WakeWordService {
   // Флаг: пользователь включил wake word и ждёт когда модель загрузится
   bool _pendingStartWhenReady = false;
 
+  // v1.20.1 (VV-019): синхронный guard от параллельного старта — раньше
+  // два startListening() успевали пройти проверки до await initialize()
+  // и оба дёргали нативный старт → дубли сессий Vosk, конфликт за микрофон.
+  bool _startInProgress = false;
+
   // Callback: вызывается когда Vosk реально освободил микрофон
   VoidCallback? _onMicReleased;
 
@@ -239,32 +244,47 @@ class WakeWordService {
 
   /// Начать прослушивание wake word.
   Future<void> startListening() async {
-    if (!_isInitialized) {
-      if (_isModelLoading) {
-        // Модель грузится — запомним что надо стартануть когда будет готово
-        _pendingStartWhenReady = true;
-        debugPrint('🎤 [Dart] Model loading, will start listening when ready');
-        return;
-      }
-      final initialized = await initialize();
-      if (!initialized && _isModelLoading) {
-        _pendingStartWhenReady = true;
-        return;
-      }
-      if (!_isInitialized) return;
-    }
-
-    if (_isListening) {
-      debugPrint('🎤 [Dart] Already listening');
+    // v1.20.1 (VV-019): синхронный guard ДО первого await — раньше два
+    // параллельных startListening() проходили все проверки до
+    // await initialize(), оба дёргали нативный startListening →
+    // дубли сессий Vosk и конфликт за микрофон.
+    if (_startInProgress) {
+      debugPrint('🎤 [Dart] startListening уже выполняется, пропускаем');
       return;
     }
-
+    _startInProgress = true;
     try {
-      debugPrint('🎤 [Dart] Starting Vosk listening...');
-      await _channel.invokeMethod('startListening');
-    } catch (e) {
-      debugPrint('❌ [Dart] Start listening error: $e');
-      _onError.add('Ошибка запуска: $e');
+      if (!_isInitialized) {
+        if (_isModelLoading) {
+          // Модель грузится — запомним что надо стартануть когда будет готово
+          _pendingStartWhenReady = true;
+          debugPrint('🎤 [Dart] Model loading, will start listening when ready');
+          return;
+        }
+        final initialized = await initialize();
+        if (!initialized && _isModelLoading) {
+          _pendingStartWhenReady = true;
+          return;
+        }
+        if (!_isInitialized) return;
+      }
+
+      if (_isListening) {
+        debugPrint('🎤 [Dart] Already listening');
+        return;
+      }
+
+      try {
+        debugPrint('🎤 [Dart] Starting Vosk listening...');
+        await _channel.invokeMethod('startListening');
+      } catch (e) {
+        debugPrint('❌ [Dart] Start listening error: $e');
+        _onError.add('Ошибка запуска: $e');
+      }
+    } finally {
+      // v1.20.1 (VV-019): освобождаем guard на любом выходе, включая
+      // ранние return и исключения.
+      _startInProgress = false;
     }
   }
 
@@ -293,9 +313,30 @@ class WakeWordService {
   /// Останавливает прослушивание, но НЕ закрывает StreamController'ы,
   /// т.к. это синглтон — закрытые стримы больше нельзя использовать.
   /// Нативный VoskService живёт пока жива Activity.
+  ///
+  /// v1.20.1 (VV-037): раньше stopListening() уходил fire-and-forget, а
+  /// clearMicReleaseCallback() снимал callback СРАЗУ — нативный onMicReleased
+  /// после реального освобождения микрофона уже никого не будил, и
+  /// ожидающий рестарт STT не выполнялся (микрофон оставался в
+  /// неопределённом состоянии). Теперь дожидаемся остановки best-effort
+  /// (с разумным таймаутом) и только потом снимаем callback. Сигнатура
+  /// осталась синхронной: вызывающие (home_screen.dispose) её не await-ят.
   void dispose() {
-    stopListening();
-    clearMicReleaseCallback();
+    final callbackAtDispose = _onMicReleased;
+    unawaited(_disposeImpl(callbackAtDispose));
+  }
+
+  Future<void> _disposeImpl(VoidCallback? callbackAtDispose) async {
+    try {
+      await stopListening().timeout(const Duration(seconds: 2));
+    } catch (e) {
+      debugPrint('⚠️ [Dart] Vosk dispose: stop не завершился за 2 с: $e');
+    }
+    // Снимаем только если за время остановки никто не успел поставить
+    // НОВЫЙ callback (пересозданный экран) — иначе погасим чужое ожидание.
+    if (identical(_onMicReleased, callbackAtDispose)) {
+      _onMicReleased = null;
+    }
   }
 }
 
