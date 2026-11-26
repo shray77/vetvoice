@@ -43,6 +43,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final WakeWordService _wakeWordService = WakeWordService.instance;
 
   final TextEditingController _weightController = TextEditingController();
+
+  /// Поголовье стада (акселератор, 26.11.2026)
+  final TextEditingController _herdCountController = TextEditingController();
   final FocusNode _weightFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   bool _isListening = false;
@@ -656,6 +659,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _wakeWordRestartTimer?.cancel();
 
     _weightController.dispose();
+    _herdCountController.dispose();
     _weightFocusNode.dispose();
     _scrollController.dispose();
     _speechService.dispose();
@@ -1345,6 +1349,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
 
+        // === Расчёт на стадо (акселератор, 26.11.2026) ===
+        _buildHerdToggle(),
+
         const SizedBox(height: 20),
 
         Row(
@@ -1410,7 +1417,112 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// Расчёт на стадо (акселератор, 26.11.2026): доза на голову +
+  /// суммарное количество препарата на всё поголовье. Вес в поле
+  /// ввода трактуется как средний вес одной головы.
+  Widget _buildHerdToggle() {
+    final herd = _vetProvider.herdMode;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: herd
+            ? AppTheme.safeGreen.withOpacity(0.1)
+            : AppTheme.backgroundGray,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        border: Border.all(
+          color:
+              herd ? AppTheme.safeGreen.withOpacity(0.5) : Colors.transparent,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.groups,
+                size: 20,
+                color: herd ? AppTheme.safeGreen : AppTheme.textTertiary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Расчёт на стадо',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+              Switch(
+                value: herd,
+                activeColor: AppTheme.safeGreen,
+                onChanged: (v) {
+                  setState(() {
+                    _vetProvider.setHerdMode(v);
+                    if (v && _herdCountController.text.isEmpty) {
+                      _herdCountController.text =
+                          _vetProvider.herdCount.toString();
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+          if (herd) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _herdCountController,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Поголовье',
+                      suffixText: 'гол.',
+                      suffixStyle: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    onChanged: (v) => setState(
+                      () => _vetProvider.setHerdCount(int.tryParse(v) ?? 1),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Вес — средний вес одной головы',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildMicButton() {
+    // Пункт владельца (акселератор, 26.11.2026): в покое кнопка красилась в
+    // textPrimary — в тёмной теме это огромный белый круг 120×120, который
+    // «выбивается» из интерфейса и не читается как кнопка голосового ввода.
+    // Теперь в тёмной теме в покое — тёмная поверхность с зелёной
+    // окантовкой и зелёным микрофоном (внятный аффорданс), активные
+    // состояния и светлая тема — как раньше.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Center(
@@ -1426,23 +1538,43 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _handsFreeMode 
+                    color: _handsFreeMode
                         ? AppTheme.safeGreen
-                        : (_isListening ? AppTheme.safeGreen : AppTheme.textPrimary),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_handsFreeMode || _isListening)
-                            ? AppTheme.safeGreen.withOpacity(0.5)
-                            : AppTheme.textPrimary.withOpacity(0.3),
-                        blurRadius: _isListening ? 30 : 20,
-                        spreadRadius: _isListening ? 5 : 2,
-                      ),
-                    ],
+                        : (_isListening
+                            ? AppTheme.safeGreen
+                            : (isDark
+                                ? AppTheme.darkSurface
+                                : AppTheme.textPrimary)),
+                    border: (isDark && !_handsFreeMode && !_isListening)
+                        ? Border.all(color: AppTheme.safeGreen, width: 2)
+                        : null,
+                    boxShadow: (_handsFreeMode || _isListening)
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.safeGreen.withOpacity(0.5),
+                              blurRadius: _isListening ? 30 : 20,
+                              spreadRadius: _isListening ? 5 : 2,
+                            ),
+                          ]
+                        : (isDark
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color:
+                                      AppTheme.textPrimary.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                              ]),
                   ),
                   child: Icon(
-                    _isListening ? Icons.mic : Icons.mic_none,
+                    Icons.mic,
                     size: 48,
-                    color: Colors.white, // белый на зелёном — в обеих темах
+                    // Белый на зелёном — в обеих темах; в тёмной в покое —
+                    // зелёный по тёмной поверхности (не белое на белом).
+                    color: (_handsFreeMode || _isListening || !isDark)
+                        ? Colors.white
+                        : AppTheme.safeGreen,
                   ),
                 ),
               ),

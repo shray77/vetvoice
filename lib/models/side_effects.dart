@@ -76,6 +76,12 @@ class DrugSideEffects {
   final String? antidote;
   final String? therapeuticRange;
 
+  /// ⚠ Фикс VV-005 (ревью 26.11.2026): требование MDR1-теста для пород
+  /// группы колли (ивермектин: «Обязателен для пород группы колли перед
+  /// назначением!») — жило в JSON без читателя: владелец колли не видел
+  /// риск нейротоксикоза.
+  final String? mdr1Test;
+
   const DrugSideEffects({
     required this.drug,
     required this.sideEffects,
@@ -84,6 +90,7 @@ class DrugSideEffects {
     this.notes,
     this.antidote,
     this.therapeuticRange,
+    this.mdr1Test,
   });
 
   factory DrugSideEffects.fromJson(Map<String, dynamic> json) {
@@ -111,6 +118,7 @@ class DrugSideEffects {
       notes: json['notes'] as String?,
       antidote: json['antidote'] as String?,
       therapeuticRange: json['therapeutic_range'] as String?,
+      mdr1Test: json['mdr1_test'] as String?,
     );
   }
 

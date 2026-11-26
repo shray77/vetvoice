@@ -211,7 +211,9 @@ class CalcDrug {
     // значения нет вовсе, concentrationRaw=0.)
     double concentration = concentrationRaw;
     double concentrationMe = concentrationMeRaw;
-    if (concentrationUnit.contains('МЕ') && concentrationMe == 0 && concentrationRaw > 0) {
+    if (concentrationUnit.toUpperCase().contains('МЕ') &&
+        concentrationMe == 0 &&
+        concentrationRaw > 0) {
       concentrationMe = concentrationRaw;
       concentration = 0;
     }
@@ -270,6 +272,18 @@ class CalcDrug {
   /// Рассчитывает дозу с учётом конкретного животного
   /// Возвращает объем в мл или текст для fixed_dose
   DoseCalculation calculateDose(double weightKg, String animalName) {
+    // ⚠ Фикс VV-013 (ревью 26.11.2026): NaN/±inf/неположительный вес раньше
+    // проходили все проверки (для NaN `weight <= 0` — false) и давали
+    // «NaN мл» либо отрицательный объём.
+    if (weightKg.isNaN || weightKg.isInfinite || weightKg <= 0) {
+      return DoseCalculation(
+        type: DoseType.unknown,
+        displayText: 'Рассчитайте по инструкции',
+        volumeMl: 0,
+        note: 'Укажите корректный вес (положительное число)',
+      );
+    }
+
     // Если есть фиксированная доза для животного
     if (fixedDose != null && fixedDose!.containsKey(animalName)) {
       return DoseCalculation(
@@ -280,22 +294,16 @@ class CalcDrug {
       );
     }
 
-    // 🔑 КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Сначала ищем дозу для конкретного животного!
+    // 🔑 Сначала ищем дозу для конкретного животного
     double actualDosePerKg = dosePerKg;
     double actualDoseMin = doseMin;
     double actualDoseMax = doseMax;
     String doseNote = '';
     String animalFrequency = frequency;
-    
-    // 🆕 Для МЕ (международные единицы)
-    double actualDoseMePerKg = 0;
-    double actualDoseMeMin = 0;
-    double actualDoseMeMax = 0;
-    bool useMeDose = false;
-    
+
     // Ищем точное совпадение по названию животного
     AnimalSpecificDose? animalDose = animalSpecific[animalName];
-    
+
     // Если не нашли, пробуем case-insensitive поиск
     if (animalDose == null) {
       for (final entry in animalSpecific.entries) {
@@ -305,51 +313,102 @@ class CalcDrug {
         }
       }
     }
-    
+
     if (animalDose != null && animalDose.hasDose) {
-      // 🆕 Проверяем, есть ли доза в МЕ
-      if (animalDose.hasMeDose && concentrationMe > 0) {
-        useMeDose = true;
-        // Если есть только диапазон (doseMePerKg=0) — берём середину как «дозу по умолчанию»
-        actualDoseMePerKg = animalDose.doseMePerKg > 0
-            ? animalDose.doseMePerKg
-            : (animalDose.doseMeMin + animalDose.doseMeMax) / 2;
-        actualDoseMeMin =
-            animalDose.doseMeMin > 0 ? animalDose.doseMeMin : animalDose.doseMePerKg;
-        actualDoseMeMax =
-            animalDose.doseMeMax > 0 ? animalDose.doseMeMax : animalDose.doseMePerKg;
-      } else {
-        // Если есть только диапазон (dosePerKg=0) — берём середину как «дозу по умолчанию»
-        // Это и есть фикc B-3: препараты с dose_per_kg=0, dose_min/dose_max > 0
-        actualDosePerKg = animalDose.dosePerKg > 0
-            ? animalDose.dosePerKg
-            : (animalDose.doseMin + animalDose.doseMax) / 2;
-        actualDoseMin =
-            animalDose.doseMin > 0 ? animalDose.doseMin : animalDose.dosePerKg;
-        actualDoseMax =
-            animalDose.doseMax > 0 ? animalDose.doseMax : animalDose.dosePerKg;
-      }
+      // Если есть только диапазон (dosePerKg=0) — берём середину как «дозу по
+      // умолчанию» (фикс B-3: диапазонные дозировки не уводят в передоз).
+      actualDosePerKg = animalDose.dosePerKg > 0
+          ? animalDose.dosePerKg
+          : (animalDose.doseMin + animalDose.doseMax) / 2;
+      actualDoseMin =
+          animalDose.doseMin > 0 ? animalDose.doseMin : animalDose.dosePerKg;
+      actualDoseMax =
+          animalDose.doseMax > 0 ? animalDose.doseMax : animalDose.dosePerKg;
       doseNote = animalDose.notes;
       if (animalDose.frequency.isNotEmpty) {
         animalFrequency = animalDose.frequency;
       }
-    } else if (doseUnit == 'МЕ/кг' && concentrationMe > 0 && dosePerKg > 0) {
-      // 🆕 Базовая доза в МЕ
-      // Task 194: dosePerKg > 0 — иначе actualDoseMePerKg=0 давал
-      // «рассчитанные» 0.000 мл (латентный класс бага «нулей», агентский
-      // аудит); честнее уйти в unknown → «по инструкции».
-      useMeDose = true;
-      actualDoseMePerKg = dosePerKg;
-      actualDoseMeMin = doseMin > 0 ? doseMin : dosePerKg;
-      actualDoseMeMax = doseMax > 0 ? doseMax : dosePerKg;
     }
 
-    // 🆕 Расчёт для МЕ
-    if (useMeDose && concentrationMe > 0) {
-      final volume = (actualDoseMePerKg * weightKg) / concentrationMe;
-      String note = _formatMe(actualDoseMePerKg) + ' МЕ/кг';
-      if (actualDoseMeMin != actualDoseMeMax && actualDoseMeMin > 0) {
-        note = '${_formatMe(actualDoseMeMin)}-${_formatMe(actualDoseMeMax)} МЕ/кг';
+    // ⚠ Фикс VV-002/VV-010 (ревью 26.11.2026): эффективная единица дозы —
+    // своя у вида (animal_specific.doseUnit), иначе топовая. Раньше объёмные
+    // ветки ветвились по ТОПОВОЙ единице, а гвард согласованности — по
+    // единице вида: Зинаприм (КРС 0.1 мл/кг при топовых мг/кг, conc 40 мг/мл)
+    // проваливался в массовую ветку и делил объёмную дозу на концентрацию
+    // («1.25 мл» вместо 50, ×40 недодоза), а примечание рисовало топовую
+    // единицу («20–50 мл/кг» у Повервита WSP вместо «мг/кг»).
+    final AnimalSpecificDose? usedAnimalDose =
+        (animalDose != null && animalDose.hasDose) ? animalDose : null;
+    final String effectiveUnit =
+        usedAnimalDose != null && usedAnimalDose.doseUnit.isNotEmpty
+            ? usedAnimalDose.doseUnit
+            : doseUnit;
+    // ⚠ Фикс VV-009 (ревью 26.11.2026): «ме/кг» нижним регистром не
+    // распознавался и считался как мг (Отоферонол Голд: «60 мл» ушных капель
+    // собаке 10 кг) — единицы сравниваем регистронезависимо.
+    final String unitUpper = effectiveUnit.toUpperCase();
+
+    // ⚠ Фикс VV-007 (ревью 26.11.2026): «мг/кг корма» (ppm, 13 записей) —
+    // доза на килограмм КОРМА, а не массы тела: умножение на вес животного
+    // физически бессмысленно (Робимикс, птица 1 кг → «0.45 мл»).
+    if (effectiveUnit.contains('корма')) {
+      return DoseCalculation(
+        type: DoseType.unknown,
+        displayText: 'Рассчитайте по инструкции',
+        volumeMl: 0,
+        note: 'Доза указана на кг корма — норму задают по потреблению корма',
+      );
+    }
+
+    // 🆕 МЕ-дозы (международные единицы) — единая ветка по эффективной единице.
+    // ⚠ Фиксы VV-008/VV-009 (ревью 26.11.2026): раньше МЕ-доза без
+    // concentrationMe проваливалась в массовую ветку и делилась на мг/мл
+    // (Полиген: 75 000 МЕ/кг × 6 кг / 300 мг/мл = «1500 мл» птице), МЕ-значения
+    // из dose_per_kg при выбранном виде вовсе не считались (Ронколейкин:
+    // unknown вместо честных мл), а «ме/кг» нижним регистром считался как мг.
+    // Теперь: единица МЕ — считаем через concentrationMe; её нет — честный
+    // unknown → «по инструкции».
+    if (unitUpper.contains('МЕ')) {
+      // Значения: каноничные МЕ-поля вида, иначе «мг»-поля (xlsx-конверт
+      // кладёт МЕ-числа в dose_per_kg/min/max: Полиген, Ронколейкин).
+      double mePer = actualDosePerKg;
+      double meMin = actualDoseMin;
+      double meMax = actualDoseMax;
+      if (usedAnimalDose != null && usedAnimalDose.hasMeDose) {
+        mePer = usedAnimalDose.doseMePerKg > 0
+            ? usedAnimalDose.doseMePerKg
+            : (usedAnimalDose.doseMeMin + usedAnimalDose.doseMeMax) / 2;
+        meMin = usedAnimalDose.doseMeMin > 0
+            ? usedAnimalDose.doseMeMin
+            : usedAnimalDose.doseMePerKg;
+        meMax = usedAnimalDose.doseMeMax > 0
+            ? usedAnimalDose.doseMeMax
+            : usedAnimalDose.doseMePerKg;
+      }
+      if (mePer <= 0) {
+        return DoseCalculation(
+          type: DoseType.unknown,
+          displayText: 'Рассчитайте по инструкции',
+          volumeMl: 0,
+          note: 'Доза в МЕ не указана',
+        );
+      }
+      if (concentrationMe <= 0) {
+        return DoseCalculation(
+          type: DoseType.unknown,
+          displayText: 'Рассчитайте по инструкции',
+          volumeMl: 0,
+          note: 'Доза ${_formatMe(mePer)} МЕ/кг, но концентрация в МЕ не '
+              'указана — объём по инструкции',
+        );
+      }
+      // «МЕ/животное» — на вес не умножается.
+      final volume = effectiveUnit.contains('животное')
+          ? mePer / concentrationMe
+          : (mePer * weightKg) / concentrationMe;
+      String note = _formatMe(mePer) + ' МЕ/кг';
+      if (meMin != meMax && meMin > 0) {
+        note = '${_formatMe(meMin)}-${_formatMe(meMax)} МЕ/кг';
       }
       if (doseNote.isNotEmpty) {
         note += '\n$doseNote';
@@ -359,33 +418,24 @@ class CalcDrug {
         displayText: _formatVolume(volume, unit),
         volumeMl: unit == 'мл' ? volume : 0,
         volumeGrams: unit == 'г' ? volume : 0,
+        count: unit == 'шт' ? volume : 0,
         note: note,
-        dosePerKg: actualDoseMePerKg,
-        doseMin: actualDoseMeMin,
-        doseMax: actualDoseMeMax,
+        dosePerKg: mePer,
+        doseMin: meMin,
+        doseMax: meMax,
         frequency: animalFrequency,
       );
     }
 
-    // ⚠ Фикс S-2 (Task 183): ОБЪЁМНАЯ доза (мл/кг, мл/животное) проверяется
-    // ДО массовой ветки с делением на концентрацию. Раньше ветка
-    // «(доза × вес) / концентрация» стояла выше и молча делила объёмные
-    // дозы на концентрацию активного вещества:
-    //   Натрия хлорид 0.9% — корова 500 кг получала «5.6 мл» вместо 50 (×9);
-    //   Кофеин-бензоат 20% — занижение ×200;
-    //   Гамавит (мусорная conc 0.02 мг/мл) — 250 мл вместо 5 (×50, передоз).
-    // Объёмная доза уже выражена в объёме на единицу — концентрация в ней
-    // не участвует. Гвард согласованности юнитов: если доза животного
-    // записана в ДРУГОЙ системе (МЕ/кг при топовом мл/кг — записи-смешения
-    // xlsx-конверта вроде «30000 МЕ; 40000 МЕ; 20 мг»), объём из неё не
-    // существует → честный unknown, а не численный мусор (философия B-4:
-    // несводимые юниты не делятся).
-    final animalDoseUnit = animalDose?.doseUnit ?? '';
-    final volumeUnitsOk = animalDose == null ||
-        animalDoseUnit.isEmpty ||
-        animalDoseUnit.contains('мл/кг') ||
-        animalDoseUnit.contains('мл/животное');
-    if (volumeUnitsOk && doseUnit.contains('мл/животное')) {
+    // ⚠ Фикс S-2 (Task 183) + VV-002 (ревью 26.11.2026): ОБЪЁМНАЯ доза
+    // (мл/кг, мл/животное) проверяется ДО массовой ветки с делением на
+    // концентрацию и ветвится по ЭФФЕКТИВНОЙ единице вида:
+    // Натрия хлорид 0.9% — корова 500 кг получала «5.6 мл» вместо 50 (×9);
+    // Зинаприм КРС — «1.25 мл» вместо 50 (×40). Объёмная доза уже выражена
+    // в объёме на единицу — концентрация в ней не участвует. Отдельный гвард
+    // согласованности юнитов (философия B-4: несводимые юниты не делятся)
+    // больше не нужен: вся диспетчеризация идёт по одной эффективной единице.
+    if (effectiveUnit.contains('мл/животное')) {
       // Фиксированный объём на животное — на вес не умножается.
       final volume = actualDosePerKg;
       return DoseCalculation(
@@ -393,16 +443,17 @@ class CalcDrug {
         displayText: _formatVolume(volume, 'мл'),
         volumeMl: unit == 'г' ? 0.0 : volume,
         volumeGrams: unit == 'г' ? volume : 0.0,
-        note: doseUnit,
+        count: unit == 'шт' ? volume : 0,
+        note: effectiveUnit,
         dosePerKg: actualDosePerKg,
         frequency: animalFrequency,
       );
     }
-    if (volumeUnitsOk && doseUnit.contains('мл/кг')) {
+    if (effectiveUnit.contains('мл/кг')) {
       final volume = actualDosePerKg * weightKg;
-      String note = '${actualDosePerKg} ${doseUnit}';
+      String note = '$actualDosePerKg ${effectiveUnit}';
       if (actualDoseMin != actualDoseMax && actualDoseMin > 0) {
-        note = '$actualDoseMin-$actualDoseMax ${doseUnit}';
+        note = '$actualDoseMin-$actualDoseMax ${effectiveUnit}';
       }
       if (doseNote.isNotEmpty) {
         note += '\n$doseNote';
@@ -412,6 +463,7 @@ class CalcDrug {
         displayText: _formatVolume(volume, unit),
         volumeMl: unit == 'мл' ? volume : 0,
         volumeGrams: unit == 'г' ? volume : 0,
+        count: unit == 'шт' ? volume : 0,
         note: note,
         dosePerKg: actualDosePerKg,
         doseMin: actualDoseMin,
@@ -420,12 +472,21 @@ class CalcDrug {
       );
     }
 
-    // Расчёт: (доза мг/кг × вес) / концентрация = объем
+    // Расчёт: (доза мг/кг × вес) / концентрация = объём
     if (concentration > 0 && actualDosePerKg > 0) {
-      final volume = (actualDosePerKg * weightKg) / concentration;
-      String note = '${actualDosePerKg} ${doseUnit}';
+      // ⚠ Фикс VV-001 (ревью 26.11.2026): «мкг/кг» не переводился в мг/кг —
+      // деление на мг/мл давало передоз ×1000 (Регостенол и Геставет Прост,
+      // КРС 500 кг, 0.96 мкг/кг, conc 0.25 мг/мл → «1920 мл» вместо 1.92 мл).
+      final bool isMicrograms = unitUpper.contains('МКГ');
+      final double doseMgPerKg =
+          isMicrograms ? actualDosePerKg / 1000 : actualDosePerKg;
+      final double doseMgMin = isMicrograms ? actualDoseMin / 1000 : actualDoseMin;
+      final double doseMgMax = isMicrograms ? actualDoseMax / 1000 : actualDoseMax;
+      final volume = (doseMgPerKg * weightKg) / concentration;
+      // VV-010: единица в примечании — эффективная (вида), значения — как в базе.
+      String note = '$actualDosePerKg $effectiveUnit';
       if (actualDoseMin != actualDoseMax && actualDoseMin > 0) {
-        note = '$actualDoseMin-$actualDoseMax ${doseUnit}';
+        note = '$actualDoseMin-$actualDoseMax $effectiveUnit';
       }
       if (doseNote.isNotEmpty) {
         note += '\n$doseNote';
@@ -435,10 +496,12 @@ class CalcDrug {
         displayText: _formatVolume(volume, unit),
         volumeMl: unit == 'мл' ? volume : 0,
         volumeGrams: unit == 'г' ? volume : 0,
+        count: unit == 'шт' ? volume : 0,
         note: note,
-        dosePerKg: actualDosePerKg,
-        doseMin: actualDoseMin,
-        doseMax: actualDoseMax,
+        // Слайдер ручной дозы работает в мг/кг: мкг-записи отдаём уже в мг.
+        dosePerKg: doseMgPerKg,
+        doseMin: doseMgMin,
+        doseMax: doseMgMax,
         frequency: animalFrequency,
       );
     }
@@ -450,7 +513,7 @@ class CalcDrug {
       note: 'Требуется расчёт по инструкции',
     );
   }
-  
+
   String _formatMe(double me) {
     if (me >= 1000000) return '${(me / 1000000).toStringAsFixed(1)} млн';
     if (me >= 1000) return '${(me / 1000).toStringAsFixed(0)} тыс';
@@ -622,6 +685,12 @@ class DoseCalculation {
   final String displayText;
   final double volumeMl;
   final double volumeGrams;
+
+  /// ⚠ Фикс VV-011 (ревью 26.11.2026): количество таблеток/саше (unit='шт',
+  /// 212 записей калькулятора) — раньше «1.5 шт» жило только в displayText,
+  /// объёмные поля оставались 0 → провайдер показывал «0 мл» вместо
+  /// «1.5 шт». Теперь количество — полноправный результат ветвей расчёта.
+  final double count;
   final String note;
   final double dosePerKg;
   final double doseMin;
@@ -633,6 +702,7 @@ class DoseCalculation {
     required this.displayText,
     required this.volumeMl,
     this.volumeGrams = 0,
+    this.count = 0,
     required this.note,
     this.dosePerKg = 0,
     this.doseMin = 0,
@@ -643,7 +713,10 @@ class DoseCalculation {
   bool get hasCalculation => type == DoseType.calculated || type == DoseType.fixed;
   bool get hasRange => doseMin > 0 && doseMax > 0 && doseMin < doseMax;
   bool get isGrams => volumeGrams > 0;
-  double get volume => volumeMl > 0 ? volumeMl : volumeGrams;
+
+  /// Доза выражена в штуках (таблетки/саше), не в объёме.
+  bool get isPieces => count > 0;
+  double get volume => volumeMl > 0 ? volumeMl : (volumeGrams > 0 ? volumeGrams : count);
 }
 
 /// Результат проверки противопоказаний

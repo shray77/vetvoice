@@ -68,6 +68,10 @@ class DoseResult {
   final bool isFixedDose;
   final String fixedDoseText;
 
+  // === Расчёт на стадо (акселератор, 26.11.2026): доза на голову +
+  // суммарное количество препарата на поголовье. 1 = одиночное животное. ===
+  final int herdCount;
+
   const DoseResult({
     this.volume = 0,
     this.unit = 'мл',
@@ -100,6 +104,7 @@ class DoseResult {
     this.withdrawalText = '',
     this.isFixedDose = false,
     this.fixedDoseText = '',
+    this.herdCount = 1,
   });
 
   bool get hasWithdrawalText => withdrawalText.isNotEmpty;
@@ -111,6 +116,19 @@ class DoseResult {
   bool get hasDoseRange => doseMin > 0 && doseMax > 0 && doseMin < doseMax;
   bool get hasInteractions => interactions.isNotEmpty;
   bool get hasMia => miaInfo != null;
+
+  /// Расчёт на стадо: поголовье больше одной головы.
+  bool get isHerd => herdCount > 1;
+
+  /// Суммарное количество препарата на всё стадо (в тех же единицах,
+  /// что и доза на голову: мл / г / шт).
+  String get formattedHerdVolume {
+    final total = volume * herdCount;
+    if (total >= 100) return '${total.toStringAsFixed(0)} $unit';
+    if (total >= 10) return '${total.toStringAsFixed(1)} $unit';
+    if (total >= 1) return '${total.toStringAsFixed(2)} $unit';
+    return '${total.toStringAsFixed(3)} $unit';
+  }
 
   String get formattedVolume {
     if (volume >= 100) return '${volume.toStringAsFixed(0)} $unit';
@@ -151,6 +169,7 @@ class DoseResult {
     bool? isFixedDose,
     String? fixedDoseText,
     String? withdrawalText,
+    int? herdCount,
   }) {
     return DoseResult(
       volume: volume ?? this.volume,
@@ -184,6 +203,7 @@ class DoseResult {
       isFixedDose: isFixedDose ?? this.isFixedDose,
       fixedDoseText: fixedDoseText ?? this.fixedDoseText,
       withdrawalText: withdrawalText ?? this.withdrawalText,
+      herdCount: herdCount ?? this.herdCount,
     );
   }
 }
@@ -260,6 +280,10 @@ class VetProvider {
   int _ageMonths = 12;
   String _searchQuery = '';
   WeightValidationResult? _weightValidation;
+
+  // === Расчёт на стадо (акселератор, 26.11.2026): режим + поголовье ===
+  bool _herdMode = false;
+  int _herdCount = 10;
   
   // === НОВОЕ: История выбранных препаратов для проверки взаимодействий ===
   final List<String> _selectedDrugHistory = [];
@@ -280,6 +304,8 @@ class VetProvider {
   int get ageMonths => _ageMonths;
   double get weight => _weight;
   String get searchQuery => _searchQuery;
+  bool get herdMode => _herdMode;
+  int get herdCount => _herdCount;
   
   // === НОВОЕ: Геттеры для новых баз ===
   InteractionDatabase? get interactionDatabase => _interactionDatabase;
@@ -907,23 +933,59 @@ class VetProvider {
     final drug = _selectedCalcDrug;
     if (drug == null || _weight <= 0) return;
 
-    double volumeMl = 0;
+    double volume = 0;
     // ⚠ Фикс S-2 (Task 183): ручная корректировка дозы обязана повторять
     // ветвление CalcDrug.calculateDose — объёмная доза (мл/кг) НЕ делится
     // на концентрацию (раньше слайдер пересчитывал мл/кг-препараты в
     // мусор: Рингер-Локк/Гамавит — те же ×9/×50, что и в основном расчёте).
-    if (drug.doseUnit.contains('мл/кг')) {
-      volumeMl = customDosePerKg * _weight;
+    // ⚠ Фикс VV-001/VV-008 (ревью 26.11.2026): и единицы тоже — мкг/кг
+    // (÷1000 перед делением на мг/мл), МЕ (÷concentrationMe), иначе —
+    // честный 0 без мусора.
+    final unitUpper = drug.doseUnit.toUpperCase();
+    if (unitUpper.contains('МЕ') && drug.concentrationMe > 0) {
+      volume = (customDosePerKg * _weight) / drug.concentrationMe;
+    } else if (drug.doseUnit.contains('мл/кг')) {
+      volume = customDosePerKg * _weight;
     } else if (drug.doseUnit.contains('мл/животное')) {
-      volumeMl = customDosePerKg; // фикс на животное — вес не умножается
+      volume = customDosePerKg; // фикс на животное — вес не умножается
     } else if (drug.concentration > 0) {
-      volumeMl = (customDosePerKg * _weight) / drug.concentration;
+      final double doseMgPerKg =
+          unitUpper.contains('МКГ') ? customDosePerKg / 1000 : customDosePerKg;
+      volume = (doseMgPerKg * _weight) / drug.concentration;
     }
 
     _result = _result.copyWith(
-      volume: volumeMl,
+      volume: volume,
       dosePerKg: customDosePerKg,
     );
+  }
+
+  // === Расчёт на стадо (акселератор, 26.11.2026) ===
+
+  /// Вкл/выкл режима «стадо»: доза на голову + суммарное количество на
+  /// всё поголовье. Вес в поле ввода трактуется как средний вес головы.
+  void setHerdMode(bool value) {
+    if (_herdMode == value) return;
+    _herdMode = value;
+    if (_selectedCalcDrug != null) {
+      _recalculate();
+    } else if (_selectedRegistryDrug != null) {
+      _result = _result.copyWith(herdCount: _herdMode ? _herdCount : 1);
+    }
+  }
+
+  /// Поголовье стада (1…1 000 000 голов).
+  void setHerdCount(int value) {
+    final v = value < 1 ? 1 : (value > 1000000 ? 1000000 : value);
+    if (_herdCount == v) return;
+    _herdCount = v;
+    if (_herdMode) {
+      if (_selectedCalcDrug != null) {
+        _recalculate();
+      } else if (_selectedRegistryDrug != null) {
+        _result = _result.copyWith(herdCount: _herdCount);
+      }
+    }
   }
 
   void _validateWeight(double w) {
@@ -1008,9 +1070,20 @@ class VetProvider {
       }
     }
 
+    // ⚠ Фикс VV-005 (ревью 26.11.2026): критическое предупреждение MDR1
+    // (тест для пород группы колли перед ивермектином) жило только в JSON —
+    // модель поле не читала, владелец колли не видел риск нейротоксикоза.
+    final mdr1Test = drugSideEffects?.mdr1Test;
+    if (mdr1Test != null && mdr1Test.isNotEmpty) {
+      allSideEffects.insert(0, 'MDR1-тест (породы группы колли): $mdr1Test');
+    }
+
     _result = DoseResult(
-      volume: doseCalc.volumeMl > 0 ? doseCalc.volumeMl : doseCalc.volumeGrams,
-      unit: doseCalc.isGrams ? 'г' : 'мл',
+      // ⚠ Фикс VV-011 (ревью 26.11.2026): у таблеток/саше (unit='шт') объём
+      // был 0 → «0 мл» вместо «1.5 шт»; теперь количество — полноправный
+      // результат, единица результата честная ('шт'/'г'/'мл').
+      volume: doseCalc.volume,
+      unit: doseCalc.isGrams ? 'г' : (doseCalc.isPieces ? 'шт' : 'мл'),
       drugName: drug.name,
       drugForm: drug.form,
       method: drug.method,
@@ -1036,6 +1109,8 @@ class VetProvider {
       isFixedDose: isFixed,
       fixedDoseText: fixedText,
       miaInfo: _miaDatabase?.resolve(drug.id),
+      // Расчёт на стадо (акселератор, 26.11.2026)
+      herdCount: _herdMode ? _herdCount : 1,
     );
   }
 
@@ -1054,6 +1129,16 @@ class VetProvider {
     _selectedDrugHistory.clear();
   }
 
+  /// ⚠ Фикс VV-008 (ревью 26.11.2026): голосовой поиск выбирал записи с
+  /// calculator_applicable=false (Полиген: 75 000 МЕ/кг без концентрации в
+  /// МЕ) — калькулятор по ним честно уходит в «по инструкции», но такая
+  /// запись перехватывала выбор раньше пригодной. Голос берёт только
+  /// применимые к расчёту записи или записи с фиксированными дозами
+  /// (паттерн Task 194: окситоцин носит calculator_applicable=false, но его
+  /// fixed_dose — полноценный результат калькулятора).
+  bool _voiceSelectable(CalcDrug d) =>
+      d.calculatorApplicable || (d.fixedDose?.isNotEmpty ?? false);
+
   /// Поиск препарата по названию/МНН.
   /// Если животное выбрано — сначала ищет среди препаратов для него.
   bool findDrugByName(String name) {
@@ -1064,6 +1149,8 @@ class VetProvider {
     if (_calcDatabase != null && animalName != null) {
       for (final d in _calcDatabase!.drugs) {
         if (!d.isForAnimal(animalName)) continue;
+        // VV-008: голос не выбирает неприменимые к расчёту записи
+        if (!_voiceSelectable(d)) continue;
         if (d.name.toLowerCase() == lower || d.inn.toLowerCase() == lower) {
           selectDrug(d);
           return true;
@@ -1074,6 +1161,8 @@ class VetProvider {
     // === 2. Потом точное совпадение по всем CalcDrug ===
     if (_calcDatabase != null) {
       for (final d in _calcDatabase!.drugs) {
+        // VV-008: голос не выбирает неприменимые к расчёту записи
+        if (!_voiceSelectable(d)) continue;
         if (d.name.toLowerCase() == lower || d.inn.toLowerCase() == lower) {
           selectDrug(d);
           return true;
@@ -1085,7 +1174,9 @@ class VetProvider {
     if (_calcDatabase != null && animalName != null) {
       for (final d in _calcDatabase!.drugs) {
         if (!d.isForAnimal(animalName)) continue;
-        if (d.name.toLowerCase().contains(lower) || 
+        // VV-008: голос не выбирает неприменимые к расчёту записи
+        if (!_voiceSelectable(d)) continue;
+        if (d.name.toLowerCase().contains(lower) ||
             d.inn.toLowerCase().contains(lower)) {
           selectDrug(d);
           return true;
@@ -1096,7 +1187,9 @@ class VetProvider {
     // === 4. Содержит название — по всем CalcDrug ===
     if (_calcDatabase != null) {
       for (final d in _calcDatabase!.drugs) {
-        if (d.name.toLowerCase().contains(lower) || 
+        // VV-008: голос не выбирает неприменимые к расчёту записи
+        if (!_voiceSelectable(d)) continue;
+        if (d.name.toLowerCase().contains(lower) ||
             d.inn.toLowerCase().contains(lower)) {
           selectDrug(d);
           return true;
@@ -1108,6 +1201,8 @@ class VetProvider {
     // и INN должен быть не короче 60% длины запроса чтобы избежать ложных совпадений ===
     if (_calcDatabase != null) {
       for (final d in _calcDatabase!.drugs) {
+        // VV-008: голос не выбирает неприменимые к расчёту записи
+        if (!_voiceSelectable(d)) continue;
         final innLower = d.inn.toLowerCase();
         if (innLower.length >= 5 && innLower.length >= (lower.length * 0.6) && lower.contains(innLower)) {
           selectDrug(d);
@@ -1197,6 +1292,11 @@ class VetProvider {
       
       if (_result.courseDays.isNotEmpty) {
         buffer.write('Курс: ${_result.courseDays}. ');
+      }
+      // Расчёт на стадо (акселератор, 26.11.2026)
+      if (_result.isHerd) {
+        buffer.write(
+            'На стадо (${_result.herdCount} голов): ${_result.formattedHerdVolume}. ');
       }
     } else if (_result.hasDosage && _result.isFixedDose) {
       buffer.write('${_result.drugName}. ');

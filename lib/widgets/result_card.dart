@@ -341,6 +341,22 @@ class _ResultCardState extends State<ResultCard> {
                         textAlign: TextAlign.center,
                       ),
                     ],
+                    // Расчёт на стадо (акселератор, 26.11.2026): суммарное
+                    // количество препарата на всё поголовье.
+                    if (widget.result.isHerd && widget.result.hasDosage) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.result.volume > 0
+                            ? 'На стадо (${widget.result.herdCount} гол.): ${widget.result.formattedHerdVolume}'
+                            : 'Доза на одну голову — на стадо (${widget.result.herdCount} гол.) умножьте на поголовье',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: accent,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
                 ),
               ),

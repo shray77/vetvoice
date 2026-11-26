@@ -2,9 +2,16 @@ import 'package:flutter/foundation.dart';
 
 /// Срок ожидания для конкретного продукта (мясо, молоко, яйца)
 class WithdrawalProduct {
-  final int? meat;
-  final int? milk;
-  final dynamic eggs; // int или строка типа "НЕ ПРИМЕНЯТЬ"
+  // ⚠ Фикс (ревью 26.11.2026, VV-006): meat/milk в базе бывают не только
+  // числом суток, но и СТРОКОВЫМ запретом — «ЗАПРЕЩЁН» (хлорамфеникол),
+  // «НЕ ДЛЯ ДОЙНЫХ!» (тилмикозин, флорфеникол, ивермектин… 10 записей) —
+  // всего 24 строковых значения. Прежний `is int` превращал запреты в null,
+  // formatMeat()/formatMilk() печатали «Не указан»: ЯВНЫЙ запрет читался
+  // врачом как «ограничений нет» — это опасно. Теперь, как и у eggs, храним
+  // сырое значение базы и форматируем честно (см. _format).
+  final dynamic meat; // int суток или строка-запрет («ЗАПРЕЩЁН»)
+  final dynamic milk; // int суток или строка-запрет («НЕ ДЛЯ ДОЙНЫХ!»)
+  final dynamic eggs; // int или строка типа «НЕ ПРИМЕНЯТЬ несушкам!»
 
   const WithdrawalProduct({
     this.meat,
@@ -14,15 +21,19 @@ class WithdrawalProduct {
 
   factory WithdrawalProduct.fromJson(Map<String, dynamic> json) {
     return WithdrawalProduct(
-      meat: json['meat'] is int ? json['meat'] as int : null,
-      milk: json['milk'] is int ? json['milk'] as int : null,
+      meat: json['meat'],
+      milk: json['milk'],
       eggs: json['eggs'],
     );
   }
 
-  String formatMeat() => meat != null ? '$meat суток' : 'Не указан';
-  String formatMilk() => milk != null ? '$milk суток' : 'Не указан';
-  String formatEggs() => eggs is int ? '$eggs суток' : (eggs is String ? eggs : 'Не указан');
+  String formatMeat() => _format(meat);
+  String formatMilk() => _format(milk);
+  String formatEggs() => _format(eggs);
+
+  /// int → «N суток», String → дословно как в базе, null/иное → «Не указан».
+  static String _format(dynamic v) =>
+      v is int ? '$v суток' : (v is String ? v : 'Не указан');
 }
 
 /// Запись срока ожидания по МНН
@@ -99,18 +110,57 @@ class WithdrawalDatabase {
     return WithdrawalDatabase(drugs: list, specialNotes: notes);
   }
 
-  /// Ищет по МНН
+  /// Ищет по МНН.
+  ///
+  /// ⚠ Фикс (ревью 26.11.2026, VV-029): составные МНН в drugs_calc пишутся
+  /// и через запятую, и через « + » («сульфадоксин + триметоприм»,
+  /// «празиквантел, оксфендазол»), а здесь — через «+» без пробелов.
+  /// Прежнее сравнение строк теряло такие пары. Порядок приоритета:
+  ///  1) точное совпадение множества компонентов (разделители не важны);
+  ///  2) компоненты записи ⊆ компоненты запроса — монопрепарат/комбинация
+  ///     внутри составного МНН; берём запись с максимумом компонентов
+  ///     (самую близкую к составу препарата: «фебантел, пирантел,
+  ///     празиквантел» → «празиквантел+пирантел+фебантел», не голый
+  ///     «празиквантел»);
+  ///  3) прежнее поведение — вхождение подстроки в обе стороны (ловит
+  ///     словоформы: «хлортетрациклина» ⊃ «хлортетрациклин»).
   WithdrawalEntry? findByInn(String inn) {
-    final q = inn.toLowerCase();
+    final q = _innComponents(inn);
+    if (q.isEmpty) return null;
     for (final d in drugs) {
-      if (d.inn.toLowerCase() == q) return d;
+      final dc = _innComponents(d.inn);
+      if (dc.length == q.length && q.containsAll(dc)) return d;
     }
-    // Частичное совпадение
+    WithdrawalEntry? best;
+    int bestLen = 0;
     for (final d in drugs) {
-      if (d.inn.toLowerCase().contains(q) || q.contains(d.inn.toLowerCase())) {
-        return d;
+      final dc = _innComponents(d.inn);
+      if (dc.isEmpty || dc.length > q.length) continue;
+      if (q.containsAll(dc) && dc.length > bestLen) {
+        best = d;
+        bestLen = dc.length;
       }
     }
+    if (best != null) return best;
+    final raw = inn.toLowerCase();
+    for (final d in drugs) {
+      final dbInn = d.inn.toLowerCase();
+      if (dbInn.contains(raw) || raw.contains(dbInn)) return d;
+    }
     return null;
+  }
+
+  /// Компоненты МНН: нижний регистр, ё→е, разделители «,»/«+»/«;»/скобки →
+  /// пробел, сплит по пробелам. Множество: порядок компонентов составного
+  /// МНН не фиксирован («пирантел, празиквантел» vs «празиквантел+пирантел»).
+  static Set<String> _innComponents(String inn) {
+    final flat = inn
+        .toLowerCase()
+        .replaceAll('ё', 'е')
+        .replaceAll(RegExp(r'[,+;()]'), ' ');
+    return flat
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toSet();
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 /// Раствор для инфузионной терапии
@@ -9,6 +8,12 @@ class FluidSolution {
   final List<String> indications;
   final String tonicity;
   final String rate;
+  // Ревью 26.11.2026, VV-051: суточный потолок дозы коллоидов
+  // (Гелофузин / Венофундин ГЭК — «20 мл/кг/сут») и период полувыведения
+  // («4-6 часов») лежат в JSON, но fromJson их не читал — врач не видел
+  // лимита и мог молча его превысить. null = поле в JSON отсутствует.
+  final String? maxDose;
+  final String? halfLife;
 
   const FluidSolution({
     required this.name,
@@ -17,6 +22,8 @@ class FluidSolution {
     required this.indications,
     required this.tonicity,
     required this.rate,
+    this.maxDose,
+    this.halfLife,
   });
 
   factory FluidSolution.fromJson(Map<String, dynamic> json) {
@@ -28,6 +35,9 @@ class FluidSolution {
           ?.map((e) => e.toString()).toList() ?? const [],
       tonicity: json['tonicity'] as String? ?? '',
       rate: json['rate'] as String? ?? '',
+      // Ревью 26.11.2026, VV-051: max_dose / half_life доходят из JSON.
+      maxDose: _tolerantString(json['max_dose']),
+      halfLife: _tolerantString(json['half_life']),
     );
   }
 }
@@ -40,6 +50,11 @@ class FluidAdditive {
   final Map<String, String> doses;
   final String maxRate;
   final String notes;
+  // Ревью 26.11.2026, VV-012: правило контроля при инфузии — у
+  // Ca-глюконата 10% это условие НЕМЕДЛЕННОЙ ОСТАНОВКИ инфузии
+  // («ЭКГ (брадикардия = остановить!)»). Поле было только в JSON,
+  // fromJson его не читал — предупреждение не доезжало до врача.
+  final String? monitoring;
 
   const FluidAdditive({
     required this.name,
@@ -48,6 +63,7 @@ class FluidAdditive {
     required this.doses,
     required this.maxRate,
     required this.notes,
+    this.monitoring,
   });
 
   factory FluidAdditive.fromJson(Map<String, dynamic> json) {
@@ -56,12 +72,90 @@ class FluidAdditive {
     rawDoses.forEach((k, v) => doses[k.toString()] = v.toString());
     return FluidAdditive(
       name: json['name'] as String? ?? '',
-      indication: json['indication'] as String? ?? '',
+      // Ревью 26.11.2026, VV-012: у части добавок (Ca-глюконат 10%,
+      // MgSO4 25%) indication — СПИСОК, а не строка. Жёсткий `as String?`
+      // кидал TypeError, а per-item catch в FluidTherapyDatabase.fromJson
+      // молча выбрасывал запись ЦЕЛИКОМ — вместе с monitoring и прочими
+      // полями (класс бага S-1 из Task 183). Принимаем строку и список.
+      indication: _tolerantString(json['indication']) ?? '',
       concentration: json['concentration'] as String? ?? '',
       doses: doses,
       maxRate: json['max_rate'] as String? ?? '',
       notes: json['notes'] as String? ?? '',
+      monitoring: _tolerantString(json['monitoring']),
     );
+  }
+}
+
+/// Ревью 26.11.2026, VV-012: толерантный парсинг текстового поля JSON —
+/// String | List | null. Список склеиваем через запятую, null остаётся
+/// null (пустые строки не подставляем: экран различает «поля нет»).
+String? _tolerantString(dynamic v) {
+  if (v == null) return null;
+  if (v is String) return v;
+  if (v is List) return v.map((e) => e.toString()).join(', ');
+  return v.toString();
+}
+
+/// Шаг/фаза протокола инфузии.
+///
+/// ⚠ Фикс (ревью 26.11.2026, находка аудита VV-012-блока): protocol в JSON —
+/// список шагов-фаз ({phase, fluid, rate, duration?, notes?}, у «Отёка
+/// лёгких» — и терапевтические шаги {therapy, dose?, frequency?, notes?}),
+/// а модель ждала строку → TypeError, и все 4 протокола молча выбрасывались
+/// per-item catch-ем — вкладка «Протоколы» была пустой. Поля шага —
+/// необязательные, состав зависит от типа шага.
+class FluidProtocolStep {
+  final String? phase;
+  final String? fluid;
+  final String? rate;
+  final String? duration;
+  final String? notes;
+  final String? therapy;
+  final String? dose;
+  final String? frequency;
+
+  const FluidProtocolStep({
+    this.phase,
+    this.fluid,
+    this.rate,
+    this.duration,
+    this.notes,
+    this.therapy,
+    this.dose,
+    this.frequency,
+  });
+
+  factory FluidProtocolStep.fromJson(Map<String, dynamic> json) {
+    return FluidProtocolStep(
+      phase: json['phase'] as String?,
+      fluid: json['fluid'] as String?,
+      rate: json['rate'] as String?,
+      duration: json['duration'] as String?,
+      notes: json['notes'] as String?,
+      therapy: json['therapy'] as String?,
+      dose: json['dose'] as String?,
+      frequency: json['frequency'] as String?,
+    );
+  }
+
+  /// Строка карточки: «фаза/терапия: жидкость — доза — скорость — длительность»
+  /// (+ notes). Пустые куски не склеиваются.
+  String get display {
+    final head = phase ?? therapy ?? '';
+    final parts = <String>[
+      if ((fluid ?? '').isNotEmpty) fluid!,
+      if ((dose ?? '').isNotEmpty) dose!,
+      if ((rate ?? '').isNotEmpty) rate!,
+      if ((frequency ?? '').isNotEmpty) frequency!,
+      if ((duration ?? '').isNotEmpty) duration!,
+    ];
+    final body = parts.join(' — ');
+    var line = head.isEmpty ? body : (body.isEmpty ? head : '$head: $body');
+    if ((notes ?? '').isNotEmpty) {
+      line = line.isEmpty ? notes! : '$line ($notes!)';
+    }
+    return line;
   }
 }
 
@@ -69,7 +163,7 @@ class FluidAdditive {
 class FluidSpecialProtocol {
   final String name;
   final String species;
-  final String protocol;
+  final List<FluidProtocolStep> protocol;
   final List<String> additives;
   final List<String> monitoring;
 
@@ -82,10 +176,24 @@ class FluidSpecialProtocol {
   });
 
   factory FluidSpecialProtocol.fromJson(Map<String, dynamic> json) {
+    final steps = <FluidProtocolStep>[];
+    final raw = json['protocol'];
+    if (raw is List) {
+      for (int i = 0; i < raw.length; i++) {
+        if (raw[i] is Map<String, dynamic>) {
+          try {
+            steps.add(FluidProtocolStep.fromJson(
+                raw[i] as Map<String, dynamic>));
+          } catch (e) {
+            debugPrint('⚠️ FluidProtocolStep #$i parse error: $e');
+          }
+        }
+      }
+    }
     return FluidSpecialProtocol(
       name: json['name'] as String? ?? '',
       species: json['species'] as String? ?? '',
-      protocol: json['protocol'] as String? ?? '',
+      protocol: steps,
       additives: (json['additives'] as List?)
           ?.map((e) => e.toString()).toList() ?? const [],
       monitoring: (json['monitoring'] as List?)
@@ -134,7 +242,6 @@ class FluidTherapyDatabase {
       }
     }
     final special = <FluidSpecialProtocol>[];
-    const spRaw = null;
     final spRaw2 = json['special_protocols'] as List<dynamic>?;
     if (spRaw2 != null) {
       for (int i = 0; i < spRaw2.length; i++) {
@@ -159,7 +266,7 @@ class FluidTherapyDatabase {
     final q = query.toLowerCase();
     return solutions.where((s) =>
       s.name.toLowerCase().contains(q) ||
-      s.indications.any((ind) => ind.toLowerCase().contains(q))
+      s.indications.any((ind) => ind.toLowerCase().contains(q)),
     ).toList();
   }
 }

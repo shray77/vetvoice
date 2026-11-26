@@ -51,6 +51,13 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
   }
 
   Widget _buildSolutionCard(FluidSolution s) {
+    // Ревью 26.11.2026, VV-051: цвет суточного лимита — severity-лестница
+    // DS от фактической яркости темы (Theme.of(context), не светлые
+    // константы — иначе нечитаемо в тёмной, класс бага VV-065).
+    final warnColor = SeverityColors.text(
+      SeverityLevel.major,
+      Theme.of(context).brightness,
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -100,6 +107,30 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
               Expanded(child: Text('Скорость: ${s.rate}', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
             ],
           ),
+          // Ревью 26.11.2026, VV-051: суточный потолок коллоидов
+          // (max_dose, Гелофузин/Венофундин ГЭК) и период полувыведения
+          // (half_life) были в JSON, но не доезжали до карточки — лимит
+          // можно было молча превысить.
+          if (s.maxDose != null && s.maxDose!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.warning_amber, size: 14, color: warnColor),
+                const SizedBox(width: 4),
+                Expanded(child: Text('Макс. доза: ${s.maxDose}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: warnColor))),
+              ],
+            ),
+          ],
+          if (s.halfLife != null && s.halfLife!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 14, color: AppTheme.textTertiary),
+                const SizedBox(width: 4),
+                Expanded(child: Text('T½: ${s.halfLife}', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -130,7 +161,23 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
             ],
           ),
           const SizedBox(height: 12),
-          Text(p.protocol, style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.4)),
+          // Ревью 26.11.2026, находка аудита VV-012-блока: protocol —
+          // список фаз/шагов (раньше все протоколы молча выбрасывались
+          // при парсинге, вкладка была пустой). Рисуем каждый шаг строкой.
+          if (p.protocol.isEmpty)
+            Text('Протокол не распарсен — проверьте данные',
+                style: TextStyle(fontSize: 13, color: AppTheme.warningOrange))
+          else
+            ...p.protocol.map((s) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '• ${s.display}',
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                        height: 1.4),
+                  ),
+                )),
           if (p.additives.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(spacing: 6, runSpacing: 4,
@@ -142,6 +189,67 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
             const SizedBox(height: 4),
             Wrap(spacing: 6, runSpacing: 4,
               children: p.monitoring.map((m) => Text('$m ', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))).toList()),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdditiveCard(FluidAdditive a) {
+    // Ревью 26.11.2026, VV-012: monitoring (условие остановки инфузии)
+    // выделяем severity-лестницей DS от фактической яркости темы
+    // (Theme.of(context), не светлые константы — иначе нечитаемо в
+    // тёмной, класс бага VV-065).
+    final brightness = Theme.of(context).brightness;
+    final monitorColor = SeverityColors.text(SeverityLevel.major, brightness);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.science, color: AppTheme.maleBlue, size: 20),
+              const SizedBox(width: 8),
+              Text(a.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text('Показание: ${a.indication}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+          if (a.concentration.isNotEmpty) Text('Концентрация: ${a.concentration}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+          if (a.doses.isNotEmpty) Text(a.doses.entries.map((e) => '${e.key}: ${e.value}').join(', '), style: const TextStyle(fontSize: 13, color: AppTheme.safeGreen, fontWeight: FontWeight.w500)),
+          // Ревью 26.11.2026, VV-012: max_rate был в модели, но не
+          // выводился — потолок скорости инфузии KCl врач не видел.
+          if (a.maxRate.isNotEmpty) Text('Макс. скорость: ${a.maxRate}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+          if (a.notes.isNotEmpty) Text(a.notes, style: const TextStyle(fontSize: 12, color: AppTheme.warningOrange, fontStyle: FontStyle.italic)),
+          // Ревью 26.11.2026, VV-012: правило остановки инфузии (у
+          // Ca-глюконата 10% — «ЭКГ (брадикардия = остановить!)») раньше
+          // терялось при парсинге. Теперь — отдельной заметной строкой
+          // с warning_amber на severity-подложке DS, а не тихими notes.
+          if (a.monitoring != null && a.monitoring!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: SeverityColors.bg(SeverityLevel.major, brightness),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber, size: 16, color: monitorColor),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Мониторинг: ${a.monitoring}',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: SeverityColors.onBg(SeverityLevel.major, brightness)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ],
       ),
@@ -240,29 +348,9 @@ class _FluidTherapyScreenState extends State<FluidTherapyScreen>
           ListView.builder(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             itemCount: widget.db.additives.length,
-            itemBuilder: (_, i) {
-              final a = widget.db.additives[i];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(AppTheme.radiusMedium), boxShadow: AppTheme.softShadow),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      const Icon(Icons.science, color: AppTheme.maleBlue, size: 20),
-                      const SizedBox(width: 8),
-                      Text(a.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-                    ]),
-                    const SizedBox(height: 6),
-                    Text('Показание: ${a.indication}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-                    if (a.concentration.isNotEmpty) Text('Концентрация: ${a.concentration}', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-                    if (a.doses.isNotEmpty) Text(a.doses.entries.map((e) => '${e.key}: ${e.value}').join(', '), style: const TextStyle(fontSize: 13, color: AppTheme.safeGreen, fontWeight: FontWeight.w500)),
-                    if (a.notes.isNotEmpty) Text(a.notes, style: const TextStyle(fontSize: 12, color: AppTheme.warningOrange, fontStyle: FontStyle.italic)),
-                  ],
-                ),
-              );
-            },
+            // Ревью 26.11.2026, VV-012: карточка добавки вынесена в
+            // _buildAdditiveCard — наравне с растворами и протоколами.
+            itemBuilder: (_, i) => _buildAdditiveCard(widget.db.additives[i]),
           ),
         ],
       ),

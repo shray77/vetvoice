@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 /// Верифицированная дозировка конкретного препарата (по торговому названию)
@@ -99,8 +98,12 @@ class VerifiedAnimalDose {
       method: json['method'] as String? ?? '',
       frequency: json['frequency'] as String? ?? '',
       courseDays: json['course_days']?.toString(),
-      withdrawalDays: json['withdrawal_days'] as int?,
-      withdrawalMilkDays: json['withdrawal_milk_days'] as int?,
+      // ⚠ Фикс VV-003 (ревью 26.11.2026): в базе withdrawal_days приходит
+      // double (например 28.0) — жёсткий `as int?` бросал TypeError, а
+      // per-item catch в VerifiedDosageDatabase.fromJson молча выбрасывал
+      // запись ЦЕЛИКОМ: из 2376 препаратов выживало только 8.
+      withdrawalDays: (json['withdrawal_days'] as num?)?.toInt(),
+      withdrawalMilkDays: (json['withdrawal_milk_days'] as num?)?.toInt(),
       notes: json['notes'] as String? ?? '',
     );
   }

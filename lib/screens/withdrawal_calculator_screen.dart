@@ -10,16 +10,24 @@
 //
 // Логика:
 //   1. Пользователь выбирает препарат
-//   2. Выбирает вид животного (КРС / МРС / Свиньи / Птица)
+//   2. Выбирает вид животного (КРС / МРС / Свиньи / Птица / …)
 //   3. Указывает дату введения
 //   4. Получает даты безопасного употребления мяса/молока/яиц
 //
+// ⚠ Фикс (ревью 26.11.2026, VV-029): вид теперь УЧИТЫВАЕТСЯ. В приоритете
+// видовые правила из withdrawal_by_product.json (поиск по МНН препарата,
+// видовой блок продуктов, значения — ДОСЛОВНО, включая запреты «ЗАПРЕЩЁН» /
+// «НЕ ДЛЯ ДОЙНЫХ!»). Если видовых данных нет — прежний fallback
+// withdrawalText/withdrawalDays, но продукты фильтруются по релевантности
+// виду (у Птицы — мясо/яйца, у КРС/МРС — мясо/молоко, у остальных — мясо).
+//
 // Зависимости:
-//   - VetProvider для доступа к drugs
+//   - VetProvider для доступа к drugs и withdrawalDatabase
 //   - AppTheme
 
 import 'package:flutter/material.dart';
 import '../models/calc_drug.dart';
+import '../models/withdrawal.dart';
 import '../providers/vet_provider.dart';
 import '../utils/app_theme.dart';
 // v1.18.0 (Фаза 2): каркас + DrugPicker вместо самописного _DrugSelector
@@ -71,12 +79,92 @@ class _WithdrawalCalculatorScreenState
       widget.lastDate ?? DateTime.now().add(const Duration(days: 30));
   List<WithdrawalResult> _results = [];
 
-  final List<String> _productAnimals = [
+  // ⚠ Фикс (ревью 26.11.2026, VV-029): прежние 4 вида (КРС/МРС/Свиньи/
+  // Птица) дополнены видами, по которым в withdrawal_by_product.json есть
+  // видовые сроки (Собаки/Кошки — ципрофлоксацин, Лошади — кетопрофен,
+  // Кролики — толтразурил…). Без них селектор врал «вид не важен».
+  static const List<String> _productAnimals = [
     'КРС',
     'МРС',
     'Свиньи',
     'Птица',
+    'Кролики',
+    'Собаки',
+    'Кошки',
+    'Лошади',
   ];
+
+  /// Ключи видов в withdrawal_by_product.json для каждого вида выбора.
+  /// «МРС» покрывает и ключ «Овцы» (в базе они взаимозаменяемы: у одних
+  /// записей «МРС», у других «Овцы»). «Пушные звери» ↔ «Пушные» — алиасы
+  /// одного вида (как в selectAnimalFromSpecies: ё→е, регистр неважен).
+  static const Map<String, List<String>> _speciesDbKeys = {
+    'КРС': ['КРС'],
+    'МРС': ['МРС', 'Овцы'],
+    'Свиньи': ['Свиньи'],
+    'Птица': ['Птица'],
+    'Кролики': ['Кролики'],
+    'Собаки': ['Собаки'],
+    'Кошки': ['Кошки'],
+    'Лошади': ['Лошади'],
+    'Пушные звери': ['Пушные звери', 'Пушные'],
+  };
+
+  /// Продукты, релевантные виду: у Птицы — мясо/яйца, у КРС/МРС — мясо/
+  /// молоко, у остальных — только мясо. Прежний экран рисовал «Молоко» и
+  /// для Птицы/Собак, где молока нет.
+  static const Map<String, List<String>> _speciesProducts = {
+    'КРС': ['meat', 'milk'],
+    'МРС': ['meat', 'milk'],
+    'Свиньи': ['meat'],
+    'Птица': ['meat', 'eggs'],
+    'Кролики': ['meat'],
+    'Собаки': ['meat'],
+    'Кошки': ['meat'],
+    'Лошади': ['meat'],
+    'Пушные звери': ['meat'],
+  };
+
+  /// Подписи и иконки продуктов.
+  static const Map<String, String> _productLabels = {
+    'meat': 'Мясо',
+    'milk': 'Молоко',
+    'eggs': 'Яйца',
+  };
+  static const Map<String, IconData> _productIcons = {
+    'meat': Icons.restaurant,
+    'milk': Icons.water_drop,
+    'eggs': Icons.egg,
+  };
+
+  /// Нормализация имени вида: нижний регистр, ё→е, без краёв.
+  static String _norm(String s) =>
+      s.toLowerCase().replaceAll('ё', 'е').trim();
+
+  /// Выбор пользователя → канонический вид из _speciesDbKeys (точное
+  /// совпадение, затем префикс в обе стороны — «Пушные» ↔ «Пушные звери»).
+  /// null — вид не распознан (видовых ключей нет).
+  static String? _canonicalSpecies(String animal) {
+    final n = _norm(animal);
+    if (n.isEmpty) return null;
+    for (final e in _speciesDbKeys.entries) {
+      if (_norm(e.key) == n) return e.key;
+    }
+    for (final e in _speciesDbKeys.entries) {
+      final k = _norm(e.key);
+      if (k.startsWith(n) || n.startsWith(k)) return e.key;
+    }
+    return null;
+  }
+
+  /// Ключи withdrawal_by_product.json для выбранного вида.
+  static List<String> _dbKeysFor(String animal) =>
+      _speciesDbKeys[_canonicalSpecies(animal) ?? ''] ?? const [];
+
+  /// Продукты, релевантные выбранному виду (нераспознанный вид — мясо).
+  List<String> _relevantProducts() =>
+      _speciesProducts[_canonicalSpecies(_selectedAnimal) ?? ''] ??
+      const ['meat'];
 
   @override
   Widget build(BuildContext context) {
@@ -280,16 +368,33 @@ class _WithdrawalCalculatorScreenState
     final results = <WithdrawalResult>[];
     final drug = _selectedDrug!;
 
+    // ⚠ Фикс (ревью 26.11.2026, VV-029): выбор вида ни на что не влиял —
+    // читались только withdrawalText/withdrawalDays (первое попавшееся
+    // «мясо: N дн» — от КРС, даже при выбранной Птице). Теперь в
+    // приоритете видовые правила withdrawal_by_product.json — они
+    // показываются ДОСЛОВНО, включая запреты. Fallback (видовых данных
+    // нет) — прежняя логика, но продукты фильтруются по релевантности
+    // виду (у Птицы нет молока, у Собак — молока и яиц).
+    if (_tryCalculateFromSpeciesDatabase(drug, results)) {
+      setState(() {
+        _results = results;
+      });
+      return;
+    }
+
     // Из withdrawalText — парсим «Мясо: 28 сут; Молоко: 120 ч»
     final withdrawalText = drug.withdrawalText;
     if (withdrawalText.isNotEmpty) {
       // Парсим «Мясо: N сут/дн/ч; Молоко: N ч/сут; Яйца: N сут»
       final patterns = [
-        ('Мясо', RegExp(r'мясо[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.restaurant),
-        ('Молоко', RegExp(r'молоко[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.water_drop),
-        ('Яйца', RegExp(r'яйц[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false), Icons.egg),
+        ('meat', RegExp(r'мясо[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false)),
+        ('milk', RegExp(r'молоко[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false)),
+        ('eggs', RegExp(r'яйц[^\d]*(\d+)\s*(сут|дн|ч|час)', caseSensitive: false)),
       ];
-      for (final (product, regex, icon) in patterns) {
+      // VV-029: только продукты, релевантные выбранному виду.
+      final relevant = _relevantProducts().toSet();
+      for (final (type, regex) in patterns) {
+        if (!relevant.contains(type)) continue;
         final m = regex.firstMatch(withdrawalText);
         if (m != null) {
           final num = int.parse(m.group(1)!);
@@ -302,8 +407,8 @@ class _WithdrawalCalculatorScreenState
           }
           final safeDate = _applicationDate.add(Duration(hours: hours));
           results.add(WithdrawalResult(
-            product: product,
-            icon: icon,
+            product: _productLabels[type] ?? type,
+            icon: _productIcons[type] ?? Icons.restaurant,
             waitHours: hours,
             safeDate: safeDate,
             rawText: '${m.group(0)}',
@@ -329,13 +434,90 @@ class _WithdrawalCalculatorScreenState
       _results = results;
     });
   }
+
+  /// Видовые сроки из withdrawal_by_product.json (ревью 26.11.2026,
+  /// VV-029). Возвращает true, если результаты собраны из базы — тогда
+  /// fallback withdrawalText/withdrawalDays не нужен. Каждое значение
+  /// показывается дословно: int → дата «безопасно с», строка-запрет
+  /// («ЗАПРЕЩЁН», «НЕ ДЛЯ ДОЙНЫХ!») → без даты, красным; null → честное
+  /// «Не указан».
+  bool _tryCalculateFromSpeciesDatabase(
+    CalcDrug drug,
+    List<WithdrawalResult> out,
+  ) {
+    final entry =
+        widget.vetProvider.withdrawalDatabase?.findByInn(drug.inn);
+    if (entry == null) return false;
+
+    // Видовой блок: ключи выбранного вида (МРС покрывает и «Овцы»), при
+    // отсутствии — глобальный «all» (гамавит/катозал: 0 суток всем видам).
+    // Пустой видовой блок (празиквантел: «Собаки»: {}) данных не несёт —
+    // пропускаем, честнее уйти в fallback.
+    WithdrawalProduct? species;
+    for (final key in _dbKeysFor(_selectedAnimal)) {
+      final sp = entry.products[key];
+      if (sp != null &&
+          (sp.meat != null || sp.milk != null || sp.eggs != null)) {
+        species = sp;
+        break;
+      }
+    }
+    species ??= _speciesWithValues(entry.products['all']);
+    if (species == null) return false;
+
+    for (final type in _relevantProducts()) {
+      final raw = switch (type) {
+        'meat' => species.meat,
+        'milk' => species.milk,
+        'eggs' => species.eggs,
+        _ => null,
+      };
+      out.add(_resultFor(type, raw));
+    }
+    return true;
+  }
+
+  /// Блок продуктов с хотя бы одним значением или null (см. выше).
+  static WithdrawalProduct? _speciesWithValues(WithdrawalProduct? sp) {
+    if (sp == null) return null;
+    return (sp.meat != null || sp.milk != null || sp.eggs != null) ? sp : null;
+  }
+
+  /// Карточка результата по сырому значению базы: int → числовая
+  /// каренция с датой; String → дословно (запрет); null → «Не указан».
+  WithdrawalResult _resultFor(String type, dynamic raw) {
+    final product = _productLabels[type] ?? type;
+    final icon = _productIcons[type] ?? Icons.help_outline;
+    if (raw is int) {
+      return WithdrawalResult(
+        product: product,
+        icon: icon,
+        waitHours: raw * 24,
+        safeDate: _applicationDate.add(Duration(days: raw)),
+        rawText: '$raw суток',
+      );
+    }
+    return WithdrawalResult(
+      product: product,
+      icon: icon,
+      waitHours: null,
+      safeDate: null,
+      rawText: raw is String ? raw : 'Не указан',
+    );
+  }
 }
 
 class WithdrawalResult {
   final String product;
   final IconData icon;
-  final int waitHours;
-  final DateTime safeDate;
+
+  /// Числовая каренция в часах. null — строковое значение из базы
+  /// (запрет «ЗАПРЕЩЁН» / «НЕ ДЛЯ ДОЙНЫХ!» или «Не указан»):
+  /// даты безопасного употребления нет (ревью 26.11.2026, VV-006/VV-029).
+  final int? waitHours;
+
+  /// Дата безопасного употребления; null при строковом значении.
+  final DateTime? safeDate;
   final String rawText;
 
   const WithdrawalResult({
@@ -346,20 +528,32 @@ class WithdrawalResult {
     required this.rawText,
   });
 
+  /// Строка-запрет из базы («ЗАПРЕЩЁН», «НЕ ДЛЯ ДОЙНЫХ!») — красный
+  /// акцент в карточке, без даты. «Не указан» красным не считается.
+  bool get isProhibition {
+    if (safeDate != null) return false;
+    final t = rawText.toUpperCase();
+    return t.isNotEmpty && t != 'НЕ УКАЗАН';
+  }
+
   String get waitTimeFormatted {
-    if (waitHours >= 24) {
-      final days = waitHours ~/ 24;
-      final hours = waitHours % 24;
+    final h = waitHours;
+    if (h == null) return rawText; // запрет/«Не указан» — дословно
+    if (h >= 24) {
+      final days = h ~/ 24;
+      final hours = h % 24;
       if (hours == 0) return '$days дн';
       return '$days дн $hours ч';
     }
-    return '$waitHours ч';
+    return '$h ч';
   }
 
   String get safeDateFormatted {
-    return '${safeDate.day.toString().padLeft(2, '0')}.'
-        '${safeDate.month.toString().padLeft(2, '0')}.'
-        '${safeDate.year}';
+    final d = safeDate;
+    if (d == null) return rawText;
+    return '${d.day.toString().padLeft(2, '0')}.'
+        '${d.month.toString().padLeft(2, '0')}.'
+        '${d.year}';
   }
 }
 
@@ -370,13 +564,24 @@ class _WithdrawalResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // VV-006/VV-029: запрет («ЗАПРЕЩЁН», «НЕ ДЛЯ ДОЙНЫХ!») — красным,
+    // без даты; «Не указан» — нейтрально; число — прежняя зелёная карточка.
+    final ban = result.isProhibition;
+    final hasDate = result.safeDate != null;
+    final muted = !hasDate && !ban; // «Не указан» — без акцента
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(result.icon, size: 32, color: AppTheme.safeGreen),
+            Icon(
+              result.icon,
+              size: 32,
+              color: ban
+                  ? AppTheme.errorRed
+                  : (muted ? AppTheme.textTertiary : AppTheme.safeGreen),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -390,27 +595,57 @@ class _WithdrawalResultCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Безопасно с: ${result.safeDateFormatted}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.safeGreen,
+                  if (hasDate) ...[
+                    Text(
+                      'Безопасно с: ${result.safeDateFormatted}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.safeGreen,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Каренция: ${result.waitTimeFormatted}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Каренция: ${result.waitTimeFormatted}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
                     ),
-                  ),
+                  ] else ...[
+                    // Дословное значение базы: запрет или честное
+                    // «Не указан» — даты не выдумываем.
+                    Text(
+                      result.rawText,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: ban ? AppTheme.errorRed : AppTheme.textTertiary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      ban
+                          ? 'Применение продукта запрещено — смотрите '
+                              'инструкцию производителя'
+                          : 'Точных данных в базе нет — смотрите '
+                              'инструкцию производителя',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            const Icon(Icons.check_circle,
-                color: AppTheme.safeGreen, size: 32),
+            Icon(
+              ban ? Icons.block : Icons.check_circle,
+              color: ban
+                  ? AppTheme.errorRed
+                  : (muted ? AppTheme.textTertiary : AppTheme.safeGreen),
+              size: 32,
+            ),
           ],
         ),
       ),
