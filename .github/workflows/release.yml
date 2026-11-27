@@ -103,6 +103,8 @@ jobs:
           # app-release.apk больше не существует, собираем артефакт на каждый ABI.
           for APK in build/app/outputs/flutter-apk/app-*-release.apk; do
             ABI="$(basename "$APK" .apk | sed 's/^app-//')"
+            # x86_64 собирается только для проверки Flutter CLI — не публикуем
+            case "$ABI" in *x86_64*) continue ;; esac
             cp "$APK" "artifacts/vetvoice-${VERSION}-${ABI}.apk"
           done
           if [ -f build/app/outputs/bundle/release/app-release.aab ]; then

@@ -64,7 +64,11 @@ android {
         abi {
             enable gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
             reset()
-            include 'arm64-v8a', 'armeabi-v7a'
+            // flutter build apk --split-per-abi всегда ждёт три APK
+            // (arm64-v8a, armeabi-v7a, x86_64). x86_64 нужен только чтобы
+            // тулчейн не падал «Gradle build failed to produce an .apk»;
+            // release.yml его не публикует — в бандле остаются только arm.
+            include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
             universalApk false
         }
     }
