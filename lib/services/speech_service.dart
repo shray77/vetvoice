@@ -511,7 +511,17 @@ class SpeechService {
 
   /// Остановить озвучивание
   Future<void> stopSpeaking() async {
-    await _tts.stop();
+    // v1.26.0 (Task 260): stop может кидать (движок TTS не готов, а в
+    // тестах плагина нет — MissingPluginException). Из fire-and-forget
+    // вызова (home_screen:279) исключение роняло ПОСЛЕДУЮЩИЙ golden-тест
+    // (07_diseases после 06_shell). Лучше catch без timeout: таймер
+    // .timeout() в fake-async зоне golden-теста переживает тест и роняет
+    // его инвариантом «A Timer is still pending» (грабли Task 260).
+    try {
+      await _tts.stop();
+    } catch (e) {
+      debugPrint('🔇 TTS stop не завершился: $e');
+    }
     // 🆕 v1.20.1 (VV-039): ручная остановка сбрасывает счётчик целиком —
     // все зависшие await _tts.speak завершатся как cancelled, микрофон
     // открываем сразу, не дожидаясь их.
@@ -641,7 +651,14 @@ class SpeechService {
     // контроллер («Bad state: Cannot add new events after calling close»).
     _restarts.dispose();
     _stt.cancel();
-    _tts.stop();
+    // v1.26.0 (Task 260): раньше _tts.stop() был fire-and-forget без catch —
+    // MissingPluginException прилетал в СЛЕДУЮЩИЙ golden-тест (07_diseases
+    // после 06_shell, teardown HomeScreen) и ронял его. Catch без timeout:
+    // таймер .timeout() переживает fake-async зону golden-теста и роняет
+    // его инвариантом «A Timer is still pending» (грабли Task 260).
+    unawaited(_tts.stop().catchError((Object e) {
+      debugPrint('🔇 SpeechService dispose: TTS stop не завершился: $e');
+    }));
     // v1.20.0: не оставляем подписки на стримы синглтона GigaAM
     _gigaAmResultSub?.cancel();
     _gigaAmStateSub?.cancel();
