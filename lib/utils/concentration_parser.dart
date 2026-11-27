@@ -122,6 +122,12 @@ class ConcentrationParser {
   /// `\b` вообще не сматчил бы русское МНН. Поэтому явная проверка «слева не
   /// буква/цифра». Правая граница НЕ ставится: составы склоняют МНН
   /// («…эмидонолА 50 мг»), хвостовые буквы легальны.
+  /// Единица сразу после числа в составе. Короткие токены (мг/мкг/МЕ/ME/
+  /// IU/ЕД) требуют справа НЕ-букву («2 месяца» — не МЕ), развёрнутое
+  /// «международн(ых единиц)» матчится префиксом.
+  static const String _unitToken =
+      r'(?:мг|мкг|ме|me|iu|ед)(?![а-яёa-z])|международн';
+
   static double parseConcentrationForSubstance(String composition, String inn) {
     if (composition.isEmpty || inn.isEmpty) return 0;
 
@@ -132,16 +138,84 @@ class ConcentrationParser {
     final escapedInn = RegExp.escape(innLower);
     const wordStart = r'(?:^|[^a-zа-яё0-9])';
 
-    // Ищем паттерн: "вещество - X мг" или "вещество: X мг"
+    // ⚠ Фикс VV-060 (ревью 27.11.2026): считываем ПЕРВОЕ «число +
+    // единица» ПОСЛЕ названия вещества — единица решает, существует ли
+    // вообще мг-концентрация. Раньше парсер сканировал состав до первого
+    // «N мг» ЛЮБОГО следующего вещества: если собственная концентрация
+    // записана в МЕ («30000 ME», «100000 международных единиц»), парсер её
+    // игнорировал и подсовывал чужие мг (Тривит: ретинол «30000 ME»
+    // получал «20 мг» витамина Е как «свою» концентрацию). Теперь:
+    // единица МЕ/мкг/… → мг-концентрации нет, честный 0; МЕ-число при
+    // этом забирает parseMeConcentrationForSubstance.
+    final afterInn = RegExp(
+        '$wordStart$escapedInn[^.]*?(\\d[\\d\\s.,]*?)\\s*($_unitToken)');
+    final m = afterInn.firstMatch(lower);
+    if (m != null) {
+      if (m.group(2) != 'мг') return 0;
+      final value = _parseLooseNumber(m.group(1)!);
+      if (value != null && value > 0) return value;
+    }
+
+    // «X мг ... вещество» — число ПЕРЕД названием вещества (как раньше).
+    final beforeInn =
+        RegExp('(\\d+(?:[.,]\\d+)?)\\s*мг[^.]*?$wordStart$escapedInn');
+    final m2 = beforeInn.firstMatch(lower);
+    if (m2 != null) {
+      return double.tryParse(m2.group(1)!.replaceAll(',', '.')) ?? 0;
+    }
+
+    return 0;
+  }
+
+  /// Число из «сырого» фрагмента состава: пробелы и точки-разделители
+  /// тысяч («1 200 000 МЕ», «4.000.000 ME»), запятая — десятичный
+  /// разделитель («200,0 мг»).
+  static double? _parseLooseNumber(String raw) {
+    var s = raw.trim();
+    if (s.isEmpty) return null;
+    s = s.replaceAll(' ', '');
+    if ('.'.allMatches(s).length > 1) s = s.replaceAll('.', '');
+    s = s.replaceAll(',', '.');
+    return double.tryParse(s);
+  }
+
+  /// ⚠ Фикс VV-060 (ревью 27.11.2026): МЕ-концентрация вещества из
+  /// состава. Реестровые составы пишут её кто как горазд: латиницей
+  /// («30000 ME»), кириллицей («10000 МЕ»), развёрнуто («100000
+  /// международных единиц (ME)») и с разделителями тысяч («4.000.000 ME
+  /// колистина сульфата», «1 200 000 МЕ»). Как и в мг-ветке, единица
+  /// ПЕРВОГО числа после (или перед) названием вещества решает всё:
+  /// мг-числа чужих веществ сюда не попадают. 0 — МЕ-концентрации нет.
+  static double parseMeConcentrationForSubstance(
+      String composition, String inn) {
+    if (composition.isEmpty || inn.isEmpty) return 0;
+
+    final lower = composition.toLowerCase();
+    final innLower = inn.toLowerCase().trim();
+
+    // Экранированное МНН + левая граница слова (не \b — см. докблок выше).
+    final escapedInn = RegExp.escape(innLower);
+    const wordStart = r'(?:^|[^a-zа-яё0-9])';
+
     final patterns = [
-      RegExp('$wordStart$escapedInn[^.]*?(\\d+(?:[.,]\\d+)?)\\s*мг'),
-      RegExp('(\\d+(?:[.,]\\d+)?)\\s*мг[^.]*?$wordStart$escapedInn'),
+      // «ретинола ацетат (витамин А) - 30000 ME» — число после вещества
+      RegExp(
+          '$wordStart$escapedInn[^.]*?(\\d[\\d\\s.,]*?)\\s*($_unitToken)'),
+      // «4.000.000 ME колистина сульфата» — число перед веществом
+      RegExp(
+          '(\\d[\\d\\s.,]*?)\\s*($_unitToken)[^.]*?$wordStart$escapedInn'),
     ];
 
     for (final pattern in patterns) {
       final match = pattern.firstMatch(lower);
       if (match != null) {
-        return double.tryParse(match.group(1)!.replaceAll(',', '.')) ?? 0;
+        // Первое число несёт МГ/МКГ — МЕ-концентрации у вещества нет:
+        // «пропранолол - 50 мг, окситоцин - 30 ME» — для пропранолола
+        // 50 мг не является МЕ-концентрацией.
+        final unit = match.group(2)!;
+        if (unit == 'мг' || unit == 'мкг') continue;
+        final value = _parseLooseNumber(match.group(1)!);
+        if (value != null && value > 0) return value;
       }
     }
 
@@ -164,7 +238,14 @@ class ConcentrationParser {
     if (lower.contains('мг/табл') || lower.contains('мг в таблетке')) {
       return 'мг/таб';
     }
-    if (lower.contains('ме/мл') || lower.contains('ме в 1 мл')) {
+    // ⚠ Фикс VV-061 (ревью 27.11.2026): МЕ пишут и латиницей, и с
+    // пробелами — «ME/мл», «IU/ml», «ЕД/мл», «ME в 1 мл». Раньше
+    // матчились только кириллические «ме/мл»/«ме в 1 мл» — латиница
+    // давала пустой ярлык (в реестре составы витаминов сплошь «ME»).
+    if (lower.contains('ме/мл') ||
+        lower.contains('ме в 1 мл') ||
+        RegExp(r'(?:ме|me|iu|ед)\s*[/\\]\s*(?:мл|ml)').hasMatch(lower) ||
+        RegExp(r'(?:ме|me|iu|ед)\s+в\s+1\s+мл').hasMatch(lower)) {
       return 'МЕ/мл';
     }
 

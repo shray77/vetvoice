@@ -847,11 +847,12 @@ class VetProvider {
     }
 
     double concentration = 0;
+    double concentrationMe = 0;
     String concentrationUnit = 'мг/мл';
 
     if (drug.composition.isNotEmpty) {
       concentration = ConcentrationParser.parseConcentrationForSubstance(
-        drug.composition, innList.first);
+          drug.composition, innList.first);
       concentrationUnit = ConcentrationParser.getConcentrationUnit(drug.composition);
 
       if (concentration == 0) {
@@ -860,22 +861,54 @@ class VetProvider {
           concentration = parsed.values.first;
         }
       }
+
+      // ⚠ Фикс VV-060 (ревью 27.11.2026): МЕ-концентрация собственного
+      // вещества — отдельным вызовом, единицы смешивать нельзя.
+      concentrationMe = ConcentrationParser.parseMeConcentrationForSubstance(
+          drug.composition, innList.first);
     }
 
     if (concentration == 0 && drug.dosage.isNotEmpty) {
       concentration = ConcentrationParser.parseFromDosageField(drug.dosage);
     }
 
-    if (_weight > 0 && (concentration > 0 || animalDosage.doseMlKg > 0)) {
+    // ⚠ Фикс VV-062 (ревью 27.11.2026): МЕ-доза (эритропоэтин, ретинол,
+    // холекальциферол — 6 реестровых записей) делится ТОЛЬКО на
+    // МЕ-концентрацию. Раньше doseValue честно возвращала МЕ/кг, а делили
+    // её на первую попавшуюся мг/мл из состава (Тривит: ретинол 500 МЕ/кг
+    // × 10 кг ÷ «20 мг» витамина Е = 250 «мл» мусора). МЕ-доза без
+    // МЕ-концентрации уходит в честную карточку «по инструкции» ниже —
+    // паттерн Task 194, а не численный мусор.
+    final bool meDose = animalDosage.doseIuKg > 0;
+    final bool meDoseWithoutMeConc = meDose && concentrationMe <= 0;
+    final bool mgDose =
+        animalDosage.doseMgKg > 0 || animalDosage.doseMcgKg > 0;
+    // Блок обязан ПОСЧИТАТЬ объём — иначе карточка напечатает «0.000 мл»
+    // при hasDosage=true (полевой репорт Task 194: окситоцин на КРС,
+    // мг-доза при концентрации только в МЕ/ЕД).
+    final bool calculable = animalDosage.doseMlKg > 0 ||
+        (meDose && concentrationMe > 0) ||
+        (mgDose && concentration > 0);
+
+    if (_weight > 0 && !meDoseWithoutMeConc && calculable) {
       double volumeMl = 0;
       String note = '';
 
       if (animalDosage.doseMlKg > 0) {
         volumeMl = animalDosage.doseMlKg * _weight;
         note = '${animalDosage.doseMlKg} мл/кг';
+      } else if (meDose) {
+        volumeMl = (animalDosage.doseIuKg * _weight) / concentrationMe;
+        note =
+            '${animalDosage.formattedDose} × ${_weight.toStringAsFixed(1)} кг ÷ $concentrationMe МЕ/мл';
       } else if (concentration > 0) {
-        final doseMg = animalDosage.doseValue * _weight;
-        volumeMl = doseMg / concentration;
+        // ⚠ Фикс VV-066 (ревью 27.11.2026): мкг-доза (дарбэпоэтин
+        // 1 мкг/кг) переводится в мг до деления на мг/мл — иначе передоз
+        // ×1000 (реестровый аналог VV-001 калькуляторной ветки).
+        final double doseMgKg = animalDosage.doseMgKg > 0
+            ? animalDosage.doseMgKg
+            : animalDosage.doseMcgKg / 1000;
+        volumeMl = (doseMgKg * _weight) / concentration;
         note = '${animalDosage.formattedDose} × ${_weight.toStringAsFixed(1)} кг ÷ $concentration $concentrationUnit';
       }
 
@@ -911,6 +944,11 @@ class VetProvider {
     // возвращали volume=0 с hasDosage=true, и карточка печатала огромное
     // зелёное «0.000 мл» на любом весе (полевой репорт: окситоцин на КРС).
     // Честный результат — инфо-карточка «по инструкции» с дозой из реестра.
+    // ⚠ Фикс VV-062 (ревью 27.11.2026): сюда же честно уходит МЕ-доза без
+    // МЕ-концентрации в составе.
+    final meHint = meDoseWithoutMeConc
+        ? '⚠ Концентрация в МЕ не найдена в составе — рассчитайте объём по инструкции.\n'
+        : '';
     return DoseResult(
       drugName: drug.tradeName,
       drugForm: drug.form,
@@ -919,7 +957,7 @@ class VetProvider {
       hasDosage: false,
       hasResult: true,
       registryDrug: drug,
-      note: 'Дозировка: ${animalDosage.formattedDose}\n${animalDosage.notes}\n\n${drug.indications}',
+      note: 'Дозировка: ${animalDosage.formattedDose}\n$meHint${animalDosage.notes}\n\n${drug.indications}',
       contraindications: contraText.isNotEmpty ? [contraText] : [],
     );
   }
@@ -975,6 +1013,29 @@ class VetProvider {
     final drug = _selectedCalcDrug;
     if (drug == null || _weight <= 0) return;
 
+    // ⚠ Фикс VV-064 (ревью 27.11.2026): слайдер делил МЕ-дозу на мг/мл
+    // (Акваколистин: 50 000 МЕ/кг × 6,6 кг ÷ 127 мг/мл ≈ 2600 «мл») —
+    // смотрел только на ТОПОВУЮ единицу препарата и при МЕ-ветке без
+    // concentrationMe проваливался в массовую. Теперь диспетчеризация та
+    // же, что в CalcDrug.calculateDose: решает ЭФФЕКТИВНАЯ единица —
+    // единица выбранного вида важнее топовой; МЕ без МЕ-концентрации —
+    // честный 0, не мг/мл-мусор.
+    final animalName = selectedAnimal?.name ?? '';
+    AnimalSpecificDose? animalDose = drug.animalSpecific[animalName];
+    if (animalDose == null) {
+      for (final e in drug.animalSpecific.entries) {
+        if (e.key.toLowerCase() == animalName.toLowerCase()) {
+          animalDose = e.value;
+          break;
+        }
+      }
+    }
+    final effectiveUnit =
+        (animalDose != null && animalDose.doseUnit.isNotEmpty)
+            ? animalDose.doseUnit
+            : drug.doseUnit;
+    final unitUpper = effectiveUnit.toUpperCase();
+
     double volume = 0;
     // ⚠ Фикс S-2 (Task 183): ручная корректировка дозы обязана повторять
     // ветвление CalcDrug.calculateDose — объёмная доза (мл/кг) НЕ делится
@@ -983,13 +1044,20 @@ class VetProvider {
     // ⚠ Фикс VV-001/VV-008 (ревью 26.11.2026): и единицы тоже — мкг/кг
     // (÷1000 перед делением на мг/мл), МЕ (÷concentrationMe), иначе —
     // честный 0 без мусора.
-    final unitUpper = drug.doseUnit.toUpperCase();
-    if (unitUpper.contains('МЕ') && drug.concentrationMe > 0) {
-      volume = (customDosePerKg * _weight) / drug.concentrationMe;
-    } else if (drug.doseUnit.contains('мл/кг')) {
-      volume = customDosePerKg * _weight;
-    } else if (drug.doseUnit.contains('мл/животное')) {
+    // ⚠ Фикс VV-007 (ревью 26.11.2026): доза на кг КОРМА — объёма не
+    // существует, норму задают по потреблению корма.
+    if (effectiveUnit.contains('корма')) {
+      volume = 0;
+    } else if (unitUpper.contains('МЕ')) {
+      if (drug.concentrationMe > 0) {
+        volume = effectiveUnit.contains('животное')
+            ? customDosePerKg / drug.concentrationMe
+            : (customDosePerKg * _weight) / drug.concentrationMe;
+      } // нет МЕ-концентрации → честный 0, не мг/мл
+    } else if (effectiveUnit.contains('мл/животное')) {
       volume = customDosePerKg; // фикс на животное — вес не умножается
+    } else if (effectiveUnit.contains('мл/кг')) {
+      volume = customDosePerKg * _weight;
     } else if (drug.concentration > 0) {
       final double doseMgPerKg =
           unitUpper.contains('МКГ') ? customDosePerKg / 1000 : customDosePerKg;

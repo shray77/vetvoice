@@ -74,7 +74,11 @@ class AnimalSpecificDose {
       return '${_formatMe(doseMePerKg)} МЕ/кг';
     }
     if (hasRange) {
-      return '$doseMin-$doseMax мг/кг';
+      // ⚠ Фикс VV-063 (ревью 27.11.2026): у 56 видовых записей базы
+      // МЕ-диапазон лежит в dose_min/dose_max при dose_unit='МЕ/кг'
+      // (Пульмосол® С, КРС: 25000-100000) — хардкод «мг/кг» врал
+      // единицей. Показываем фактическую единицу записи.
+      return '$doseMin-$doseMax $doseUnit';
     }
     return '$dosePerKg $doseUnit';
   }
@@ -111,6 +115,12 @@ class CalcDrug {
   
   /// Концентрация в МЕ (международные единицы) - для колистина, витаминов
   final double concentrationMe; // МЕ/мл или МЕ/г
+
+  /// ⚠ Фикс VV-065 (ревью 27.11.2026): сырая строка МЕ-концентрации,
+  /// если concentration_me в базе — НЕ число (паттерн S-1 для
+  /// concentration). Расчёт через неё невозможен (concentrationMe=0),
+  /// строка хранится для диагностики данных. Сейчас таких записей 0.
+  final String? concentrationMeText;
   final String method;
   final String frequency;
   final String courseDays;
@@ -152,6 +162,7 @@ class CalcDrug {
     required this.doseUnit,
     required this.animals,
     this.concentrationMe = 0,
+    this.concentrationMeText,
     required this.method,
     this.frequency = '',
     this.courseDays = '',
@@ -199,7 +210,18 @@ class CalcDrug {
     final double concentrationRaw = concJson is num ? concJson.toDouble() : 0.0;
     final String? concentrationTextValue = concJson is String ? concJson : null;
     final concentrationUnit = json['concentration_unit'] as String? ?? 'мг/мл';
-    final concentrationMeRaw = (json['concentration_me'] as num?)?.toDouble() ?? 0;
+
+    // ⚠ Фикс VV-065 (ревью 27.11.2026): жёсткий каст `as num?` ронял
+    // запись ЦЕЛИКОМ при строковом concentration_me — per-item catch в
+    // CalcDrugDatabase.fromJson глотал препарат (мина того же класса,
+    // что S-1 для concentration). Сейчас строковых concentration_me в
+    // базе 0, но паттерн обязателен: число — в расчёт, строка — 0 +
+    // сырой текст в concentrationMeText для диагностики.
+    final concMeJson = json['concentration_me'];
+    final double concentrationMeRaw =
+        concMeJson is num ? concMeJson.toDouble() : 0;
+    final String? concentrationMeTextValue =
+        concMeJson is String ? concMeJson : null;
 
     // ⚠ Фикс B-4: если concentration_unit содержит "МЕ" (международные единицы),
     // но в JSON concentration_me не задан — значение в поле concentration
@@ -234,6 +256,7 @@ class CalcDrug {
       doseUnit: json['dose_unit'] as String? ?? 'мг/кг',
       animals: (json['animals'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       concentrationMe: concentrationMe,
+      concentrationMeText: concentrationMeTextValue,
       method: json['method'] as String? ?? '',
       frequency: json['frequency'] as String? ?? '',
       courseDays: json['course_days'] as String? ?? '',
