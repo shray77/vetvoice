@@ -164,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showAboutDialog(
                 context: context,
                 applicationName: 'VetVoice AI',
-                applicationVersion: '1.25.0',
+                applicationVersion: '1.26.0',
                 applicationLegalese: '© 2026 VetVoice · информационный сервис «как есть», не ветеринарная консультация',
                 children: [
                   const SizedBox(height: 16),

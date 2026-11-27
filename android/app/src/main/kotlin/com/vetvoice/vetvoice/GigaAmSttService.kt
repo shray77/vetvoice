@@ -173,7 +173,9 @@ class GigaAmSttService(private val context: Context) {
             Log.d(TAG, "Download already running, ignore")
             return
         }
-        setState(State.LOADING, "Скачивание модели")
+        // Task 260: честный размер СРАЗУ, не после прихода Content-Length —
+        // юзер видит «216 МБ, один раз» и не пугается.
+        setState(State.LOADING, "Загружаем офлайн-модель (~216 МБ, один раз)")
         downloadJob = scope.launch {
             try {
                 val dir = File(context.filesDir, MODEL_DIR_NAME)
@@ -195,7 +197,12 @@ class GigaAmSttService(private val context: Context) {
                     setState(State.READY)
                 }
             } catch (e: CancellationException) {
-                Log.w(TAG, "Download cancelled")
+                // Task 260: недокачанный gigaam-model.zip.tmp СОХРАНЯЕМ — это
+                // данные докачки (полевой репорт v1.16.3: на медленной сети
+                // стирание файла = «модель никогда не докачается»). Мусор после
+                // обрыва чистится кнопкой «Удалить модель», при несовпадении
+                // SHA-256 файл удалится сам, при успехе — удаляется в finally-пути.
+                Log.w(TAG, "Download cancelled — partial zip kept for resume")
             } catch (t: Throwable) {
                 reportError("Ошибка загрузки модели GigaAM: ${t.message ?: t.javaClass.simpleName}")
             }
@@ -349,6 +356,32 @@ class GigaAmSttService(private val context: Context) {
         frontendSession = null
         encoderSession = null
         setState(State.IDLE)
+    }
+
+    /**
+     * v1.26.0 (Task 260): удалить модель и недокачанный zip с диска —
+     * кнопка «Удалить модель» в настройках (освободить ~440 МБ).
+     * Останавливает загрузку/запись, закрывает ORT-сессии, чистит
+     * каталог модели и gigaam-model.zip.tmp, сбрасывает версию в prefs.
+     */
+    fun deleteModel() {
+        stopRequested = true
+        downloadJob?.cancel()
+        recordJob?.cancel()
+        try {
+            frontendSession?.close()
+            encoderSession?.close()
+        } catch (t: Throwable) {
+            Log.w(TAG, "ORT close on deleteModel: ${t.message}")
+        }
+        frontendSession = null
+        encoderSession = null
+        val dir = File(context.filesDir, MODEL_DIR_NAME)
+        dir.deleteRecursively()
+        File(context.filesDir, "gigaam-model.zip.tmp").delete()
+        prefs.edit().remove(MODEL_VERSION_KEY).apply()
+        setState(State.IDLE)
+        Log.i(TAG, "Model deleted (dir + tmp zip)")
     }
 
     // ===== Транскрипция =====

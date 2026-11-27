@@ -97,6 +97,34 @@ class _GigaAmStatusBarState extends State<GigaAmStatusBar> {
     if (mounted) setState(() {});
   }
 
+  /// Task 260: подтверждение удаления модели GigaAM (~440 МБ).
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удалить модель GigaAM?'),
+        content: const Text(
+          'Освободит ~440 МБ. Голосовой ввод уйдёт на системный движок '
+          '(интернет); модель можно скачать заново (~216 МБ).',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      AppHaptics.select();
+      await _service.deleteModel();
+    }
+  }
+
   @override
   void dispose() {
     _sub1?.cancel();
@@ -162,8 +190,15 @@ class _GigaAmStatusBarState extends State<GigaAmStatusBar> {
                   },
                   child: const Text('Загрузить'),
                 )
-              else
+              else ...[
                 Icon(Icons.check_circle, color: accent, size: 22),
+                // Task 260: «Удалить модель» — освободить ~440 МБ;
+                // повторная загрузка по кнопке «Загрузить» (~216 МБ).
+                TextButton(
+                  onPressed: () => _confirmDelete(context),
+                  child: const Text('Удалить'),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 4),
@@ -197,8 +232,12 @@ class _GigaAmStatusBarState extends State<GigaAmStatusBar> {
               style: TextStyle(fontSize: 14, color: AppTheme.textPrimary),
             ),
             subtitle: Text(
+              // Task 260: движок включён по умолчанию, но модель ещё не
+              // скачана — честно говорим, что работает системный движок.
               _service.isEnabled
-                  ? 'Голосовой ввод идёт офлайн; при сбое — системный движок'
+                  ? (_service.isReady
+                      ? 'Голосовой ввод идёт офлайн; при сбое — системный движок'
+                      : 'Модель ещё не скачана — пока работает системный движок')
                   : 'Выключено: используется системный движок + интернет',
               style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
             ),

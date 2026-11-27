@@ -98,6 +98,33 @@ class _VoiceStatusBarState extends State<VoiceStatusBar> {
     if (mounted) setState(() {});
   }
 
+  /// Task 260: подтверждение удаления модели Vosk (~44 МБ).
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удалить модель Vosk?'),
+        content: const Text(
+          'Освободит ~44 МБ. Wake word «ВетВойс» перестанет работать '
+          'без интернета до повторной загрузки модели.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _service.deleteModel();
+    }
+  }
+
   @override
   void dispose() {
     _sub1?.cancel();
@@ -156,8 +183,15 @@ class _VoiceStatusBarState extends State<VoiceStatusBar> {
                   onPressed: () => _service.initialize(),
                   child: const Text('Загрузить'),
                 )
-              else
+              else ...[
                 Icon(Icons.check_circle, color: accent, size: 22),
+                // Task 260: «Удалить модель» (~44 МБ) — wake word снова
+                // заработает после повторной загрузки.
+                TextButton(
+                  onPressed: () => _confirmDelete(context),
+                  child: const Text('Удалить'),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 4),

@@ -54,6 +54,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Task 260 (ревью 27.11.2026): APK собирался с нативными либами всех
+    // ABI сразу (arm64-v8a + armeabi-v7a + x86 + x86_64 из vosk/onnxruntime
+    // AAR) — 163 МБ. Телефонам достаточно arm: per-ABI APK выходит ~80 МБ.
+    // Сплит включаем ТОЛЬКО на release-задачах — debug на x86-эмуляторе
+    // остаётся универсальным (одна сборка на все среды).
+    splits {
+        abi {
+            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a'
+            universalApk false
+        }
+    }
 }
 
 flutter {

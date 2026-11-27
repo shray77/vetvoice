@@ -72,6 +72,11 @@ class MainActivity : FlutterActivity() {
                     voskService?.dispose()
                     result.success(null)
                 }
+                "deleteModel" -> {
+                    // Task 260: кнопка «Удалить модель» в настройках (~44 МБ)
+                    voskService?.deleteModel()
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }
@@ -152,6 +157,11 @@ class MainActivity : FlutterActivity() {
                 }
                 "dispose" -> {
                     gigaAmService?.dispose()
+                    result.success(null)
+                }
+                "deleteModel" -> {
+                    // Task 260: кнопка «Удалить модель» в настройках (~440 МБ)
+                    gigaAmService?.deleteModel()
                     result.success(null)
                 }
                 else -> result.notImplemented()

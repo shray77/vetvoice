@@ -304,6 +304,27 @@ class VoskWakeWordService(private val context: Context) {
     }
 
     /**
+     * v1.26.0 (Task 260): удалить модель Vosk и недокачанный zip (~44 МБ) —
+     * кнопка «Удалить модель» в настройках. Останавливает прослушивание и
+     * загрузку, закрывает recognizer/model, чистит каталог модели и
+     * vosk-model.zip из cacheDir. Синглтон scope НЕ отменяем (в отличие от
+     * dispose): сервис живёт дальше, модель можно скачать заново.
+     */
+    fun deleteModel() {
+        stopListening()
+        downloadJob?.cancel()
+        try { voskRecognizer?.close() } catch (_: Throwable) {}
+        voskRecognizer = null
+        try { voskModel?.close() } catch (_: Throwable) {}
+        voskModel = null
+        File(context.filesDir, MODEL_DIR_NAME).deleteRecursively()
+        File(context.cacheDir, "vosk-model.zip").delete()
+        prefs.edit().remove(MODEL_VERSION_KEY).apply()
+        setState(State.IDLE, "")
+        Log.i(TAG, "Vosk model deleted (dir + tmp zip)")
+    }
+
+    /**
      * v1.16.4: единый резолвер корня модели. Официальный ZIP
      * vosk-model-small-ru-0.22.zip НЕ содержит папки model/ — внутри сразу
      * vosk-model-small-ru-0.22/[am,conf,graph]. После strip-распаковки

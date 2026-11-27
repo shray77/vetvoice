@@ -310,6 +310,22 @@ class WakeWordService {
     }
   }
 
+  /// v1.26.0 (Task 260): удалить модель Vosk с диска (кнопка «Удалить
+  /// модель» в настройках — ~44 МБ). Натив останавливает прослушивание и
+  /// загрузку, чистит каталог модели и vosk-model.zip из cacheDir.
+  Future<bool> deleteModel() async {
+    try {
+      await _channel.invokeMethod('deleteModel');
+      _isModelLoading = false;
+      _isInitialized = false;
+      _handleStateChanged('IDLE', '');
+      return true;
+    } catch (e) {
+      debugPrint('⚠️ [Dart] WakeWord deleteModel failed: $e');
+      return false;
+    }
+  }
+
   /// Останавливает прослушивание, но НЕ закрывает StreamController'ы,
   /// т.к. это синглтон — закрытые стримы больше нельзя использовать.
   /// Нативный VoskService живёт пока жива Activity.

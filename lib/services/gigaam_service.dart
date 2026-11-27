@@ -94,7 +94,11 @@ class GigaAmService {
   Future<void> _loadEnabled() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _enabled = prefs.getBool('use_gigaam_engine') ?? false;
+      // v1.26.0 (Task 260): дефолт true — GigaAM основной движок (решение
+      // 27.11.2026: Vosk — только wake word). Первый запуск: флаг включён,
+      // модель ещё не скачана → shouldUseForRecognition ложно → честный
+      // фолбэк на системный STT, пока юзер не нажмёт «Загрузить».
+      _enabled = prefs.getBool('use_gigaam_engine') ?? true;
     } catch (e) {
       debugPrint('⚠️ [Dart] GigaAM prefs load failed: $e');
     }
@@ -253,6 +257,21 @@ class GigaAmService {
     try {
       return await _channel.invokeMethod<bool>('isModelDownloaded') ?? false;
     } catch (e) {
+      return false;
+    }
+  }
+
+  /// v1.26.0 (Task 260): удалить модель с диска (кнопка «Удалить модель»
+  /// в настройках — освободить ~440 МБ). Натив чистит каталог модели и
+  /// недокачанный gigaam-model.zip.tmp; состояние → IDLE, и кнопка
+  /// «Загрузить» появляется снова.
+  Future<bool> deleteModel() async {
+    try {
+      await _channel.invokeMethod('deleteModel');
+      _handleStateChanged(stateIdle, '');
+      return true;
+    } catch (e) {
+      debugPrint('⚠️ [Dart] GigaAM deleteModel failed: $e');
       return false;
     }
   }

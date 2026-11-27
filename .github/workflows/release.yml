@@ -95,7 +95,12 @@ jobs:
         run: |
           VERSION="${{ steps.tag.outputs.tag }}"
           mkdir -p artifacts
-          cp build/app/outputs/flutter-apk/app-release.apk "artifacts/vetvoice-${VERSION}.apk"
+          # Task 260: ABI-split release (arm64-v8a + armeabi-v7a) — единого
+          # app-release.apk больше не существует, собираем артефакт на каждый ABI.
+          for APK in build/app/outputs/flutter-apk/app-*-release.apk; do
+            ABI="$(basename "$APK" .apk | sed 's/^app-//')"
+            cp "$APK" "artifacts/vetvoice-${VERSION}-${ABI}.apk"
+          done
           if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
             cp build/app/outputs/bundle/release/app-release.aab "artifacts/vetvoice-${VERSION}.aab"
           fi
