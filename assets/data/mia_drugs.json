@@ -1,6 +1,6 @@
 {
  "version": "1.0",
- "db_version": "7.6",
+ "db_version": "7.7",
  "source": "WHO List of Medically Important Antimicrobials, 2024",
  "generated_by": "scripts/mia_gate.py",
  "drugs": {
@@ -3819,6 +3819,66 @@
    "c": [
     "quinolones",
     "nitroimidazoles"
+   ]
+  },
+  "2402": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2404": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2412": {
+   "c": [
+    "macrolides"
+   ]
+  },
+  "2414": {
+   "c": [
+    "quinolones"
+   ]
+  },
+  "2418": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2419": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2420": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2421": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2425": {
+   "c": [
+    "ionophores"
+   ]
+  },
+  "2428": {
+   "c": [
+    "pen_amino"
+   ]
+  },
+  "2429": {
+   "c": [
+    "amphenicols"
+   ]
+  },
+  "2430": {
+   "c": [
+    "ionophores"
    ]
   }
  }
