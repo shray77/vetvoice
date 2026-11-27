@@ -80,7 +80,11 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build apk --release --no-tree-shake-icons
+        # Task 260 fix-forward: build.gradle включает ABI-split (arm64/armv7,
+        # universalApk false), поэтому без --split-per-abi Flutter CLI ищет
+        # единый app-release.apk и падает «Gradle build failed to produce an .apk».
+        # Флаг говорит тулчейну ждать split-выходы app-*-release.apk.
+        run: flutter build apk --release --split-per-abi --no-tree-shake-icons
 
       - name: Build AAB
         env:
@@ -133,15 +137,18 @@ jobs:
             ## VetVoice AI ${{ steps.tag.outputs.tag }}
 
             ### Installation
-            1. Download `vetvoice-${{ steps.tag.outputs.tag }}.apk`
-            2. Allow installation from unknown sources
-            3. Install APK
+            Download the APK for your device architecture:
+
+            - `vetvoice-${{ steps.tag.outputs.tag }}-arm64-v8a-release.apk` — most modern Android phones;
+            - `vetvoice-${{ steps.tag.outputs.tag }}-armeabi-v7a-release.apk` — older 32-bit devices.
+
+            Allow installation from unknown sources, then install the downloaded APK.
+            Do not install both — they are the same app for different CPUs.
 
             ### What's new
-            - 2401 drugs (drugs_calc v7.6)
-            - 617 vaccines with vaccine_specific
-            - Sprint 1: VaccineCard, favorites, history, dark theme, color coding
-            - Sprint 2: symptom search, treatment protocols, interactions, withdrawal
-            - Vosk offline STT (Russian model 50 MB)
+            - 3838 drugs with doses, withdrawal periods and interactions
+            - Offline voice recognition with GigaAM (downloads ~216 MB once)
+            - Wake word «ВетВойс» via Vosk
+            - Split APKs: ~80 MB per architecture instead of one 163 MB fat APK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
