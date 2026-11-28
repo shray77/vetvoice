@@ -231,12 +231,24 @@ class CalcDrug {
     // у которых ранее (доза мг/кг × вес) / concentration_МЕ = численный мусор.
     // (S-1: строковые концентрации в перенос не участвуют — там числового
     // значения нет вовсе, concentrationRaw=0.)
+    //
+    // ⚠ Фикс VV-067 (сверка с vetvoice-data-canonical, Task 263): единица
+    // объявила МЕ — массовой концентрации в записи НЕТ, при любом сочетании
+    // с concentration_me. Раньше при me>0 и conc>0 масс-ветка делила мг-дозу
+    // на МЕ-число как на мг/мл (Утеротон® Форте: 0.5 мг/кг × 10 кг ÷ «50»
+    // = 0.1 «мл»; Витамин А масляный: 0.2 × 10 ÷ 100000 = 2e-5 «мл»).
+    // Заодно: percent-концентрации («АвиБлю 17.8 % тиосульфата» = 178 мг/мл)
+    // тоже не мг/мл — деление на них давало ×10 передоз.
     double concentration = concentrationRaw;
     double concentrationMe = concentrationMeRaw;
-    if (concentrationUnit.toUpperCase().contains('МЕ') &&
-        concentrationMe == 0 &&
-        concentrationRaw > 0) {
-      concentrationMe = concentrationRaw;
+    final bool unitDeclaresMe = RegExp('(?:ме|me|iu|ед)', caseSensitive: false)
+        .hasMatch(concentrationUnit);
+    if (unitDeclaresMe) {
+      if (concentrationMe == 0 && concentrationRaw > 0) {
+        concentrationMe = concentrationRaw;
+      }
+      concentration = 0;
+    } else if (concentrationUnit.contains('%')) {
       concentration = 0;
     }
 
@@ -380,6 +392,19 @@ class CalcDrug {
         displayText: 'Рассчитайте по инструкции',
         volumeMl: 0,
         note: 'Доза указана на кг корма — норму задают по потреблению корма',
+      );
+    }
+
+    // ⚠ Фикс VV-067 (сверка с vetvoice-data-canonical, Task 263): у
+    // fixed-записей встречается остаточный dose_per_kg (Чистотел пудра:
+    // unit fixed, per_kg 10, conc 4) — масс-ветка считала по нему мусор.
+    // Фиксированная доза живёт в fixed_dose по видам, не в per-кг полях.
+    if (effectiveUnit.trim().toLowerCase() == 'fixed') {
+      return DoseCalculation(
+        type: DoseType.unknown,
+        displayText: 'Рассчитайте по инструкции',
+        volumeMl: 0,
+        note: 'Фиксированная доза — см. инструкцию',
       );
     }
 

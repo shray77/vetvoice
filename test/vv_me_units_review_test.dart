@@ -316,4 +316,78 @@ void main() {
       expect(db.drugs.single.concentrationMeText, '1000 МЕ/мл');
     });
   });
+
+  group('VV-067 (сверка с vetvoice-data-canonical, Task 263)', () {
+    // Сверка канонического слоя с расчётом приложения нашла классы, где
+    // приложение делило мг-дозы на числа, которые массовыми концентрациями
+    // не являются.
+    CalcDrug make({
+      required double conc,
+      required String unit,
+      double me = 0,
+      String doseUnit = 'мг/кг',
+      double dose = 1,
+    }) =>
+        CalcDrug.fromJson({
+          'id': 4242,
+          'name': 'Тест VV-067',
+          'inn': 'тест',
+          'form': 'раствор',
+          'concentration': conc,
+          'concentration_unit': unit,
+          'concentration_me': me,
+          'dose_per_kg': dose,
+          'dose_unit': doseUnit,
+        });
+
+    test('МЕ-лейбл + me>0: мг-доза не делится на МЕ-число (Утеротон-класс)', () {
+      // Утеротон® Форте #226: conc 50 «МЕ/мл», me 30, доза 0.5 мг/кг.
+      // Раньше: 0.5 × 10 ÷ 50 = 0.1 «мл» мусора.
+      final drug = make(conc: 50, unit: 'МЕ/мл', me: 30, dose: 0.5);
+      expect(drug.concentration, 0,
+          reason: 'единица объявила МЕ — массовой концентрации нет');
+      expect(drug.concentrationMe, 30, reason: 'ME-поле живёт своим числом');
+      final result = drug.calculateDose(10, 'Кошки');
+      expect(result.type, DoseType.unknown);
+    });
+
+    test('МЕ-лейбл + me==0: B-4 перенос работает как раньше', () {
+      final drug = make(conc: 10, unit: 'МЕ/мл', dose: 10, doseUnit: 'МЕ/кг');
+      expect(drug.concentration, 0);
+      expect(drug.concentrationMe, 10);
+      final result = drug.calculateDose(10, 'Собаки');
+      expect(result.type, DoseType.calculated);
+      expect(result.volumeMl, closeTo(10, 1e-9)); // 10 МЕ/кг × 10 ÷ 10 МЕ/мл
+    });
+
+    test('percent-концентрация не делится как мг/мл (АвиБлю-класс)', () {
+      // АвиБлю #2251: conc 17.8 «% (тиосульфат натрия)» — это 178 мг/мл,
+      // а не 17.8; деление давало ×10 передоз.
+      final drug = make(conc: 17.8, unit: '% (тиосульфат натрия)', dose: 12);
+      expect(drug.concentration, 0);
+      final result = drug.calculateDose(10, 'Птица');
+      expect(result.type, DoseType.unknown);
+    });
+
+    test('fixed-запись с остаточным per_kg не считает мусор (Чистотел-класс)', () {
+      // Чистотел пудра #1465: unit fixed, dose_per_kg 10, conc 4 мг/мл.
+      final drug = make(conc: 4, unit: 'мг/мл', dose: 10, doseUnit: 'fixed');
+      final result = drug.calculateDose(10, 'Свиньи');
+      expect(result.type, DoseType.unknown);
+      expect(result.volumeMl, 0);
+    });
+
+    test('реальная база: Утеротон #226 и Витамин А #587 больше не делят мг на МЕ', () {
+      final uteroton = byId(226);
+      expect(uteroton.concentration, 0,
+          reason: 'Утеротон: unit МЕ/мл при me=30 — масса не определена');
+      expect(uteroton.concentrationMe, 30);
+      expect(uteroton.calculateDose(10, 'Кошки').type, DoseType.unknown);
+
+      final vitaminA = byId(587);
+      expect(vitaminA.concentration, 0,
+          reason: 'Витамин А: conc=me=100000 под МЕ-лейблом — массы нет');
+      expect(vitaminA.calculateDose(10, 'Собаки').type, DoseType.unknown);
+    });
+  });
 }
